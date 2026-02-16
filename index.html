@@ -1626,7 +1626,7 @@ function renderChecklistRound(){
 
   const btn = $("btnCheckChecklist");
   if (btn){
-    btn.disabled = false;
+    btn.disabled = true;
     btn.onclick = ()=>evaluateChecklist();
   }
 }
@@ -1643,6 +1643,9 @@ function toggleCheck(i, btnEl){
   }
   const instr = $("checkInstr");
   if (instr) instr.textContent = `Elige los 3 imprescindibles antes de empezar. (${checkSelected.length}/3)`;
+
+  const btn = $("btnCheckChecklist");
+  if (btn) btn.disabled = (checkSelected.length !== 3);
 }
 
 function evaluateChecklist(){
@@ -2901,9 +2904,10 @@ const MP = {
 function isConfiguredFirebase(){
   // evita ReferenceError si alguien renombra la constante por accidente
   try{
-    return (typeof FIREBASE_CONFIG !== "undefined")
-      && FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey
-      && !String(FIREBASE_CONFIG.apiKey).includes("REEMPLAZA");
+    const cfg = (typeof FIREBASE_CONFIG !== "undefined") ? FIREBASE_CONFIG : null;
+    return !!(cfg
+      && cfg.apiKey && !String(cfg.apiKey).includes("REEMPLAZA")
+      && cfg.databaseURL && !String(cfg.databaseURL).includes("REEMPLAZA"));
   }catch(e){ return false; }
 }
 
@@ -2916,7 +2920,10 @@ function showSessionUI(){
   const modeSel = $("sessionMode");
   MP.mode = modeSel ? modeSel.value : "local";
 
-  if (MP.mode === "host"){
+  
+  const gmSel = $("gameMode");
+  const limitNote = $("sessionLimitNote");
+if (MP.mode === "host"){
     show("hostWrap"); hide("joinWrap");
     // Sala → solo Kahoot por ahora (lo demás lo dejamos local)
     if ($("gameMode") && $("gameMode").value !== "quiz"){
@@ -2931,6 +2938,18 @@ function showSessionUI(){
     if ($("quizPaceWrap")) show("quizPaceWrap");
   } else {
     hide("hostWrap"); hide("joinWrap");
+  }
+
+  // En sala multijugador, por simplicidad solo soportamos Kahoot (quiz)
+  if (MP.mode === "host" || MP.mode === "join"){
+    if (gmSel){
+      gmSel.value = "quiz";
+      gmSel.disabled = true;
+    }
+    if (limitNote) show("sessionLimitNote");
+  } else {
+    if (gmSel) gmSel.disabled = false;
+    if (limitNote) hide("sessionLimitNote");
   }
 
   // aviso config
@@ -2969,51 +2988,68 @@ function renderRoomBox(){
     qrWrap.textContent = "—";
     return;
   }
+
+  const fallbackImg = ()=>{
+    try{
+      const img = new Image();
+      img.alt = "QR";
+      img.width = 132; img.height = 132;
+      img.referrerPolicy = "no-referrer";
+      img.src = "https://chart.googleapis.com/chart?cht=qr&chs=170x170&chld=L|1&chl=" + encodeURIComponent(link);
+      qrWrap.innerHTML = "";
+      qrWrap.appendChild(img);
+    }catch(_e){
+      qrWrap.textContent = "QR";
+    }
+  };
+
   try{
     if (typeof QRCode !== "undefined" && QRCode.toCanvas){
       const canvas = document.createElement("canvas");
       qrWrap.appendChild(canvas);
       QRCode.toCanvas(canvas, link, { width: 132, margin: 1 }, (err)=>{
-        if (err){
-          qrWrap.textContent = "QR";
-        }
+        if (err) fallbackImg();
       });
     } else {
-      qrWrap.textContent = "QR";
+      // Si la librería QR no carga (bloqueos de red), usa fallback
+      fallbackImg();
     }
   }catch(e){
-    qrWrap.textContent = "QR";
+    fallbackImg();
   }
 }
 
 async function mpCreateRoom(){
   if (!isConfiguredFirebase()){
-    alert("Falta configurar Firebase. Edita FIREBASE_CONFIG dentro del HTML.");
+    alert("Falta configurar Firebase. Revisa FIREBASE_CONFIG (incluye databaseURL) dentro del HTML.");
     return;
   }
-  const fb = await window.__getFirebase(FIREBASE_CONFIG);
-  const { db, ref, set, serverTimestamp, onDisconnect, remove } = fb;
-
-  const code = genRoomCode();
-  MP.room = code;
-  MP.started = false;
-  MP.roundId = "";
-
-  const roomRef = ref(db, `rooms/${code}`);
-  await set(roomRef, {
-    createdAt: serverTimestamp(),
-    status: "lobby",
-    title: document.title || "Juego PRL",
-  });
-
-  // limpieza al cerrar pestaña (best-effort)
   try{
-    onDisconnect(roomRef).remove();
-  }catch(_e){}
+    const fb = await window.__getFirebase(FIREBASE_CONFIG);
+    const { db, ref, set, serverTimestamp, onDisconnect } = fb;
 
-  renderRoomBox();
-  show("hostWrap");
-  setPill("Sala: " + code);
+    const code = genRoomCode();
+    MP.room = code;
+    MP.started = false;
+    MP.roundId = "";
+
+    const roomRef = ref(db, `rooms/${code}`);
+    await set(roomRef, {
+      createdAt: serverTimestamp(),
+      status: "lobby",
+      title: document.title || "Juego PRL",
+    });
+
+    // limpieza al cerrar pestaña (best-effort)
+    try{ onDisconnect(roomRef).remove(); }catch(_e){}
+
+    renderRoomBox();
+    show("hostWrap");
+    setPill("Sala: " + code);
+  }catch(e){
+    console.error(e);
+    alert("No puedo crear la sala en Firebase. Revisa: (1) databaseURL de Realtime Database, (2) Reglas RTDB permiten rooms, (3) que el HTML de GitHub Pages sea el actualizado.\n\nDetalle: " + (e?.message || e));
+  }
 }
 
 async function mpCloseRoom(){
@@ -3041,8 +3077,9 @@ async function mpJoinRoom(code, name){
     alert("Mete un código de 6 dígitos.");
     return;
   }
-  const fb = await window.__getFirebase(FIREBASE_CONFIG);
-  const { db, ref, set, serverTimestamp, onValue } = fb;
+  try{
+    const fb = await window.__getFirebase(FIREBASE_CONFIG);
+    const { db, ref, set, serverTimestamp, onValue } = fb;
 
   MP.mode = "join";
   MP.room = clean;
@@ -3068,6 +3105,12 @@ async function mpJoinRoom(code, name){
   hide("btnReveal"); hide("btnNext"); // el participante no avanza
   if ($("btnBackToStart")) $("btnBackToStart").textContent = "Salir";
   setPill("Unido: " + clean);
+
+  }catch(e){
+    console.error(e);
+    alert("No puedo unirme a la sala. Revisa: (1) databaseURL y reglas de Realtime Database, (2) que todos entráis por la URL de GitHub Pages.\n\nDetalle: " + (e?.message || e));
+    return;
+  }
 }
 
 
