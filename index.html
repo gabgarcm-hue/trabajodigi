@@ -294,6 +294,9 @@
     .liveCounts{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .countPill{border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
 
+
+/* MP host: estado "mostrar solución" */
+.btn.isActive{ box-shadow: inset 0 0 0 2px rgba(255,255,255,.18); }
 </style>
 </head>
 
@@ -353,11 +356,15 @@
         </label>
 
         <div id="hostWrap" class="hidden" style="flex:1 1 100%;min-width:260px">
-          <div class="roomBox">
+          <div class="roomBox" id="roomBox">
             <div class="roomMeta">
               <div class="lbl">Código de sala</div>
               <div class="roomCode" id="roomCode">—</div>
               <div class="roomLink" id="roomLink"></div>
+            <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">
+              <input id="baseUrl" class="inp" placeholder="URL base (opcional) p.ej. http://192.168.1.20:8000/" />
+            </div>
+            <div class="note" style="font-size:12px;opacity:.85">Si abres el HTML desde el disco (file://), el QR no puede apuntar a tu PC. Sírvelo en la red (python -m http.server) o pega aquí la URL base.</div>
               <div class="note" id="roomNote">Crea la sala, deja que entren, y luego pulsa “Empezar” otra vez para lanzar la partida.</div>
             </div>
             <div class="qr" id="roomQr" aria-label="QR de unión"></div>
@@ -489,6 +496,7 @@
         <h2 style="margin:0 0 6px">Resultado</h2>
         <p class="scoreBig" id="finalScore">0</p>
         <p style="margin:0;color:var(--muted)" id="finalDetail">—</p>
+        <div id="teamBoard" class="teamBoard hidden"></div>
         <div class="row" style="margin-top:12px">
           <button class="btn primary" id="btnAgain" onclick="startAgain()">Repetir</button>
           <button class="btn" id="btnToStart" onclick="resetAll()">Volver al inicio</button>
@@ -1148,6 +1156,18 @@ let lastPlanText = "";
 
 // Helpers DOM
 const $ = (id)=>document.getElementById(id);
+
+// ---------- UI helpers (MP host) ----------
+function setBtnRevealUI(revealed){
+  const b = $("btnReveal");
+  if(!b) return;
+  b.disabled = !!revealed;
+  b.classList.toggle("isActive", !!revealed);
+  b.setAttribute("aria-pressed", revealed ? "true" : "false");
+  if(revealed) b.blur();
+}
+function resetBtnRevealUI(){ setBtnRevealUI(false); }
+
 
 // ---------- Fondo (tema) ----------
 const BG_THEMES = {
@@ -2032,6 +2052,13 @@ function renderQuestion(type){
     $("btnNext").disabled = false;
   }
 
+  // MP host: resetea el estado de "Mostrar solución" al cambiar de pregunta
+  if (typeof MP !== "undefined" && MP.started && MP.mode==="host" && MP.room){
+    show("btnReveal");
+    show("btnNext");
+    resetBtnRevealUI();
+  }
+
   // asegura áreas
   show("answers"); hide("orderArea"); hide("checkArea");
 
@@ -2588,24 +2615,36 @@ function next(){
 }
 
 function renderTeamBoard(){
-  const board = $("teamBoard");
-  if (!board) return;
+  let el = $("teamBoard");
+
+  // Micro-parche: si el contenedor no existe, lo creamos (evita que el modo equipos se quede sin TeamBoard).
+  if (!el){
+    const anchor = $("finalDetail") || $("finalScore");
+    const host = anchor?.parentElement || $("result");
+    if (!host) return;
+
+    el = document.createElement("div");
+    el.id = "teamBoard";
+    el.className = "teamBoard hidden";
+
+    if (anchor) anchor.insertAdjacentElement("afterend", el);
+    else host.appendChild(el);
+  }
 
   if (playMode !== "teams"){
-    board.innerHTML = "";
-    hide("teamBoard");
+    el.classList.add("hidden");
+    el.innerHTML = "";
     return;
   }
 
-  // ordenar por puntuación
-  const sorted = teams.slice().sort((a,b)=>b.score-a.score);
-  board.innerHTML = sorted.map((t, i)=>{
-    const crown = i === 0 ? " 🏆" : "";
-    return `<div class="teamRow"><span class="name">${escapeHtml(t.name)}${crown}</span><span class="pts">${t.score} pts</span></div>`;
-  }).join("");
-
-  show("teamBoard");
+  el.classList.remove("hidden");
+  el.innerHTML = `
+    <div class="th">Equipo</div>
+    <div class="th">Puntos</div>
+    ${teams.map(t=>`<div>${esc(t.name)}</div><div>${t.score}</div>`).join("")}
+  `;
 }
+
 
 function buildActionPlan(pct){
   // limpio: 3 + 3 + 2
@@ -2968,54 +3007,76 @@ function safeOriginPath(){
   // file:// -> origin "null"
   const origin = location.origin && location.origin !== "null" ? location.origin : "";
   if (!origin) return "";
+  // ruta completa del HTML actual (index.html, etc.)
   return origin + location.pathname;
 }
 
+function getBaseUrlOverride(){
+  // Opcional: para cuando el HTML se abre como file:// y quieres un QR válido en red
+  const el = $("baseUrl");
+  if(!el) return "";
+  let s = (el.value||"").trim();
+  if(!s) return "";
+  if(!/^https?:\/\//i.test(s)) s = "http://" + s;
+  return s;
+}
+
 function makeJoinUrl(code){
-  return safeOriginPath() + "?join=" + encodeURIComponent(code);
+  const override = getBaseUrlOverride();
+  let base = override || safeOriginPath();
+  if(!base) return "";
+  // Si la URL base termina en "/", asumimos que apuntas a un directorio y añadimos el nombre del HTML actual
+  if (base.endsWith("/")) {
+    const file = (location.pathname.split("/").pop() || "index.html");
+    base = base + file;
+  }
+  return base + "?join=" + encodeURIComponent(code);
 }
 
 function renderRoomBox(){
-  $("roomCode").textContent = MP.room || "—";
+  if ($("roomCode")) $("roomCode").textContent = MP.room || "—";
+    const base = getBaseUrlOverride() || safeOriginPath();
   const link = MP.room ? makeJoinUrl(MP.room) : "";
-  $("roomLink").textContent = link ? ("Link: " + link) : "Publica el HTML en una URL https:// para que el QR funcione.";
 
-  // QR (opcional)
-  const qrWrap = $("roomQr");
-  if (!qrWrap) return;
-  qrWrap.innerHTML = "";
+  const linkEl = $("roomLink");
+  if (!linkEl) return;
+
+  if (!MP.room){
+    linkEl.textContent = "Enlace: —";
+  } else if (!base){
+    linkEl.textContent = "⚠️ Estás abriendo el HTML desde el disco (file://). Para que el QR funcione, sirve el HTML en tu red (python -m http.server) o pega una URL base arriba.";
+  } else {
+    linkEl.textContent = "Link: " + link;
+  }
+
+  const roomQr = $("roomQr");
+  if (!roomQr) return;
+  roomQr.innerHTML = "";
+
   if (!link){
-    qrWrap.textContent = "—";
+    roomQr.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">QR no disponible</div>';
     return;
   }
 
-  const fallbackImg = ()=>{
-    try{
-      const img = new Image();
-      img.alt = "QR";
-      img.width = 132; img.height = 132;
-      img.referrerPolicy = "no-referrer";
-      img.src = "https://chart.googleapis.com/chart?cht=qr&chs=170x170&chld=L|1&chl=" + encodeURIComponent(link);
-      qrWrap.innerHTML = "";
-      qrWrap.appendChild(img);
-    }catch(_e){
-      qrWrap.textContent = "QR";
-    }
+  const fallback = ()=>{
+    const img = document.createElement("img");
+    img.src = `https://chart.googleapis.com/chart?cht=qr&chs=170x170&chld=M|0&chl=${encodeURIComponent(link)}`;
+    img.alt = "QR";
+    img.width = 170; img.height = 170;
+    img.style.imageRendering = "pixelated";
+    img.referrerPolicy = "no-referrer";
+    img.onerror = ()=>{ roomQr.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No se pudo cargar el QR</div>'; };
+    roomQr.appendChild(img);
   };
 
   try{
-    if (typeof QRCode !== "undefined" && QRCode.toCanvas){
-      const canvas = document.createElement("canvas");
-      qrWrap.appendChild(canvas);
-      QRCode.toCanvas(canvas, link, { width: 132, margin: 1 }, (err)=>{
-        if (err) fallbackImg();
-      });
+    if (window.QRCode && typeof window.QRCode === "function") {
+      new QRCode(roomQr, { text: link, width: 170, height: 170, correctLevel: QRCode.CorrectLevel.M });
     } else {
-      // Si la librería QR no carga (bloqueos de red), usa fallback
-      fallbackImg();
+      fallback();
     }
-  }catch(e){
-    fallbackImg();
+  } catch(e){
+    fallback();
   }
 }
 
@@ -3280,6 +3341,7 @@ startGame = function(){
 
     // host: no responde, muestra botón de solución
     show("btnReveal");
+    resetBtnRevealUI();
     show("liveCounts");
 
     // publica primera pregunta
@@ -3392,6 +3454,7 @@ function mpHostReveal(){
   const q = QUESTIONS[idx];
   const correct = (q.answers || []).findIndex(a=>a.grade==="green");
   revealAll(correct);
+  setBtnRevealUI(true);
 
   show("feedback");
   $("fbTitle").textContent = "✅ Solución";
@@ -3426,6 +3489,10 @@ function initMultiplayer(){
   }
   if ($("btnReveal")){
     $("btnReveal").addEventListener("click", ()=>mpHostReveal());
+  }
+  // URL base (para QR en file://)
+  if ($("baseUrl")){
+    $("baseUrl").addEventListener("input", ()=>{ if (MP.mode==="host" && MP.room) renderRoomBox(); });
   }
 
   // QR join param
