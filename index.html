@@ -1,0 +1,3407 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Quién es quién en prevención, un juego simple para conocer las figuras preventivas</title>
+  <style>
+    :root{
+      --bg0:#05070f;
+      --bg1:#0b1220;
+      --panel:#0f1a33;
+      --panel2:#121f3d;
+      --card:#152852;
+      --txt:#f5f7ff;
+      --muted:#b8c4e4;
+      --line:rgba(255,255,255,.14);
+      --shadow: 0 22px 55px rgba(0,0,0,.55);
+
+      --red:#ff4d4d;
+      --amber:#ffb020;
+      --green:#2eea7b;
+
+      --ans:#f7f8ff;           /* fondo de respuesta antes de revelar */
+      --ansTxt:#121528;        /* texto oscuro para contraste */
+      --ansLine:rgba(15,20,40,.20);
+      --ansShadow: 0 14px 30px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+    body{
+      margin:0;
+      color:var(--txt);
+      background:
+        radial-gradient(900px 520px at 18% 0%, rgba(75,109,255,.26) 0%, rgba(5,7,15,0) 65%),
+        radial-gradient(900px 520px at 82% 10%, rgba(46,234,123,.18) 0%, rgba(5,7,15,0) 70%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      min-height:100vh;
+    }
+
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(5,7,15,.78);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+      padding:14px 16px;
+    }
+    header .top{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    .brand{display:flex;flex-direction:column;gap:2px}
+    .brand b{font-size:15px;letter-spacing:.2px}
+    .brand span{font-size:12px;color:var(--muted)}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:8px 12px;
+      background:rgba(255,255,255,.06);
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    main{max-width:1040px;margin:0 auto;padding:16px;display:grid;gap:14px}
+
+    .card{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      padding:14px;
+    }
+    .hidden{display:none !important}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+    .btn{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px 14px;
+      background:rgba(255,255,255,.06);
+      color:var(--txt);
+      cursor:pointer;
+      user-select:none;
+      transition: transform .05s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    }
+    .btn:hover{background:rgba(255,255,255,.08)}
+    .btn:active{transform:scale(.99)}
+    .btn.primary{
+      border-color: rgba(46,234,123,.45);
+      background: linear-gradient(180deg, rgba(46,234,123,.24), rgba(46,234,123,.10));
+    }
+    .btn.ghost{background:transparent;box-shadow:none}
+    .btn.small{padding:8px 10px;border-radius:12px;font-size:12px;color:var(--muted);box-shadow:none}
+    .btn.small b{color:var(--txt);font-weight:650}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+
+    /* Quiz */
+    .meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .progress{
+      height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid var(--line);
+      width: min(560px, 100%);
+    }
+    .bar{height:100%;width:0%;
+      background: linear-gradient(90deg, rgba(46,234,123,.25), rgba(46,234,123,.65));
+    }
+    .qtitle{margin:12px 0 0;font-size:22px;line-height:1.25}
+    .qsub{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+
+    /* Respuestas (alta legibilidad) */
+    .answers{margin-top:14px;display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:12px;}
+    .ans{
+      min-height:78px;
+      border-radius:16px;
+      border:2px solid var(--ansLine);
+      background:var(--ans);
+      color:var(--ansTxt);
+      padding:14px 14px;
+      cursor:pointer;
+      display:flex;align-items:flex-start;gap:12px;
+      box-shadow: var(--ansShadow);
+      transition: transform .06s ease, filter .12s ease, border-color .12s ease, box-shadow .12s ease;
+    }
+    .ans:hover{filter:brightness(1.02)}
+    .ans:active{transform:scale(.992)}
+    .ans .tag{
+      flex:0 0 auto;
+      width:34px;height:34px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:800;
+      background:rgba(10,12,20,.08);
+      border:2px solid rgba(10,12,20,.10);
+      color:rgba(10,12,20,.70);
+    }
+    .ans .text{font-size:15px;line-height:1.25;font-weight:650}
+    .ans.locked{cursor:default}
+    .ans.selected{outline:3px solid rgba(255,255,255,.35)}
+
+    /* Revelado por color (mantiene contraste) */
+    .ans.red{
+      background: linear-gradient(180deg, rgba(255,77,77,.20), rgba(255,77,77,.12));
+      border-color: rgba(255,77,77,.65);
+      color:var(--txt);
+    }
+    .ans.amber{
+      background: linear-gradient(180deg, rgba(255,176,32,.22), rgba(255,176,32,.12));
+      border-color: rgba(255,176,32,.70);
+      color:var(--txt);
+    }
+    .ans.green{
+      background: linear-gradient(180deg, rgba(46,234,123,.20), rgba(46,234,123,.12));
+      border-color: rgba(46,234,123,.70);
+      color:var(--txt);
+    }
+    .ans.red .tag, .ans.amber .tag, .ans.green .tag{
+      background:rgba(255,255,255,.10);
+      border-color:rgba(255,255,255,.18);
+      color:rgba(255,255,255,.88);
+    }
+
+    .feedback{
+      margin-top:14px;border-radius:16px;border:1px solid var(--line);
+      padding:12px;background:rgba(0,0,0,.14);
+    }
+    .feedback b{display:block;margin-bottom:6px}
+    .feedback p{margin:0;color:var(--muted);line-height:1.4;white-space:pre-line}
+
+    /* Resultado */
+    .scoreBig{font-size:38px;margin:0}
+    .split{display:grid;grid-template-columns: 1.3fr .7fr; gap:12px}
+    @media (max-width:900px){ .split{grid-template-columns:1fr} .answers{grid-template-columns:1fr} }
+    .list{display:grid;gap:8px;margin-top:10px}
+    .item{border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(255,255,255,.03)}
+    .item small{color:var(--muted)}
+    .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;border:1px solid var(--line);font-size:12px;color:var(--muted)}
+    .badge.red{border-color:rgba(255,77,77,.45)}
+    .badge.amber{border-color:rgba(255,176,32,.45)}
+    .badge.green{border-color:rgba(46,234,123,.45)}
+
+    /* Diagrama */
+    .diagram{display:grid;gap:10px}
+    .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px}
+    .box{
+      min-width: 190px;
+      flex: 1 1 190px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      padding:12px;
+    }
+    .box h4{margin:0 0 6px;font-size:14px}
+    .box p{margin:0;color:var(--muted);font-size:12px;line-height:1.35}
+    .arrow{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:20px;padding:0 6px}
+
+    
+        .box.focus{border-color:rgba(245,158,11,.9);background:rgba(245,158,11,.10)}
+    .box.focus h4{color:rgba(245,158,11,1)}
+
+    /* Controles inicio */
+    .field{display:flex;flex-direction:column;gap:6px;min-width:220px}
+    .lbl{font-size:12px;color:var(--muted)}
+    .sel,.inp{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:10px 12px}
+
+    /* Fix: opciones del <select> (en algunos navegadores el desplegable es claro y el texto heredado se ve “en blanco”) */
+    .sel option, .sel optgroup{
+      color:#0b1220;
+      background:#ffffff;
+    }
+
+    .inp{width:100%}
+    .sel:focus,.inp:focus{outline:2px solid rgba(99,102,241,.45);outline-offset:2px}
+    .teamBar{margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap}
+    .teamChip{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+    .teamChip b{color:var(--txt);font-weight:700}
+    .teamChip.active{border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.08)}
+    .btn[disabled]{opacity:.55;pointer-events:none}
+    /* Repregunta */
+    .followUp{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+    .fuGrid{display:grid;gap:8px;margin-top:8px}
+    .fuBtn{text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--txt);border-radius:14px;padding:10px 12px}
+    .fuBtn:hover{background:rgba(255,255,255,.05)}
+    .fuNote{margin:8px 0 0;color:var(--muted);font-size:12px}
+    /* Ordena */
+    .orderList{margin-top:10px;display:grid;gap:10px}
+    .cardItem{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:16px;padding:12px;cursor:grab;user-select:none}
+    .cardItem:active{cursor:grabbing}
+    .cardItem.dragging{opacity:.6}
+    .cardItem small{display:block;color:var(--muted);margin-bottom:6px}
+    /* Resultado */
+    .teamBoard{display:grid;gap:8px;margin-top:10px}
+    .teamRow{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:14px;padding:10px 12px}
+    .teamRow .name{font-weight:800}
+    .teamRow .pts{color:var(--muted)}
+    .plan{margin-top:10px;display:grid;gap:10px}
+    .planBox{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:16px;padding:12px}
+    .planBox h4{margin:0 0 8px;font-size:14px}
+    .planBox ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.45}
+    .copyOk{margin-top:8px;color:rgba(34,197,94,1);font-size:12px}
+    /* Diagrama */
+    .box.decision{border-color:rgba(245,158,11,.55);background:rgba(245,158,11,.08)}
+    .box.emergency{border-color:rgba(239,68,68,.55);background:rgba(239,68,68,.08)}
+
+  
+.btn.danger{
+  border-color: rgba(255,70,70,.55);
+  background: linear-gradient(180deg, rgba(255,70,70,.20), rgba(255,70,70,.08));
+}
+.overlay{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center;
+  padding:18px; z-index:50;
+}
+.modal{
+  width:min(760px, 96vw);
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(15,26,51,.96), rgba(11,18,32,.96));
+  box-shadow: var(--shadow);
+  padding:14px;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:720px){ .grid2{grid-template-columns:1fr} }
+
+.mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:12px; line-height:1.35;
+  white-space:pre-wrap;
+  color:var(--txt);
+}
+
+.checkList{margin-top:10px;display:grid;gap:10px}
+.checkItem{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  color:var(--txt);
+  border-radius:14px;
+  padding:10px 12px;
+  cursor:pointer;
+  text-align:left;
+}
+.checkItem:hover{background:rgba(255,255,255,.05)}
+.checkItem.on{
+  border-color: rgba(46,234,123,.55);
+  background: rgba(46,234,123,.10);
+}
+
+
+    /* --- Multijugador (sala) --- */
+    .roomBox{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+    .roomCode{font-weight:800;letter-spacing:3px;font-size:22px}
+    .roomMeta{display:flex;flex-direction:column;gap:4px}
+    .roomLink{font-size:12px;color:var(--muted);word-break:break-all}
+    .qr{width:132px;height:132px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .qr canvas,.qr img{display:block}
+    .note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.35}
+    .liveCounts{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .countPill{border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+
+</style>
+</head>
+
+<body>
+<header>
+  <div class="top">
+    <div class="brand">
+      <b>Quién es quién en prevención, un juego simple para conocer las figuras preventivas</b>
+      <span>Actividad rápida: “¿A quién aviso?”</span>
+    </div>
+    <div class="row" style="gap:10px">
+      <button class="btn danger small" id="btnStopWork" type="button">STOP WORK</button>
+      <span class="pill" id="pillState">Listo</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- START -->
+  <section id="start">
+
+        <div class="card" style="box-shadow:none;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:18px;padding:12px;margin-top:12px">
+      <div class="row" style="gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <label class="field">
+          <span class="lbl">Modo de juego</span>
+          <select id="gameMode" class="sel">
+
+<option value="quiz" selected>Preguntas rápidas</option>
+<option value="tf">Verdadero / Falso</option>
+<option value="order">Ordena la actuación</option>
+<option value="sema">Semáforo (5 s)</option>
+<option value="check">Checklist express</option>
+<option value="myth">Frase trampa</option>
+<option value="say">¿Qué le digo al mando?</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="lbl">Participación</span>
+          <select id="playMode" class="sel">
+            <option value="solo" selected>Individual</option>
+            <option value="teams">Equipos</option>
+          </select>
+        </label>
+
+        
+        
+
+        <label class="field">
+          <span class="lbl">Sala (móviles)</span>
+          <select id="sessionMode" class="sel">
+            <option value="local" selected>Sin sala</option>
+            <option value="host">Crear sala (host)</option>
+            <option value="join">Unirme (móvil)</option>
+          </select>
+        </label>
+
+        <div id="hostWrap" class="hidden" style="flex:1 1 100%;min-width:260px">
+          <div class="roomBox">
+            <div class="roomMeta">
+              <div class="lbl">Código de sala</div>
+              <div class="roomCode" id="roomCode">—</div>
+              <div class="roomLink" id="roomLink"></div>
+              <div class="note" id="roomNote">Crea la sala, deja que entren, y luego pulsa “Empezar” otra vez para lanzar la partida.</div>
+            </div>
+            <div class="qr" id="roomQr" aria-label="QR de unión"></div>
+          </div>
+          <div class="row" style="gap:10px;margin-top:10px;justify-content:flex-end">
+            <button class="btn" id="btnCloseRoom" type="button">Cerrar sala</button>
+          </div>
+        </div>
+
+        <div id="joinWrap" class="hidden" style="flex:1 1 100%;min-width:260px">
+          <div class="row" style="gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <label class="field" style="min-width:220px">
+              <span class="lbl">Código de sala</span>
+              <input id="joinCode" class="inp" placeholder="Ej: 123456" inputmode="numeric" maxlength="6"/>
+            </label>
+            <label class="field" style="min-width:220px">
+              <span class="lbl">Nombre (opcional)</span>
+              <input id="joinName" class="inp" placeholder="Ej: Mario"/>
+            </label>
+          </div>
+          <div class="row" style="gap:10px;margin-top:10px;justify-content:flex-end">
+            <button class="btn primary" id="btnJoinRoom" type="button">Unirme</button>
+          </div>
+          <div class="note" id="joinNote">Tip: si entras desde un QR, el código se rellena solo.</div>
+        </div>
+<label class="field" id="quizPaceWrap">
+          <span class="lbl">Ritmo</span>
+          <select id="quizPace" class="sel">
+            <option value="normal" selected>Normal (con repregunta)</option>
+            <option value="fast">Rápido (sin repregunta)</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="lbl">Fondo</span>
+          <select id="bgTheme" class="sel">
+            <option value="night" selected>Noche</option>
+            <option value="graphite">Grafito</option>
+            <option value="slate">Pizarra</option>
+            <option value="forest">Bosque</option>
+            <option value="sand">Arena</option>
+          </select>
+        </label>
+<label class="field hidden" id="teamCountWrap">
+          <span class="lbl">Nº equipos</span>
+          <select id="teamCount" class="sel">
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="teamNames" class="hidden" style="margin-top:10px;display:grid;gap:8px"></div>
+      <small id="modeHelp" style="display:block;margin-top:10px;color:var(--muted);line-height:1.35">—</small>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="btnStart" onclick="startGame()">Empezar</button>
+            <button class="btn" id="btnReset" onclick="resetAll()">Reiniciar</button>
+    </div>
+</section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="card hidden">
+    <div class="meta">
+      <div class="row" style="gap:8px">
+        <span class="pill" id="qCounter">Pregunta 1/1</span>
+        <span class="pill" id="qScore">Puntos: 0</span>
+        <span class="pill hidden" id="qTimer">⏱ 5</span>
+      </div>
+      <div class="progress" aria-label="Progreso del cuestionario">
+        <div class="bar" id="bar"></div>
+      </div>
+    </div>
+
+    <div class="teamBar hidden" id="teamBar"></div>
+
+    <h3 class="qtitle" id="qText">—</h3>
+    <p class="qsub" id="qHint">—</p>
+
+    <div class="answers" id="answers"></div>
+
+    <div class="liveCounts hidden" id="liveCounts"></div>
+
+    <div id="orderArea" class="hidden">
+      <p class="qsub" id="orderInstr" style="margin-top:10px">Arrastra las tarjetas para ordenar la actuación (de primero a último).</p>
+      <div class="orderList" id="orderList"></div>
+      <div class="row" style="margin-top:12px;justify-content:flex-end">
+        <button class="btn" id="btnCheckOrder" type="button">Comprobar</button>
+      </div>
+    
+<div id="checkArea" class="hidden">
+  <p class="qsub" id="checkInstr" style="margin-top:10px">Elige los 3 imprescindibles antes de empezar. (0/3)</p>
+  <div class="checkList" id="checkList"></div>
+  <div class="row" style="margin-top:12px;justify-content:flex-end">
+    <button class="btn" id="btnCheckChecklist" type="button">Comprobar</button>
+  </div>
+</div>
+
+</div>
+
+
+    <div id="feedback" class="feedback hidden">
+      <b id="fbTitle">—</b>
+      <p id="fbBody">—</p>
+
+      <div id="followUp" class="followUp hidden">
+        <b>Repregunta (para fijarlo)</b>
+        <p id="fuQ" style="margin:6px 0 0;color:var(--muted)">—</p>
+        <div class="fuGrid" id="fuAnswers"></div>
+        <div class="fuNote" id="fuNote"></div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;justify-content:space-between">
+      <button class="btn" id="btnBackToStart" onclick="resetAll()">Salir</button>
+      <div class="row" style="gap:10px">
+        <button class="btn hidden" id="btnReveal" type="button">Mostrar solución</button>
+        <button class="btn primary hidden" id="btnNext" onclick="next()">Siguiente</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="card hidden">
+    <div class="split">
+      <div class="card" style="box-shadow:none">
+        <h2 style="margin:0 0 6px">Resultado</h2>
+        <p class="scoreBig" id="finalScore">0</p>
+        <p style="margin:0;color:var(--muted)" id="finalDetail">—</p>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="btnAgain" onclick="startAgain()">Repetir</button>
+          <button class="btn" id="btnToStart" onclick="resetAll()">Volver al inicio</button>
+        </div>
+
+        <div class="list" id="breakdown"></div>
+      </div>
+
+      <div class="card" style="box-shadow:none">
+
+        <h3 style="margin:0 0 8px">Diagrama de orden (a quién escalar)</h3>
+        
+        <div class="diagram">
+          <div class="flow" aria-label="Diagrama de orden de comunicación en PRL">
+            <div class="box" id="boxTrabajador">
+              <h4>1) Trabajador/a</h4>
+              <p>Detecta el riesgo / suceso y lo comunica.</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="box decision" id="boxDecision">
+              <h4>2) ¿Es grave / hay lesión?</h4>
+              <p>Si hay lesión o riesgo grave e inminente, prioriza emergencia.</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="box emergency" id="boxEmergencia">
+              <h4>3) Emergencia (112)</h4>
+              <p>Asegura la zona, pide ayuda y después informa por la vía interna.</p>
+            </div>
+          </div>
+
+          <div class="flow">
+            <div class="box" id="boxMando">
+              <h4>4) Mando directo</h4>
+              <p>Encargado/Jefe de equipo/Jefe de obra. Canal principal cuando está disponible.</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="box" id="boxRecurso">
+              <h4>5) Recurso Preventivo</h4>
+              <p>Vía rápida en obra si el mando no está localizable o para temas menores/reincidencias. Deja constancia preventiva.</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="box" id="boxTecnico">
+              <h4>6) Técnico PRL / Servicio de Prevención</h4>
+              <p>Procesos de prevención: procedimientos, formación, EPIs, sustancias, consultas técnicas.</p>
+            </div>
+          </div>
+
+          <div class="flow">
+            <div class="box" id="boxCSS">
+              <h4>7) CSS</h4>
+              <p>Interferencias entre contratas y coordinación de actividades en obra.</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="box" id="boxDelegado">
+              <h4>8) Delegado/a de prevención</h4>
+              <p>Canal de participación y propuestas. No sustituye avisos urgentes al mando.</p>
+            </div>
+          </div>
+        </div>
+</div>
+        <p style="margin:10px 0 0;color:var(--muted);font-size:12px">
+          En situaciones graves: activar emergencia (ej. 112) cuando proceda y después informar por la vía interna.
+        </p>
+
+        
+        <h3 style="margin:14px 0 8px">Recomendaciones según tu puntuación</h3>
+        <div id="actionPlan" class="plan"></div>
+        <div class="row" style="margin-top:10px;gap:10px">
+          <button class="btn" id="btnCopyPlan" type="button">Copiar plan</button>
+          <span id="copyOk" class="copyOk hidden">✅ Plan copiado</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<div id="stopWorkOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Stop Work">
+  <div class="modal">
+    <div class="row" style="justify-content:space-between;align-items:flex-start;gap:12px">
+      <div>
+        <h3 style="margin:0 0 6px">STOP WORK · Parada segura</h3>
+        <p style="margin:0;color:var(--muted);line-height:1.35;font-size:13px">
+          Úsalo si hay <b>riesgo grave e inminente</b>, ausencia/fallo de protección colectiva, o interferencias peligrosas.
+          Primero <b>asegura</b> la zona; después <b>comunica</b>.
+        </p>
+      </div>
+      <button class="btn small" id="btnCloseStop" type="button">Cerrar</button>
+    </div>
+
+    <div class="grid2" style="margin-top:12px">
+      <label class="field">
+        <span class="lbl">Ubicación exacta</span>
+        <input class="inp" id="swLoc" type="text" placeholder="Ej.: Planta 2, ala norte, junto al hueco de escalera">
+      </label>
+      <label class="field">
+        <span class="lbl">Qué pasa (riesgo)</span>
+        <input class="inp" id="swRisk" type="text" placeholder="Ej.: Hueco sin barandilla / cables sueltos / izado sin balizar">
+      </label>
+    </div>
+
+    <div class="grid2" style="margin-top:10px">
+      <label class="field">
+        <span class="lbl">Medida provisional aplicada</span>
+        <input class="inp" id="swControl" type="text" placeholder="Ej.: He parado la tarea y he señalizado/aislado">
+      </label>
+      <label class="field">
+        <span class="lbl">Qué necesitas ahora</span>
+        <input class="inp" id="swNeed" type="text" placeholder="Ej.: Que venga el mando/recurso para corregir y dejar constancia">
+      </label>
+    </div>
+
+    <div class="card" style="margin-top:12px;box-shadow:none;background:rgba(255,255,255,.03)">
+      <small style="display:block;color:var(--muted);margin-bottom:6px">Mensaje listo para enviar (mando / recurso / CSS):</small>
+      <div class="mono" id="swMsg">—</div>
+      <div class="row" style="margin-top:10px;gap:10px">
+        <button class="btn primary" id="btnCopyStop" type="button">Copiar mensaje</button>
+        <span id="swCopied" class="copyOk hidden">✅ Copiado</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+
+<script type="module">
+  // Puente Firebase (carga bajo demanda). Basado en la guía oficial de CDN (Web SDK setup alternatives).
+  // Versión fijada para evitar cambios inesperados.
+  const SDK_VER = "12.9.0";
+  let cached = null;
+
+  window.__getFirebase = async function(firebaseConfig){
+    if (cached) return cached;
+    if (!firebaseConfig || !firebaseConfig.apiKey || firebaseConfig.apiKey.includes("REEMPLAZA")){
+      throw new Error("Falta configurar firebaseConfig (apiKey, databaseURL, etc.).");
+    }
+    const appMod = await import(`https://www.gstatic.com/firebasejs/${SDK_VER}/firebase-app.js`);
+    const dbMod  = await import(`https://www.gstatic.com/firebasejs/${SDK_VER}/firebase-database.js`);
+
+    const app = appMod.initializeApp(firebaseConfig);
+    const db  = dbMod.getDatabase(app);
+
+    cached = { app, db, ...dbMod };
+    return cached;
+  };
+</script>
+
+<script>
+
+/**
+ * Enanos Espaciales · Kahoot PRL (web) — v8
+ * Política didáctica (resumen):
+ * - Canal principal: Mando (encargado/jefe de obra) cuando está disponible.
+ * - Si el mando NO está localizable y es un tema menor/reincidencia → Recurso Preventivo.
+ * - Procesos/consultas de prevención (procedimiento, formación, EPIs, sustancias...) → Técnico PRL / Servicio de Prevención.
+ * - Interferencias entre contratas → CSS.
+ * - Propuestas/participación → Delegado/a de prevención.
+ *
+ * Juego:
+ * - 25 casos
+ * - Preguntas SIEMPRE aleatorias
+ * - Respuestas SIEMPRE aleatorias
+ * - Verde=2 · Naranja=1 · Roja=0
+ */
+
+const SITE_NAME = "Turrón Prevención";
+const ROLE_ORDER = ["mando","recurso","tecnico","css","delegado","emergencia"];
+const ROLE_LABEL = {
+  mando: "Mando (encargado/jefe de obra)",
+  recurso: "Recurso preventivo (obra)",
+  tecnico: "Técnico PRL / Servicio de Prevención",
+  css: "CSS (Coordinador/a de Seguridad y Salud)",
+  delegado: "Delegado/a de prevención",
+  emergencia: "Emergencia (112)"
+};
+const ROLE_BOX_ID = {
+  mando: "boxMando",
+  recurso: "boxRecurso",
+  tecnico: "boxTecnico",
+  css: "boxCSS",
+  delegado: "boxDelegado",
+  emergencia: null
+};
+
+const QUESTIONS_BASE = [
+  // 1) Orden y limpieza (pequeño: si mando no está, recurso es lo más rápido)
+  {
+    id: 1,
+    bestRole: "recurso",
+    q: `En ${SITE_NAME}, ves una zona desorganizada (herramientas/materiales por el suelo) y el mando no está localizable en ese momento. ¿A quién avisas?`,
+    hint: "Tema menor/operativo con mando no disponible.",
+    answers: [
+      { txt: "Al recurso preventivo (obra).", grade: "green",
+        why: "Vía rápida en obra para activar corrección cuando el mando no está disponible." },
+      { txt: "A mi mando directo (cuando lo encuentre).", grade: "amber",
+        why: "Correcto, pero si no está localizable ahora, el recurso preventivo puede activar la corrección ya." },
+      { txt: "A nadie, lo esquivo y sigo.", grade: "red",
+        why: "Si no se comunica, el riesgo se repite (tropiezos/caídas)." },
+      { txt: "A Chewbacca, que impone el orden wookiee.", grade: "red",
+        why: "Los wookies son magníficos tiradores, pero pésimos en PRL.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 2) Caída 5m (grave + emergencia)
+  {
+    id: 2,
+    bestRole: "emergencia",
+    q: `En ${SITE_NAME}, ves caer a un compañero desde 5 metros. ¿A quién avisas?`,
+    hint: "Accidente grave: emergencia + comunicación interna.",
+    answers: [
+      { txt: "Al 112 y al mando (encargado/jefe de obra).", grade: "green",
+        why: "Emergencia + aviso interno inmediato: es lo más correcto." },
+      { txt: "Solo al mando (sin llamar al 112).", grade: "amber",
+        why: "Avisar internamente está bien, pero con 5 m lo más seguro es activar 112." },
+      { txt: "Lo levanto para que se siente ‘un momento’.", grade: "red",
+        why: "Mover a la persona puede empeorar lesiones. Se activa la respuesta adecuada." },
+      { txt: "Me espero a ver si se levanta solo.", grade: "red",
+        why: "La prioridad es activar respuesta y avisos correctos." }
+    ]
+  },
+
+  // 3) Viento fuerte (grave/operativo)
+  {
+    id: 3,
+    bestRole: "mando",
+    q: `En ${SITE_NAME} hay rachas de viento de 100 km/h. ¿A quién avisas para parar trabajos por condiciones adversas?`,
+    hint: "Parada/organización de obra.",
+    answers: [
+      { txt: "A mi mando directo (encargado/jefe de obra).", grade: "green",
+        why: "Puede ordenar parar o reorganizar el trabajo de forma segura." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero quien organiza y ordena la parada es el mando." },
+      { txt: "Al promotor para que decida.", grade: "red",
+        why: "No es el canal inmediato para una parada por seguridad." },
+      { txt: "Que le explique Gandalf el «¡No pasarás!» al viento.", grade: "red",
+        why: "Gandalf es un crack, pero no dirige la obra ni puede ordenar la parada.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 4) Chispas (operativo, mando)
+  {
+    id: 4,
+    bestRole: "mando",
+    q: `En ${SITE_NAME}, hay un aplique eléctrico mal montado del que saltan chispas. ¿A quién avisas?`,
+    hint: "Riesgo eléctrico: aislar y coordinar reparación segura.",
+    answers: [
+      { txt: "Al mando (encargado/jefe de obra).", grade: "green",
+        why: "Organiza la actuación inmediata y la reparación segura." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el mando coordina la respuesta inmediata en el tajo." },
+      { txt: "Llamo a Pikachu para que lo arregle con un impactrueno.", grade: "red",
+        why: "Pikachu es adorable, pero no está habilitado como electricista de obra.\nLa respuesta correcta en este caso es: {{GREEN}}" },
+      { txt: "Lo ajusto yo con un destornillador.", grade: "red",
+        why: "Manipular algo que chispea es un riesgo grave." }
+    ]
+  },
+
+  // 5) Esguince (lesión leve)
+  {
+    id: 5,
+    bestRole: "mando",
+    q: `En ${SITE_NAME}, te tuerces el tobillo al resbalar en unas escaleras. ¿A quién avisas?`,
+    hint: "Lesión: atención y comunicación interna.",
+    answers: [
+      { txt: "Al mando y a primeros auxilios.", grade: "green",
+        why: "Comunicación interna + atención inmediata: perfecto." },
+      { txt: "Solo al mando.", grade: "amber",
+        why: "Bien, pero si hay primeros auxilios disponibles, también conviene avisarles." },
+      { txt: "Me voy a casa sin decir nada.", grade: "red",
+        why: "Hay que comunicar lesiones/incidentes para atender y evitar repetición." },
+      { txt: "Sigo trabajando: ‘ya se pasará’.", grade: "red",
+        why: "Puedes empeorar la lesión y la causa del resbalón sigue ahí." }
+    ]
+  },
+
+  // 6) Carga suspendida (grave)
+  {
+    id: 6,
+    bestRole: "mando",
+    q: `En ${SITE_NAME}, hay una carga suspendida y gente pasando por debajo. ¿A quién avisas?`,
+    hint: "Riesgo grave: maniobra y control inmediato.",
+    answers: [
+      { txt: "Al mando (encargado/jefe de obra).", grade: "green",
+        why: "Debe detener y controlar la maniobra de forma segura." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el canal operativo inmediato es el mando." },
+      { txt: "Pido a un Comisario del Astra Militarum que ‘ejecute’ al riesgo.", grade: "red",
+        why: "Eso es épico, pero en obra no se purga el riesgo: se comunica y se controla.\nLa respuesta correcta en este caso es: {{GREEN}}" },
+      { txt: "Me aparto yo y ya.", grade: "red",
+        why: "Si no avisas, el riesgo sigue para otros." }
+    ]
+  },
+
+  // 7) Reincidencia sin casco (pequeño/reincidente → recurso)
+  {
+    id: 7,
+    bestRole: "recurso",
+    q: `En ${SITE_NAME}, ves por tercera vez a la misma cuadrilla trabajando sin casco (ya lo comentaste y no cambió). ¿A quién avisas ahora?`,
+    hint: "Reincidencia: refuerzo preventivo y seguimiento.",
+    answers: [
+      { txt: "Al recurso preventivo (obra) para intervención y seguimiento.", grade: "green",
+        why: "Corta la repetición y exige corrección con trazabilidad." },
+      { txt: "Al mando directo otra vez.", grade: "amber",
+        why: "Correcto, pero si ya no se corrige, lo más eficaz es que intervenga el recurso preventivo." },
+      { txt: "Lo ignoro: ‘no es mi empresa’.", grade: "red",
+        why: "En obra compartida, comunicar riesgos protege a todos." },
+      { txt: "Se lo digo a Dora la Exploradora: ‘¡encuentra el casco!’", grade: "red",
+        why: "Dora encuentra cosas, pero eso no gestiona la obra.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 8) Borde sin protección, mando no localizable (recurso)
+  {
+    id: 8,
+    bestRole: "recurso",
+    q: `En ${SITE_NAME}, detectas un borde de forjado sin protección colectiva y NO localizas al mando en ese momento. ¿A quién avisas?`,
+    hint: "Riesgo crítico + mando no disponible: vía rápida en obra.",
+    answers: [
+      { txt: "Al recurso preventivo (obra).", grade: "green",
+        why: "Está en obra para actuar ante riesgos críticos y activar corrección inmediata." },
+      { txt: "Espero a encontrar al mando.", grade: "amber",
+        why: "Avisar al mando está bien, pero si no está disponible, hay que activar a quien pueda actuar ya." },
+      { txt: "Paso con cuidado y sigo.", grade: "red",
+        why: "El riesgo sigue ahí para cualquiera." },
+      { txt: "Lo pongo en un post-it y listo.", grade: "red",
+        why: "No asegura acción inmediata." }
+    ]
+  },
+
+  // 9) Casi accidente caída objeto (recurso)
+  {
+    id: 9,
+    bestRole: "recurso",
+    q: `En ${SITE_NAME}, cae una herramienta desde altura y por poco golpea a alguien (no hay lesión). ¿A quién avisas?`,
+    hint: "Casi accidente: registrar y evitar repetición.",
+    answers: [
+      { txt: "Al recurso preventivo (obra) para registrar y exigir corrección.", grade: "green",
+        why: "Clave para que no se repita: análisis y medidas preventivas." },
+      { txt: "Al mando (encargado/jefe de obra).", grade: "amber",
+        why: "Correcto, pero el canal preventivo asegura registro y seguimiento del casi accidente." },
+      { txt: "A nadie: si no pasó nada, no cuenta.", grade: "red",
+        why: "Los casi accidentes se comunican." },
+      { txt: "Me pongo a construir una valla tipo Minecraft y ya se arregla.", grade: "red",
+        why: "En Minecraft funciona, en obra no.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 10) Cableado en paso, mando no disponible (pequeño → recurso)
+  {
+    id: 10,
+    bestRole: "recurso",
+    q: `En ${SITE_NAME}, hay cableado por una zona de paso y la gente tropieza, pero el mando está ocupado/no localizable. ¿A quién avisas?`,
+    hint: "Tema menor/operativo con mando no disponible.",
+    answers: [
+      { txt: "Al recurso preventivo (obra).", grade: "green",
+        why: "Puede activar la corrección rápida en obra cuando el mando no está disponible." },
+      { txt: "Al mando (cuando lo encuentre).", grade: "amber",
+        why: "Correcto, pero si no está localizable ahora, avisa a quien pueda actuar ya." },
+      { txt: "Lo salto y sigo.", grade: "red",
+        why: "El riesgo permanece para todos." },
+      { txt: "Lo enrollo y lo dejo donde sea.", grade: "red",
+        why: "Puedes crear otro riesgo. Mejor avisar por el canal." }
+    ]
+  },
+
+  // 11) Radial sin resguardo (grave, mando)
+  {
+    id: 11,
+    bestRole: "mando",
+    q: `En ${SITE_NAME}, ves una radial sin resguardo y un compañero va a usarla. ¿A quién avisas?`,
+    hint: "Riesgo inmediato: parar y corregir.",
+    answers: [
+      { txt: "Al mando (encargado/jefe de obra) para detener y corregir.", grade: "green",
+        why: "Debe organizar la parada y la corrección inmediata." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el mando canaliza la corrección inmediata en el tajo." },
+      { txt: "Me hago el loco: yo no la voy a usar.", grade: "red",
+        why: "Si no lo comunicas, el riesgo sigue." },
+      { txt: "Le pongo cinta aislante y arreando.", grade: "red",
+        why: "No es una protección adecuada." }
+    ]
+  },
+
+  // 12) Alarma/humo (grave, mando)
+  {
+    id: 12,
+    bestRole: "mando",
+    q: `En ${SITE_NAME}, suena alarma de evacuación o se detecta humo en una zona. ¿A quién avisas?`,
+    hint: "Emergencia: seguir instrucciones y avisar.",
+    answers: [
+      { txt: "Al mando y sigo instrucciones.", grade: "green",
+        why: "Comunicación interna y actuación coordinada: perfecto." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el canal inmediato en obra es el mando." },
+      { txt: "Voy a mirar de dónde viene el humo.", grade: "red",
+        why: "No te expongas: comunica y sigue el procedimiento." },
+      { txt: "Sigo trabajando: seguro que es falsa alarma.", grade: "red",
+        why: "Ante alarma, se actúa siguiendo instrucciones." }
+    ]
+  },
+
+  // 13) Procedimiento “raro” (técnico)
+  {
+    id: 13,
+    bestRole: "tecnico",
+    q: `En ${SITE_NAME}, te piden una tarea “rara” y no tienes claro el procedimiento seguro (no quieres improvisar). ¿A quién consultas?`,
+    hint: "Consulta técnica de prevención.",
+    answers: [
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "green",
+        why: "Aporta criterio técnico preventivo para definir cómo hacerlo seguro." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el técnico PRL suele tener la pauta más completa/documentada." },
+      { txt: "A nadie: improviso según me salga.", grade: "red",
+        why: "Improvisar en PRL es mala idea." },
+      { txt: "Hago lo que me diga el cuñado de WhatsApp.", grade: "red",
+        why: "No es un canal técnico fiable." }
+    ]
+  },
+
+  // 14) Vapores (técnico)
+  {
+    id: 14,
+    bestRole: "tecnico",
+    q: `En ${SITE_NAME}, notas vapores fuertes en una zona cerrada y dudas si es seguro seguir trabajando ahí. ¿A quién avisas?`,
+    hint: "Exposición: criterio técnico preventivo.",
+    answers: [
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "green",
+        why: "Es el canal técnico para valorar el riesgo y pautar medidas." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el técnico PRL es el soporte más adecuado para valorar exposición." },
+      { txt: "Respiro hondo y sigo: ‘si pica, cura’.", grade: "red",
+        why: "Exponerse sin evaluar puede ser peligroso." },
+      { txt: "Abro una ventana 10 segundos y listo.", grade: "red",
+        why: "No garantiza control del riesgo." }
+    ]
+  },
+
+  // 15) Interferencias contratas (CSS)
+  {
+    id: 15,
+    bestRole: "css",
+    q: `En ${SITE_NAME}, ves dos contratas trabajando a la vez en la misma zona y se estorban (riesgo por interferencias). ¿A quién avisas?`,
+    hint: "Coordinación de actividades en obra.",
+    answers: [
+      { txt: "Al coordinador de seguridad y salud (CSS).", grade: "green",
+        why: "Figura clave para coordinar interferencias y exigir planificación." },
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "amber",
+        why: "Correcto, pero la coordinación de interferencias se gestiona especialmente vía CSS." },
+      { txt: "A nadie: que se apañen.", grade: "red",
+        why: "Si no se coordina, sube el riesgo de accidente." },
+      { txt: "Hago un piedra-papel-tijera entre contratas.", grade: "red",
+        why: "Divertido, pero no coordina de verdad." }
+    ]
+  },
+
+  // 16) Buscar procedimiento antes de empezar (técnico)
+  {
+    id: 16,
+    bestRole: "tecnico",
+    q: `En ${SITE_NAME}, quieres informarte de un procedimiento de seguridad (cómo se hace una tarea “bien”) antes de empezar. ¿A quién preguntas?`,
+    hint: "Buscar información preventiva antes de actuar.",
+    answers: [
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "green",
+        why: "Es el canal para aclarar procedimiento seguro sin improvisar." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el técnico PRL suele tener la pauta más completa/documentada." },
+      { txt: "Lo busco en TikTok y listo.", grade: "red",
+        why: "No es una fuente fiable para un procedimiento de obra." },
+      { txt: "Hago “speedrun” y ya aprenderé por el camino.", grade: "red",
+        why: "Aprender a base de sustos no es prevención.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 17) Propuesta de mejora preventiva (delegado)
+  {
+    id: 17,
+    bestRole: "delegado",
+    q: `En ${SITE_NAME}, quieres proponer una mejora preventiva (no urgente) o dar tu opinión para que se tenga en cuenta. ¿A quién se lo trasladas?`,
+    hint: "Participación/representación.",
+    answers: [
+      { txt: "Al delegado/a de prevención.", grade: "green",
+        why: "Canal natural para trasladar propuestas y hacer seguimiento desde la representación." },
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "amber",
+        why: "Correcto, pero para propuestas y participación, el delegado es un canal muy directo." },
+      { txt: "Lo suelto en el grupo de memes y que ‘se haga viral’.", grade: "red",
+        why: "No garantiza que se gestione ni se haga seguimiento." },
+      { txt: "Lo escribo en una servilleta y la dejo en el bar.", grade: "red",
+        why: "No es un canal real de obra.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 18) Dar de baja un EPI dañado (técnico)
+  {
+    id: 18,
+    bestRole: "tecnico",
+    q: `En ${SITE_NAME}, detectas que tu EPI está dañado y debe retirarse de uso (“dar de baja”). ¿A quién lo comunicas para tramitarlo como prevención?`,
+    hint: "Proceso preventivo (EPI): retirada y gestión.",
+    answers: [
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "green",
+        why: "Es un proceso preventivo: se retira de uso y se gestiona correctamente." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el técnico PRL es el canal más adecuado para tramitarlo como proceso preventivo." },
+      { txt: "Lo pego con cinta y digo que está ‘nuevo’.", grade: "red",
+        why: "Un EPI dañado se retira de uso: no se “arregla a ojo”." },
+      { txt: "Lo dejo por ahí y que lo encuentre el destino.", grade: "red",
+        why: "Puede acabar usándolo alguien sin saberlo.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 19) Solicitar formación/instrucciones preventivas (técnico)
+  {
+    id: 19,
+    bestRole: "tecnico",
+    q: `En ${SITE_NAME}, vas a hacer una tarea y necesitas formación/instrucciones preventivas (no te han explicado bien). ¿A quién la solicitas?`,
+    hint: "Formación y prevención.",
+    answers: [
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "green",
+        why: "Canal preventivo para formación e instrucciones adecuadas." },
+      { txt: "Al mando directo.", grade: "amber",
+        why: "Correcto, pero el canal preventivo para formación/instrucciones es el técnico PRL." },
+      { txt: "A un NPC del juego: “¡Dame la misión y ya!”", grade: "red",
+        why: "La prevención no va por misiones, va por procedimiento y formación real." },
+      { txt: "Me lo invento: total, ‘siempre se ha hecho así’.", grade: "red",
+        why: "Eso es justo lo que provoca sustos.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 20) Producto químico / ficha (técnico)
+  {
+    id: 20,
+    bestRole: "tecnico",
+    q: `En ${SITE_NAME}, antes de usar un producto (disolvente/adhesivo/limpiador) quieres saber riesgos y medidas. ¿A quién preguntas?`,
+    hint: "Sustancias: consulta preventiva.",
+    answers: [
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "green",
+        why: "Es el canal técnico para orientar sobre riesgos y medidas." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el técnico PRL es el soporte más completo para sustancias." },
+      { txt: "A un cómic: ‘si le pasa a Batman, aguanto yo’.", grade: "red",
+        why: "No es criterio preventivo real.\nLa respuesta correcta en este caso es: {{GREEN}}" },
+      { txt: "Lo huelo fuerte y decido según el mareo.", grade: "red",
+        why: "No se evalúa un producto “a nariz”: se consulta." }
+    ]
+  },
+
+  // 21) Fuera de obra: talla de EPI incorrecta (mando)
+  {
+    id: 21,
+    bestRole: "mando",
+    q: `Fuera de obra: te han entregado un EPI pero la talla no es la tuya y necesitas cambio. ¿A quién lo pides primero?`,
+    hint: "Gestión operativa de entrega/cambio.",
+    answers: [
+      { txt: "Al mando (encargado/jefe de obra) para que gestione el cambio.", grade: "green",
+        why: "Es el canal operativo para gestionar suministro/cambio de EPI." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero la gestión de suministro normalmente la canaliza el mando." },
+      { txt: "Me lo quedo aunque no valga, total ‘cubre algo’.", grade: "red",
+        why: "Un EPI que no ajusta bien puede no proteger como debe." },
+      { txt: "Me lo cambio con otro sin decir nada.", grade: "red",
+        why: "Puede dejar a otra persona sin el EPI correcto.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 22) Fuera de obra: reporte tardío de casi accidente (recurso)
+  {
+    id: 22,
+    bestRole: "recurso",
+    q: `Fuera de obra: ayer hubo un casi accidente y hoy quieres comunicarlo para que se registre y no se repita. ¿A quién se lo comunicas?`,
+    hint: "Registro preventivo y seguimiento.",
+    answers: [
+      { txt: "Al recurso preventivo (obra) para registrar y hacer seguimiento.", grade: "green",
+        why: "Es el canal preventivo para registrar y activar acciones para que no se repita." },
+      { txt: "Al mando directo.", grade: "amber",
+        why: "Correcto, pero el recurso preventivo asegura registro y seguimiento del casi accidente." },
+      { txt: "A nadie: lo que pasó, pasó.", grade: "red",
+        why: "Si no se registra, se repite." },
+      { txt: "Lo cuento en modo historia épica", grade: "red",
+        why: "Las épicas molan, pero hay que comunicar por el canal real.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  },
+
+  // 23) Fuera de obra: propuesta formal (delegado)
+  {
+    id: 23,
+    bestRole: "delegado",
+    q: `Fuera de obra: quieres presentar una propuesta de mejora preventiva por escrito para que quede trazabilidad. ¿A quién se la entregas?`,
+    hint: "Participación con seguimiento.",
+    answers: [
+      { txt: "Al delegado/a de prevención.", grade: "green",
+        why: "Canal idóneo para propuestas y seguimiento desde representación." },
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "amber",
+        why: "Correcto, pero el delegado es un canal muy directo para propuestas de participación." },
+      { txt: "Se la digo a Goku y que le meta un Kamehameha al riesgo.", grade: "red",
+        why: "Goku gana combates, no gestiona propuestas preventivas.\nLa respuesta correcta en este caso es: {{GREEN}}" },
+      { txt: "La dejo en un cajón y ya ‘saldrá sola’.", grade: "red",
+        why: "Sin canal y seguimiento, no se gestiona." }
+    ]
+  },
+
+  // 24) Fuera de obra: duda sobre procedimiento escrito (técnico)
+  {
+    id: 24,
+    bestRole: "tecnico",
+    q: `Fuera de obra: estás revisando documentación y no entiendes una instrucción preventiva (te genera dudas). ¿A quién la consultas?`,
+    hint: "Consulta técnica/documental de prevención.",
+    answers: [
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "green",
+        why: "Es el canal técnico para resolver dudas de procedimiento/documentación." },
+      { txt: "Al recurso preventivo (obra).", grade: "amber",
+        why: "Correcto, pero el técnico PRL suele tener la interpretación y pauta más completa." },
+      { txt: "A Spider‑Man: que lo solucione con telarañas.", grade: "red",
+        why: "La telaraña no sustituye una pauta técnica real.\nLa respuesta correcta en este caso es: {{GREEN}}" },
+      { txt: "Hago lo contrario y así ‘aprendo’ rápido.", grade: "red",
+        why: "Aprender a base de errores en obra sale caro." }
+    ]
+  },
+
+  // 25) Fuera de obra: solicitar acceso a formación/certificado (técnico)
+  {
+    id: 25,
+    bestRole: "tecnico",
+    q: `Fuera de obra: necesitas completar formación preventiva (o justificarla) y no sabes el canal/proceso. ¿A quién lo pides?`,
+    hint: "Formación: proceso preventivo.",
+    answers: [
+      { txt: "Al técnico de PRL / Servicio de Prevención.", grade: "green",
+        why: "Canal preventivo para formación y acreditaciones." },
+      { txt: "Al mando directo.", grade: "amber",
+        why: "Correcto, pero el canal preventivo para formación suele ser el técnico PRL." },
+      { txt: "Me fabrico un certificado en Paint.", grade: "red",
+        why: "Eso no es una formación real (ni un canal válido)." },
+      { txt: "Me lo aprendo por osmosis mirando a los veteranos.", grade: "red",
+        why: "Formación e instrucciones deben ser reales y verificables.\nLa respuesta correcta en este caso es: {{GREEN}}" }
+    ]
+  }
+];
+
+// --- Estado ---
+let QUESTIONS = [];
+let ORDER_SET = [];
+let idx = 0;
+let answered = false;
+
+let gameMode = "quiz";      // quiz | tf | order
+let playMode = "solo";      // solo | teams
+let quickMode = false;      // solo Kahoot: sin repregunta
+let teams = [];
+let activeTeam = 0;
+
+let score = 0;              // solo
+let breakdown = [];
+
+let followUpPending = false;
+let lastConfig = null;
+let lastPlanText = "";
+
+// Helpers DOM
+const $ = (id)=>document.getElementById(id);
+
+// ---------- Fondo (tema) ----------
+const BG_THEMES = {
+  night:   { bg0:"#05070f", bg1:"#0b1220" },
+  graphite:{ bg0:"#0b0d10", bg1:"#141821" },
+  slate:   { bg0:"#050914", bg1:"#0b1630" },
+  forest:  { bg0:"#06110c", bg1:"#0c1f16" },
+  sand:    { bg0:"#1a140a", bg1:"#2a1d0c" },
+};
+
+function applyBgTheme(id, save=true){
+  const t = BG_THEMES[id] || BG_THEMES.night;
+  document.documentElement.style.setProperty("--bg0", t.bg0);
+  document.documentElement.style.setProperty("--bg1", t.bg1);
+  if (save){
+    try{ lsSet("bgTheme", id); }catch(e){}
+  }
+}
+
+function initBgTheme(){
+  let saved = "night";
+  try{ saved = lsGet("bgTheme") || "night"; }catch(e){}
+  if ($("bgTheme")) $("bgTheme").value = BG_THEMES[saved] ? saved : "night";
+  applyBgTheme($("bgTheme")?.value || "night", false);
+}
+
+const show = (id)=>$(id)?.classList.remove("hidden");
+const hide = (id)=>$(id)?.classList.add("hidden");
+
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+function setState(txt){
+  const pill = $("pillState");
+  if (pill) pill.textContent = txt;
+}
+
+
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}
+
+function shuffle(a){
+  for (let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function deepCopyBank(bank){
+  return bank.map(q => ({
+    ...q,
+    answers: q.answers?.map(a=>({...a})) || []
+  }));
+}
+
+// ---------- Bancos extra ----------
+
+const TF_BASE = [
+  { id: 201, bestRole:"", q:"V/F: Si el mando directo no está localizable y es un tema menor, el recurso preventivo es una vía rápida.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"Es una vía práctica para activar la corrección cuando el mando no está accesible."},
+    {txt:"Falso", grade:"red",   why:"En temas menores y con mando no localizable, el recurso preventivo ayuda a actuar ya."}
+  ]},
+  { id: 202, bestRole:"", q:"V/F: El delegado/a de prevención sustituye al mando directo para gestionar incidencias urgentes en obra.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"red", why:"El delegado es canal de participación, pero no sustituye el canal operativo/urgente del mando."},
+    {txt:"Falso", grade:"green",   why:"El delegado participa y propone, pero lo urgente va por vía operativa (mando / recurso / emergencia)."}
+  ]},
+  { id: 203, bestRole:"", q:"V/F: Si hay riesgo grave e inminente, se puede parar la actividad y avisar.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"La prioridad es evitar daño: asegurar, parar si procede y comunicar por el canal correcto."},
+    {txt:"Falso", grade:"red",       why:"Ante riesgo grave, la seguridad manda: se actúa y se comunica."}
+  ]},
+  { id: 204, bestRole:"", q:"V/F: El CSS coordina interferencias entre empresas en obra.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"CSS = coordinación cuando hay concurrencia/contratas e interferencias."},
+    {txt:"Falso", grade:"red",       why:"La coordinación de interferencias es parte del rol del CSS."}
+  ]},
+  { id: 205, bestRole:"", q:"V/F: El EPI es la primera medida que se aplica siempre, antes que las colectivas.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"red",   why:"La prioridad suele ser protección colectiva y medidas en origen antes que EPI."},
+    {txt:"Falso", grade:"green",     why:"Primero se intenta controlar el riesgo en origen/colectivo; el EPI complementa."}
+  ]},
+  { id: 206, bestRole:"", q:"V/F: Una incidencia sin comunicar no existe a efectos de trazabilidad preventiva.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"Si no se comunica/registre, no hay seguimiento ni corrección sistemática."},
+    {txt:"Falso", grade:"red",       why:"Sin comunicación y registro, la organización no puede cerrar el riesgo."}
+  ]},
+  { id: 207, bestRole:"", q:"V/F: El recurso preventivo sólo actúa cuando hay accidente.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"red",   why:"Actúa también en prevención: observación, correcciones, recordatorios, trazabilidad."},
+    {txt:"Falso", grade:"green",     why:"Su trabajo es preventivo (actuar antes), no sólo reaccionar a accidentes."}
+  ]},
+  { id: 208, bestRole:"", q:"V/F: Si detectas un riesgo, lo mejor es esperar al final del turno para decirlo.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"red",   why:"Se comunica cuanto antes para evitar que otros se expongan."},
+    {txt:"Falso", grade:"green",     why:"La comunicación temprana permite corregir antes y evitar repetición."}
+  ]},
+  { id: 209, bestRole:"", q:"V/F: Si el riesgo afecta a varias contratas, además del mando, hay que pensar en coordinación.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"Interferencias = coordinación (CSS/CAE) además de la vía operativa."},
+    {txt:"Falso", grade:"red",       why:"Interferencias requieren coordinación; no es sólo un tema interno de una cuadrilla."}
+  ]},
+  { id: 210, bestRole:"", q:"V/F: En una situación grave, primero se atiende la emergencia y luego se escala internamente.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"Primero vida/daño, luego comunicación interna y registro."},
+    {txt:"Falso", grade:"red",       why:"La emergencia va primero: asegurar, pedir ayuda, y luego informar por vía interna."}
+  ]},
+  // Banco extra (para aleatoriedad)
+  { id: 211, bestRole:"", q:"V/F: El técnico PRL es el canal para procedimientos, formación y consultas técnicas.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"Procedimientos/consulta técnica = PRL/Servicio de prevención."},
+    {txt:"Falso", grade:"red",       why:"Es precisamente uno de los canales típicos para consulta técnica de prevención."}
+  ]},
+  { id: 212, bestRole:"", q:"V/F: Si una corrección es repetida, conviene dejar constancia para seguimiento.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"Reincidencias necesitan trazabilidad para cerrar el problema."},
+    {txt:"Falso", grade:"red",       why:"Sin constancia no hay mejora sistemática ni seguimiento."}
+  ]},
+  { id: 213, bestRole:"", q:"V/F: Una señalización provisional puede ser una medida inmediata mientras se corrige la causa.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"Señalizar/aislar puede ser medida inmediata mientras se corrige."},
+    {txt:"Falso", grade:"red",       why:"A veces es medida inmediata necesaria mientras se solventa la causa."}
+  ]},
+  { id: 214, bestRole:"", q:"V/F: Comunicar el riesgo no es “meterse en líos”: es parte del trabajo seguro.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"green", why:"La cultura preventiva se construye comunicando y corrigiendo."},
+    {txt:"Falso", grade:"red",       why:"Precisamente comunicar es lo que evita líos (accidentes, paradas, sanciones)."}
+  ]},
+  { id: 215, bestRole:"", q:"V/F: Si hay dudas sobre un procedimiento, lo correcto es improvisar para no parar.", hint:"Marca Verdadero o Falso.", answers:[
+    {txt:"Verdadero", grade:"red",   why:"Improvisar aumenta el riesgo. Se consulta y se actúa con método."},
+    {txt:"Falso", grade:"green",     why:"Ante duda, se consulta (mando/PRL) y se asegura la tarea."}
+  ]}
+];
+
+const ORDER_BASE = [
+  { id: 301, q:"Ordena la actuación: Detectas un cable por el suelo en zona de paso.", hint:"Arrastra para ordenar de primero a último.", steps:[
+      "Señalizar/aislar el paso para evitar tropiezos.",
+      "Comunicar al mando (o recurso si el mando no está).",
+      "Retirar/asegurar el cable (o pedir retirada) y dejar la zona limpia.",
+      "Comprobar que el paso queda seguro y libre.",
+      "Dejar constancia si es reincidente."
+    ], why:"Primero se evita la exposición inmediata (señalizar/aislar), luego se comunica y se corrige la causa, y por último se deja trazabilidad si se repite." },
+  { id: 302, q:"Ordena la actuación: Ves una protección colectiva deteriorada (barandilla floja).", hint:"Arrastra para ordenar de primero a último.", steps:[
+      "Detener el acceso a la zona (aislar).",
+      "Avisar al mando directo (o recurso si no está localizable).",
+      "Reparar o sustituir la protección colectiva antes de reanudar.",
+      "Verificar la estabilidad/ajuste tras la reparación.",
+      "Registrar/seguir si es un punto crítico."
+    ], why:"Si la protección colectiva falla, lo inmediato es evitar el acceso. Después se activa corrección por vía operativa y se verifica antes de reanudar." },
+  { id: 303, q:"Ordena la actuación: Hay una situación con riesgo grave (posible caída/atrapamiento) y alguien podría lesionarse.", hint:"Arrastra para ordenar de primero a último.", steps:[
+      "Parar/asegurar la situación para eliminar la exposición inmediata.",
+      "Pedir ayuda/emergencia si procede (112 / primer interviniente).",
+      "Avisar al mando directo y/o recurso preventivo.",
+      "Atender y proteger a los implicados sin generar más riesgo.",
+      "Registrar y analizar para que no se repita."
+    ], why:"En grave: primero se corta la exposición (parar/asegurar). Si hay lesión, emergencia. Luego comunicación interna y cierre con registro/análisis." },
+  { id: 304, q:"Ordena la actuación: Reincidencia de orden y limpieza en el mismo punto cada día.", hint:"Arrastra para ordenar de primero a último.", steps:[
+      "Comunicar al mando (o recurso si no está) con ubicación exacta.",
+      "Corregir el punto (retirada/orden/itinerario).",
+      "Identificar causa (falta de contenedor, acopio mal planificado, etc.).",
+      "Implementar medida organizativa (responsable, horarios, checklist).",
+      "Dejar constancia y revisar al día siguiente."
+    ], why:"Reincidencia = no basta con limpiar: hay que encontrar causa, meter medida organizativa y revisar." },
+  { id: 305, q:"Ordena la actuación: Dudas sobre uso correcto de un equipo/herramienta.", hint:"Arrastra para ordenar de primero a último.", steps:[
+      "Detener la tarea si hay duda de seguridad.",
+      "Consultar al mando / recurso preventivo.",
+      "Consultar al técnico PRL si es procedimiento/formación.",
+      "Aplicar el método correcto (procedimiento + protecciones).",
+      "Registrar la lección (briefing/toolbox) para el equipo."
+    ], why:"La duda se gestiona parando y consultando. Si es técnico/procedimental, PRL. Luego se aplica y se transfiere al equipo." }
+];
+
+
+const SEMA_BASE = [
+  // Semáforo: “¿Qué haces primero?”
+  { id: 401, bestRole:"mando", q:`Ves un hueco en forjado sin protección en una zona de paso. ¿Qué haces primero?`, hint:"Acción inmediata (5 s).", answers:[
+    {txt:"PARO la tarea y AISLO/SEÑALIZO la zona.", grade:"green", why:"Riesgo de caída grave: primero se elimina la exposición (parar/aislar) y luego se comunica."},
+    {txt:"AVISO al mando y ya verán.", grade:"amber", why:"Avisar está bien, pero antes hay que evitar que alguien caiga (aislar/parar)."},
+    {txt:"SIGO, que no es mi trabajo.", grade:"red", why:"Ignorar el riesgo mantiene la exposición. En obra, la prioridad es evitar daño."},
+    {txt:"SEÑALIZO con la mano desde lejos.", grade:"red", why:"Sin aislamiento real (baliza/cinta/barandilla provisional) sigues dejando el paso expuesto."}
+  ]},
+  { id: 402, bestRole:"mando", q:`Ves una escalera de mano apoyada sin sujeción y alguien va a subir. ¿Qué haces primero?`, hint:"Acción inmediata (5 s).", answers:[
+    {txt:"PARO y estabilizo/aseguro la escalera antes de usarla.", grade:"green", why:"Primero se evita la caída: parar y asegurar (ángulo, apoyo, sujeción/ayuda) antes de continuar."},
+    {txt:"AVISO al recurso preventivo para que lo vea.", grade:"amber", why:"Bien avisar, pero la primera acción es evitar la exposición (parar/asegurar)."},
+    {txt:"SIGO porque “solo es un momento”.", grade:"red", why:"Los “dos minutos” son el clásico desencadenante. Si no está segura, se para."},
+    {txt:"Hago una foto y la mando al grupo.", grade:"red", why:"La evidencia puede venir después. Lo primero es el control inmediato del riesgo."}
+  ]},
+  { id: 403, bestRole:"recurso", q:`Hay materiales tirados en un pasillo y el mando está reunido/no localizable. ¿Qué haces primero?`, hint:"Tema menor pero con riesgo de tropiezo.", answers:[
+    {txt:"AISLO el paso (si procede) y aviso al recurso/mando para retirar y ordenar.", grade:"green", why:"Control inmediato (evitar tropiezos) y aviso para corrección y seguimiento."},
+    {txt:"AVISO y espero a que lo retiren.", grade:"amber", why:"Avisar ayuda, pero si puedes, reduce el riesgo ya (señalizar/aislar el paso)."},
+    {txt:"SIGO con cuidado.", grade:"red", why:"“Con cuidado” no es control del riesgo. Alguien puede no verlo."},
+    {txt:"Lo salto y ya.", grade:"red", why:"No elimina el riesgo para los demás ni deja constancia."}
+  ]},
+  { id: 404, bestRole:"mando", q:`Ves un izado de cargas sin balizar y gente pasando por debajo. ¿Qué haces primero?`, hint:"Riesgo grave.", answers:[
+    {txt:"PARO el paso bajo la carga y AISLO la zona de izado.", grade:"green", why:"Riesgo grave e inminente: nadie debe pasar bajo cargas. Primero se aísla y se detiene."},
+    {txt:"AVISO al operador desde lejos.", grade:"amber", why:"Avisar está bien, pero hay que cortar el paso ya (aislar/ordenar parada)."},
+    {txt:"SIGO porque voy rápido.", grade:"red", why:"Pasar bajo una carga suspendida es un riesgo crítico."},
+    {txt:"SEÑALIZO con un papelito.", grade:"red", why:"Se necesita balizamiento real y control del paso, no una señal improvisada sin eficacia."}
+  ]},
+  { id: 405, bestRole:"mando", q:`Ves un cable eléctrico pelado en zona húmeda. ¿Qué haces primero?`, hint:"Electricidad.", answers:[
+    {txt:"PARO y AISLO el área; no toco el cable.", grade:"green", why:"Primero evitar contacto: parar, aislar y avisar para cortar tensión/reparar. No manipular."},
+    {txt:"AVISO al electricista y sigo.", grade:"amber", why:"Avisar es correcto, pero antes evita que alguien toque/pise el cable (aislar/parar)."},
+    {txt:"Lo enrollo con cinta y listo.", grade:"red", why:"No es reparación segura: puede agravar el riesgo eléctrico."},
+    {txt:"SIGO porque llevo botas.", grade:"red", why:"El EPI no sustituye el control del riesgo eléctrico ni garantiza seguridad."}
+  ]},
+  { id: 406, bestRole:"mando", q:`En una zona de corte (radial) no hay pantalla ni delimitación y pasan personas cerca. ¿Qué haces primero?`, hint:"Proyecciones/atrapamientos.", answers:[
+    {txt:"AISLO/SEÑALIZO y PARO el trabajo hasta delimitar.", grade:"green", why:"Primero evitar exposición de terceros: delimitar, ordenar y reanudar con control."},
+    {txt:"AVISO al operario para que tenga cuidado.", grade:"amber", why:"Bien avisar, pero hay que establecer control (delimitación) para terceros."},
+    {txt:"SIGO, que cada uno mire.", grade:"red", why:"La prevención no se basa en “mirar”, se basa en controlar el riesgo."},
+    {txt:"Me quedo mirando a ver si salta una chispa.", grade:"red", why:"No es una medida preventiva ni reduce el riesgo."}
+  ]},
+  { id: 407, bestRole:"recurso", q:`Ves señalización caída/evacuación tapada por material. No es emergencia, pero confunde el paso. ¿Qué haces primero?`, hint:"Orden y señalización.", answers:[
+    {txt:"Retiro/ordeno si es seguro y aviso para dejar constancia.", grade:"green", why:"Se recupera el itinerario seguro y se comunica para que no se repita."},
+    {txt:"Aviso y no toco nada.", grade:"amber", why:"Avisar está bien, pero si puedes retirar sin riesgo, reduces exposición ya."},
+    {txt:"Sigo, total se ve igual.", grade:"red", why:"En una evacuación, cada segundo cuenta. Señalización y paso deben estar libres."},
+    {txt:"Lo apunto para mañana.", grade:"red", why:"La corrección debe ser inmediata si afecta a itinerarios o señalización."}
+  ]},
+  { id: 408, bestRole:"mando", q:`Ves barandilla floja en un borde. ¿Qué haces primero?`, hint:"Alturas.", answers:[
+    {txt:"PARO el uso del borde y AISLO la zona hasta reparar.", grade:"green", why:"Protección colectiva defectuosa = riesgo grave. Primero se impide el acceso."},
+    {txt:"Aviso al mando y sigo trabajando cerca.", grade:"amber", why:"Avisar sí, pero no te expongas: impide el acceso/uso hasta reparar."},
+    {txt:"Aprieto yo sin herramientas.", grade:"red", why:"Puede fallar. Debe repararse correctamente y verificar estabilidad."},
+    {txt:"Hago como que no lo he visto.", grade:"red", why:"Ignorar no reduce el riesgo. La exposición continúa."}
+  ]},
+  { id: 409, bestRole:"mando", q:`Alguien empieza a trabajar sin EPI ocular en una zona de proyecciones. ¿Qué haces primero?`, hint:"EPI / control inmediato.", answers:[
+    {txt:"PARO y exijo EPI adecuado antes de continuar.", grade:"green", why:"Si el riesgo es inmediato (proyecciones), primero se detiene y se equipa."},
+    {txt:"Aviso al técnico PRL para que lo apunte.", grade:"amber", why:"Puede registrarse después. Lo inmediato es evitar la lesión."},
+    {txt:"Sigo, a mí no me afecta.", grade:"red", why:"En obra, el riesgo es del equipo y la intervención evita daños."},
+    {txt:"Le grito desde lejos “ponte gafas” y ya.", grade:"red", why:"Si no se asegura la corrección, la exposición sigue. Mejor parar y verificar."}
+  ]},
+  { id: 410, bestRole:"mando", q:`Ves polvo intenso al cortar (posible sílice) sin extracción ni control. ¿Qué haces primero?`, hint:"Higiene industrial.", answers:[
+    {txt:"PARO y AVISO para aplicar control (humectación/extracción/mascarilla adecuada).", grade:"green", why:"Primero frenar exposición y activar medidas. Luego se define control y EPI adecuado."},
+    {txt:"Aviso y que sigan “rápido”.", grade:"amber", why:"Avisar ayuda, pero hay que parar o reducir exposición inmediatamente."},
+    {txt:"Sigo y me tapo la cara con la camiseta.", grade:"red", why:"No es un control válido ni EPI. Riesgo inhalación."},
+    {txt:"Hago un chiste sobre “niebla” y sigo.", grade:"red", why:"No aporta control preventivo."}
+  ]},
+  { id: 411, bestRole:"mando", q:`Ves un derrame de aceite en zona de paso. ¿Qué haces primero?`, hint:"Caídas al mismo nivel.", answers:[
+    {txt:"AISLO la zona y aviso para limpiar con absorbente.", grade:"green", why:"Primero evitar resbalones: aislar y gestionar limpieza segura."},
+    {txt:"Aviso a alguien y me voy.", grade:"amber", why:"Avisar sí, pero si no se aísla, alguien puede caer antes."},
+    {txt:"Paso por encima y ya.", grade:"red", why:"No elimina riesgo para el resto."},
+    {txt:"Lo limpio con agua a presión.", grade:"red", why:"Puede extender el derrame; se usa absorbente/procedimiento adecuado."}
+  ]}
+];
+
+const CHECK_BASE = [
+  { id: 501, bestRole:"mando", q:"Checklist: Trabajo con radial en obra. Elige los 3 imprescindibles antes de empezar.", hint:"Elige 3.", items:[
+      "Gafas/pantalla facial y protección ocular.",
+      "Delimitar la zona para terceros (chispas/proyecciones).",
+      "Disco adecuado y en buen estado (sin fisuras).",
+      "Guantes de lana gruesa para todo.",
+      "Trabajar sin protector para ver mejor.",
+      "Cortar mirando hacia la gente para avisar."
+    ],
+    correct:[0,1,2],
+    whyGreen:"Controlas proyecciones (EPI + zona) y evitas fallo del disco.",
+    whyAmber:"Vas bien, pero falta un imprescindible para evitar lesión grave.",
+    whyRed:"Faltan controles básicos: riesgo de proyecciones, corte y fallo del disco."
+  },
+  { id: 502, bestRole:"mando", q:"Checklist: Uso de escalera de mano. Elige los 3 imprescindibles.", hint:"Elige 3.", items:[
+      "Ángulo correcto y apoyo estable (sin deslizamiento).",
+      "Sujeción/estabilización (o ayuda) y 3 puntos de apoyo.",
+      "Zona libre y señalizada si hay paso de terceros.",
+      "Subir con carga pesada en ambas manos.",
+      "Apoyarla sobre tubo redondo sin sujeción.",
+      "Subir al último peldaño para llegar."
+    ],
+    correct:[0,1,2],
+    whyGreen:"Aseguras estabilidad y evitas caídas propias y de terceros.",
+    whyAmber:"Casi: falta un control clave para estabilidad/entorno.",
+    whyRed:"Con esas elecciones sigues exponiéndote a caída y vuelco."
+  },
+  { id: 503, bestRole:"mando", q:"Checklist: Izado de cargas con grúa. Elige los 3 imprescindibles.", hint:"Elige 3.", items:[
+      "Balizar/aislar la zona y prohibir paso bajo la carga.",
+      "Eslingas/útiles adecuados y revisados visualmente.",
+      "Señalista/comunicación clara con el operador.",
+      "Pasar por debajo “rápido”.",
+      "Izar sin plan porque “ya lo hemos hecho”.",
+      "Atar la carga con cuerda fina de embalaje."
+    ],
+    correct:[0,1,2],
+    whyGreen:"Evitas el riesgo crítico (paso bajo carga) y aseguras útiles y comunicación.",
+    whyAmber:"Bien, pero falta un imprescindible para controlar el izado.",
+    whyRed:"Faltan controles clave: riesgo de golpe/caída de carga."
+  },
+  { id: 504, bestRole:"mando", q:"Checklist: Electricidad provisional en obra. Elige los 3 imprescindibles.", hint:"Elige 3.", items:[
+      "Cuadro protegido y con diferenciales/automatismos adecuados.",
+      "Cables en buen estado (sin peladuras) y protegidos del paso.",
+      "Cortar tensión/aislar antes de manipular.",
+      "Empalmar con cinta aislante como solución final.",
+      "Usar enchufes sin toma de tierra “porque funciona”.",
+      "Tirar de un cable para desenchufar."
+    ],
+    correct:[0,1,2],
+    whyGreen:"Controlas el riesgo eléctrico: protección, integridad y desconexión.",
+    whyAmber:"Falta un imprescindible (protección o desconexión) para evitar electrocución.",
+    whyRed:"Con esas opciones se mantiene riesgo eléctrico serio."
+  },
+  { id: 505, bestRole:"mando", q:"Checklist: Trabajos en altura (borde/forjado). Elige los 3 imprescindibles.", hint:"Elige 3.", items:[
+      "Protección colectiva (barandilla/red) instalada y firme.",
+      "Acceso seguro y zona balizada si hay huecos/bordes.",
+      "Si no hay colectiva viable: sistema anticaídas adecuado (anclaje + arnés) y uso correcto.",
+      "Trabajar sentado en el borde para “ver mejor”.",
+      "Usar arnés sin anclarse para cumplir.",
+      "Saltar el hueco porque es pequeño."
+    ],
+    correct:[0,1,2],
+    whyGreen:"Primero colectiva; si no, anticaídas real. Y control del entorno.",
+    whyAmber:"Casi: falta un imprescindible (colectiva/anclaje/balizamiento).",
+    whyRed:"Faltan controles críticos: caída de altura."
+  },
+  { id: 506, bestRole:"mando", q:"Checklist: Excavación zanja. Elige los 3 imprescindibles.", hint:"Elige 3.", items:[
+      "Entibación/taludado según profundidad y terreno.",
+      "Acceso seguro (escalera) y control de entrada/salida.",
+      "Señalización/balizamiento perimetral y acopios alejados del borde.",
+      "Meterse “un momento” sin entibar.",
+      "Dejar la retro al borde para ahorrar viaje.",
+      "Bajar saltando dentro."
+    ],
+    correct:[0,1,2],
+    whyGreen:"Evitas sepultamiento/caída: estabilidad, acceso y perímetro.",
+    whyAmber:"Bien, pero falta un control clave (estabilidad/perímetro/acceso).",
+    whyRed:"Sin estabilidad y control, el riesgo de sepultamiento es alto."
+  },
+  { id: 507, bestRole:"mando", q:"Checklist: Corte con polvo (posible sílice). Elige los 3 imprescindibles.", hint:"Elige 3.", items:[
+      "Control de polvo (humectación/extracción local).",
+      "Mascarilla adecuada al riesgo (no “cualquiera”).",
+      "Planificar para reducir exposición (tiempo/zonas/ventilación).",
+      "Taparse con la camiseta.",
+      "Soplar con aire comprimido para limpiar.",
+      "Trabajar en interior sin ventilación."
+    ],
+    correct:[0,1,2],
+    whyGreen:"Reducir exposición primero (control de polvo) y luego EPI y organización.",
+    whyAmber:"Casi: falta un imprescindible para controlar la inhalación.",
+    whyRed:"Se mantiene exposición alta a polvo: riesgo respiratorio."
+  },
+  { id: 508, bestRole:"recurso", q:"Checklist: Orden y limpieza en pasillos. Elige los 3 imprescindibles.", hint:"Elige 3.", items:[
+      "Mantener itinerarios libres y señalizados.",
+      "Retirar/ordenar materiales tras uso (no acumular).",
+      "Gestionar residuos/derrames con método (absorber/limpiar).",
+      "Dejar cables sueltos porque “luego vuelvo”.",
+      "Apilar material tapando extintores/salidas.",
+      "Iluminar menos para que no se vea el desorden."
+    ],
+    correct:[0,1,2],
+    whyGreen:"Reduce tropiezos/evacuación y evita incidentes repetidos.",
+    whyAmber:"Falta un básico de control de itinerarios/derrames.",
+    whyRed:"Esas opciones aumentan tropiezos y bloquean emergencias."
+  }
+];
+
+const MYTH_BASE = [
+  { id: 601, bestRole:"", q:"Frase: “Son dos minutos, no hace falta asegurar.”", hint:"Mito / Verdad / Depende.", answers:[
+    {txt:"Mito", grade:"green", why:"Los accidentes suelen ocurrir en tareas cortas y repetidas. Si no está seguro, se para/asegura."},
+    {txt:"Verdad", grade:"red",  why:"La duración no reduce el riesgo real."},
+    {txt:"Depende", grade:"red",  why:"En seguridad, si hay exposición, se controla. No depende del tiempo."}
+  ]},
+  { id: 602, bestRole:"", q:"Frase: “Con EPI ya puedo trabajar aunque falte la barandilla.”", hint:"Mito / Verdad / Depende.", answers:[
+    {txt:"Mito", grade:"green", why:"Primero protección colectiva. El EPI no sustituye barandillas/redes y no elimina el riesgo."},
+    {txt:"Verdad", grade:"red",  why:"EPI no compensa ausencia de protecciones colectivas en altura."},
+    {txt:"Depende", grade:"red",  why:"Solo en casos muy concretos y con sistemas anticaídas bien implantados, pero nunca como excusa."}
+  ]},
+  { id: 603, bestRole:"", q:"Frase: “Si el mando no está, no se puede hacer nada.”", hint:"Mito / Verdad / Depende.", answers:[
+    {txt:"Mito", grade:"green", why:"Siempre puedes controlar el riesgo inmediato (parar/aislar) y avisar al recurso preventivo o mando."},
+    {txt:"Verdad", grade:"red",  why:"Sí se puede actuar: control inmediato y comunicación."},
+    {txt:"Depende", grade:"red",  why:"La actuación preventiva no depende: el control inmediato se hace siempre."}
+  ]},
+  { id: 604, bestRole:"", q:"Frase: “Parar por riesgo te puede costar una bronca, mejor seguir.”", hint:"Mito / Verdad / Depende.", answers:[
+    {txt:"Mito", grade:"green", why:"Ante riesgo grave e inminente se prioriza seguridad: parar, aislar y comunicar."},
+    {txt:"Verdad", grade:"red",  why:"No: la seguridad es prioritaria y parar evita daño."},
+    {txt:"Depende", grade:"red",  why:"No depende: se actúa preventivamente."}
+  ]},
+  { id: 605, bestRole:"", q:"Frase: “Si lo he hecho muchas veces, no pasa nada.”", hint:"Mito / Verdad / Depende.", answers:[
+    {txt:"Mito", grade:"green", why:"La experiencia reduce incertidumbre, pero no elimina riesgos. Se mantienen controles."},
+    {txt:"Verdad", grade:"red",  why:"La repetición no elimina el riesgo."},
+    {txt:"Depende", grade:"red",  why:"Depende no: el control debe mantenerse siempre."}
+  ]},
+  { id: 606, bestRole:"", q:"Frase: “El delegado de prevención es para propuestas, no para avisos urgentes.”", hint:"Mito / Verdad / Depende.", answers:[
+    {txt:"Verdad", grade:"green", why:"Lo urgente va por vía operativa (mando/recurso/emergencia). El delegado canaliza participación y propuestas."},
+    {txt:"Mito", grade:"red",  why:"No sustituye al mando en urgencias."},
+    {txt:"Depende", grade:"amber",  why:"En una urgencia puedes informar a todos, pero el canal operativo sigue siendo mando/recurso/112."}
+  ]}
+];
+
+const SAY_BASE = [
+  { id: 701, bestRole:"mando", q:"Aviso: has visto un hueco sin protección. ¿Qué mensaje es mejor para el mando?", hint:"Elige el aviso más accionable.", answers:[
+    {txt:"“Planta 2, ala norte: hueco sin barandilla en paso. He parado y balizado. Necesito que vengas a corregir y dejar constancia.”", grade:"green", why:"Incluye ubicación + riesgo + control provisional + petición clara."},
+    {txt:"“Hay un hueco por ahí, pásate cuando puedas.”", grade:"amber", why:"Falta ubicación exacta y qué control has aplicado."},
+    {txt:"“Esto es un desastre, siempre igual…”", grade:"red", why:"No aporta información accionable ni control inmediato."},
+    {txt:"“Ven YA”", grade:"red", why:"Sin ubicación ni riesgo, no es accionable."}
+  ]},
+  { id: 702, bestRole:"recurso", q:"Aviso: orden y limpieza (material en pasillo) y el mando no está localizable. ¿Qué mensaje es mejor al recurso preventivo?", hint:"Elige el aviso más accionable.", answers:[
+    {txt:"“Pasillo entre acopios A y B: material en el suelo (tropiezo). He señalizado el paso. Necesito retirada y registro para evitar reincidencia.”", grade:"green", why:"Ubicación + riesgo + medida provisional + seguimiento: perfecto para recurso."},
+    {txt:"“Hay cosas por el suelo, que lo vea PRL.”", grade:"amber", why:"Bien, pero falta ubicación exacta y qué medida provisional has tomado."},
+    {txt:"“No es mi problema.”", grade:"red", why:"No ayuda a controlar el riesgo ni a prevenir repetición."},
+    {txt:"“Luego te cuento.”", grade:"red", why:"Demasiado vago y tarde."}
+  ]},
+  { id: 703, bestRole:"mando", q:"Aviso: izado sin balizar con gente pasando. ¿Qué mensaje es mejor?", hint:"Elige el aviso más accionable.", answers:[
+    {txt:"“Zona carga/descarga: izado sin balizar y gente pasando bajo carga. He parado el paso y balizado. Necesito señalista y control del perímetro.”", grade:"green", why:"Describe riesgo crítico y control inmediato. Muy accionable."},
+    {txt:"“Están izando mal.”", grade:"amber", why:"Falta ubicación y qué control has aplicado."},
+    {txt:"“Menuda liada llevan.”", grade:"red", why:"No aporta datos ni petición."},
+    {txt:"“Sube que hay lío.”", grade:"red", why:"No es claro ni accionable."}
+  ]},
+  { id: 704, bestRole:"tecnico", q:"Aviso: te piden un EPI específico (p. ej. mascarilla por polvo) y no hay claro qué usar. ¿Qué mensaje es mejor a PRL/SP?", hint:"Elige el aviso más accionable.", answers:[
+    {txt:"“Tarea: corte con polvo (posible sílice). Ubicación: nave 3. Necesitamos criterio de control (humectación/extracción) y EPI respiratorio adecuado + formación de uso.”", grade:"green", why:"Da contexto técnico y pide criterio preventivo (ingeniería + EPI)."},
+    {txt:"“Mándame una mascarilla buena.”", grade:"amber", why:"No define tarea ni riesgo; difícil acertar EPI/control."},
+    {txt:"“Nos ahogamos aquí.”", grade:"red", why:"No aporta tarea, ubicación ni petición concreta."},
+    {txt:"“Me compras lo más barato.”", grade:"red", why:"Criterio económico no puede sustituir criterio preventivo."}
+  ]},
+  { id: 705, bestRole:"css", q:"Aviso: interferencias entre contratas en la misma zona. ¿Qué mensaje es mejor al CSS?", hint:"Elige el aviso más accionable.", answers:[
+    {txt:"“Zona X: contrata A y B coinciden y se interfieren (riesgo atropello/atrapamiento). He parado el cruce y señalizado. Necesito coordinación de planificación e itinerarios.”", grade:"green", why:"Ubicación + interferencia + control provisional + petición de coordinación."},
+    {txt:"“Se molestan dos contratas.”", grade:"amber", why:"Falta riesgo concreto y qué control provisional has aplicado."},
+    {txt:"“Que se apañen.”", grade:"red", why:"No coordina ni reduce el riesgo."},
+    {txt:"“Haz algo.”", grade:"red", why:"Sin datos, no es accionable."}
+  ]}
+];
+
+
+// ---------- Checklist express ----------
+let checkSelected = [];
+
+function startChecklist(bank, takeN){
+  QUESTIONS = bank.map(q=>({
+    id:q.id,
+    bestRole:q.bestRole || "",
+    q:q.q, hint:q.hint || "",
+    items: q.items.slice(),
+    correct: q.correct.slice(),
+    whyGreen: q.whyGreen || "",
+    whyAmber: q.whyAmber || "",
+    whyRed: q.whyRed || ""
+  }));
+  shuffle(QUESTIONS);
+  QUESTIONS = QUESTIONS.slice(0, Math.min(takeN, QUESTIONS.length));
+
+  hide("start"); hide("result"); show("quiz");
+  hide("answers"); hide("orderArea"); show("checkArea");
+  hide("feedback"); hide("followUp"); hide("btnNext");
+  if ($("btnNext")) $("btnNext").disabled = false;
+
+  idx = 0;
+  answered = false;
+  followUpPending = false;
+  checkSelected = [];
+
+  setState("En curso");
+  renderChecklistRound();
+}
+
+function renderChecklistRound(){
+  answered = false;
+  followUpPending = false;
+  checkSelected = [];
+
+  clearTimer();
+
+  hide("feedback");
+  hide("followUp");
+  hide("btnNext");
+
+  updateProgressUI();
+  updateScoreUI();
+
+  const q = QUESTIONS[idx];
+  $("qText").textContent = q.q;
+  $("qHint").textContent = q.hint || "";
+
+  if ($("qTimer")) hide("qTimer");
+
+  const instr = $("checkInstr");
+  const list = $("checkList");
+  if (!list || !instr) return;
+
+  instr.textContent = "Elige los 3 imprescindibles antes de empezar. (0/3)";
+  list.innerHTML = "";
+
+  q.items.forEach((t, i)=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "checkItem";
+    b.textContent = t;
+    b.addEventListener("click", ()=>{
+      if (answered) return;
+      toggleCheck(i, b);
+    });
+    list.appendChild(b);
+  });
+
+  const btn = $("btnCheckChecklist");
+  if (btn){
+    btn.disabled = false;
+    btn.onclick = ()=>evaluateChecklist();
+  }
+}
+
+function toggleCheck(i, btnEl){
+  const pos = checkSelected.indexOf(i);
+  if (pos !== -1){
+    checkSelected.splice(pos, 1);
+    btnEl.classList.remove("on");
+  } else {
+    if (checkSelected.length >= 3) return;
+    checkSelected.push(i);
+    btnEl.classList.add("on");
+  }
+  const instr = $("checkInstr");
+  if (instr) instr.textContent = `Elige los 3 imprescindibles antes de empezar. (${checkSelected.length}/3)`;
+}
+
+function evaluateChecklist(){
+  if (answered) return;
+  if (checkSelected.length !== 3) return;
+
+  answered = true;
+
+  const q = QUESTIONS[idx];
+  const correctSet = new Set(q.correct);
+  const picksTxt = checkSelected.map(i=>q.items[i]).join(" · ");
+
+  let hits = 0;
+  checkSelected.forEach(i=>{ if (correctSet.has(i)) hits++; });
+
+  let grade = "red";
+  if (hits === 3) grade = "green";
+  else if (hits === 2) grade = "amber";
+
+  const pts = gradePoints(grade);
+  addPoints(pts);
+
+  // feedback
+  const titleEl = $("fbTitle");
+  const bodyEl  = $("fbBody");
+  if (grade === "green"){
+    titleEl.textContent = "✅ Perfecto";
+    bodyEl.textContent  = "✅ " + (q.whyGreen || "Bien: has seleccionado los imprescindibles.");
+  } else if (grade === "amber"){
+    titleEl.textContent = "🟠 Vas bien… pero falta un imprescindible";
+    bodyEl.textContent  = "🟠 " + (q.whyAmber || "Casi. Revisa controles básicos.");
+  } else {
+    titleEl.textContent = "🔴 Ojo";
+    bodyEl.textContent  = "🔴 " + (q.whyRed || "Faltan controles básicos antes de empezar.");
+  }
+
+  show("feedback");
+  show("btnNext");
+
+  breakdown.push({
+    n: idx+1,
+    q: q.q,
+    pick: picksTxt || "—",
+    grade,
+    pts,
+    team: (playMode==="teams") ? (teams[activeTeam]?.name || "") : ""
+  });
+
+  updateScoreUI();
+  const pct2 = Math.round(((idx+1) / Math.max(1, roundTotal())) * 100);
+  if ($("bar")) $("bar").style.width = pct2 + "%";
+
+  if ($("btnNext")) $("btnNext").disabled = false;
+}
+
+// ---------- Temporizador (Semáforo) ----------
+let timerHandle = null;
+let timerLeft = 0;
+
+function clearTimer(){
+  if (timerHandle){
+    clearInterval(timerHandle);
+    timerHandle = null;
+  }
+  timerLeft = 0;
+  if ($("qTimer")) hide("qTimer");
+}
+
+function startTimer(seconds){
+  clearTimer();
+  timerLeft = seconds;
+  const pill = $("qTimer");
+  if (pill){
+    pill.textContent = "⏱ " + timerLeft;
+    show("qTimer");
+  }
+  timerHandle = setInterval(()=>{
+    timerLeft--;
+    if (pill) pill.textContent = "⏱ " + Math.max(0, timerLeft);
+    if (timerLeft <= 0){
+      clearTimer();
+      // tiempo agotado → cuenta como roja
+      selectAnswer(-1, "sema", true);
+    }
+  }, 1000);
+}
+
+// ---------- Configuración / equipos ----------
+function buildTeamsFromUI(){
+  teams = [];
+  activeTeam = 0;
+  if (playMode !== "teams") return;
+
+  const n = Math.min(4, Math.max(2, parseInt($("teamCount")?.value || "2", 10)));
+  const nameInputs = Array.from(document.querySelectorAll("#teamNames input"));
+
+  for (let i=0;i<n;i++){
+    const raw = nameInputs[i]?.value?.trim();
+    const name = raw ? raw : ("Equipo " + (i+1));
+    teams.push({ name, score: 0 });
+  }
+}
+
+function resetScores(){
+  score = 0;
+  teams.forEach(t => t.score = 0);
+}
+
+function addPoints(pts){
+  if (playMode === "teams"){
+    teams[activeTeam].score += pts;
+  } else {
+    score += pts;
+  }
+}
+
+function totalScore(){
+  return (playMode === "teams")
+    ? teams.reduce((s,t)=>s+t.score,0)
+    : score;
+}
+
+function maxScore(){
+  return roundTotal() * 2;
+}
+
+function roundTotal(){
+  if (gameMode === "order") return ORDER_SET.length;
+  return QUESTIONS.length;
+}
+
+function rotateTeam(){
+  if (playMode === "teams"){
+    activeTeam = (activeTeam + 1) % teams.length;
+  }
+}
+
+function renderTeamBar(){
+  const bar = $("teamBar");
+  if (!bar) return;
+
+  if (playMode !== "teams"){
+    bar.innerHTML = "";
+    hide("teamBar");
+    return;
+  }
+
+  bar.innerHTML = teams.map((t, i)=>{
+    const cls = i === activeTeam ? "teamChip active" : "teamChip";
+    return `<span class="${cls}"><b>${escapeHtml(t.name)}</b> · ${t.score}</span>`;
+  }).join("");
+
+  show("teamBar");
+}
+
+function updateScoreUI(){
+  const el = $("qScore");
+  if (!el) return;
+
+  if (playMode === "teams"){
+    el.textContent = `Turno: ${teams[activeTeam]?.name || "Equipo"} · Total: ${totalScore()}`;
+  } else {
+    el.textContent = "Puntos: " + score;
+  }
+  renderTeamBar();
+}
+
+function updateProgressUI(){
+  const t = roundTotal();
+  const pct = Math.round((idx / Math.max(1, t)) * 100);
+  if ($("bar")) $("bar").style.width = pct + "%";
+  if ($("qCounter")) $("qCounter").textContent = `Ronda ${idx+1}/${t}`;
+}
+
+// ---------- Inicio / UI ----------
+function updateStartUI(){
+  const pm = $("playMode")?.value || "solo";
+  const gm = $("gameMode")?.value || "quiz";
+
+  // participación
+  if (pm === "teams"){
+    show("teamCountWrap");
+    show("teamNames");
+  } else {
+    hide("teamCountWrap");
+    hide("teamNames");
+  }
+
+  // nombres equipos
+  if (pm === "teams"){
+    const n = Math.min(4, Math.max(2, parseInt($("teamCount")?.value || "2", 10)));
+    const wrap = $("teamNames");
+    if (wrap){
+      wrap.innerHTML = "";
+      for (let i=0;i<n;i++){
+        const lab = document.createElement("label");
+        lab.className = "field";
+        lab.innerHTML = `<span class="lbl">Nombre equipo ${i+1}</span><input class="inp" type="text" placeholder="Equipo ${i+1}">`;
+        wrap.appendChild(lab);
+      }
+    }
+  }
+
+  // ritmo Kahoot (solo quiz)
+  if (gm === "quiz"){
+    show("quizPaceWrap");
+  } else {
+    hide("quizPaceWrap");
+  }
+
+  // ayuda modo
+  const help = $("modeHelp");
+  if (help){
+    if (gm === "quiz"){
+      help.textContent = "Preguntas rápidas: elige a quién avisar y por qué. (10 rondas)";
+    } else if (gm === "tf"){
+      help.textContent = "Verdadero/Falso: 10 frases rápidas. Puntuación: acierto = 2 · fallo = 0.";
+    } else if (gm === "order"){
+      help.textContent = "Ordena la actuación: 3 rondas. Ordena de primero a último (control inmediato → comunicar → corregir).";
+    } else if (gm === "sema"){
+      help.textContent = "Semáforo (5 s): decide la primera acción (parar / aislar / avisar). Si dudas: para y avisa.";
+    } else if (gm === "check"){
+      help.textContent = "Checklist express: elige los 3 imprescindibles antes de empezar. (8 rondas)";
+    } else if (gm === "myth"){
+      help.textContent = "Frase trampa: mito / verdad / depende. (10 rondas)";
+    } else if (gm === "say"){
+      help.textContent = "¿Qué le digo al mando?: elige el aviso más accionable (ubicación + riesgo + control provisional). (10 rondas)";
+    } else {
+      help.textContent = "—";
+    }
+  }
+}
+
+function resetAll(){
+  hide("quiz"); hide("result"); show("start");
+  setState("Listo");
+  // limpiar UI quiz
+  hide("feedback"); hide("btnNext"); hide("followUp");
+  if ($("answers")) $("answers").innerHTML = "";
+  if ($("orderList")) $("orderList").innerHTML = "";
+  hide("orderArea");
+  hide("checkArea");
+  show("answers");
+  clearTimer();
+  hide("stopWorkOverlay");
+  // reset
+  idx = 0;
+  answered = false;
+  breakdown = [];
+  followUpPending = false;
+  lastPlanText = "";
+}
+
+function startGame(){
+  // lee UI
+  gameMode = $("gameMode")?.value || "quiz";
+  playMode = $("playMode")?.value || "solo";
+
+  // ritmo (solo Kahoot)
+  quickMode = (gameMode === "quiz") && (($("quizPace")?.value || "normal") === "fast");
+
+  if (playMode === "teams"){
+    buildTeamsFromUI();
+  } else {
+    teams = [];
+    activeTeam = 0;
+  }
+
+  resetScores();
+  breakdown = [];
+  idx = 0;
+  answered = false;
+  followUpPending = false;
+  lastPlanText = "";
+
+  lastConfig = {
+    gameMode,
+    playMode,
+    quickMode,
+    teams: teams.map(t=>({name:t.name})),
+    teamCount: teams.length
+  };
+
+  if (gameMode === "quiz"){
+    startMcq(QUESTIONS_BASE, 10, "quiz");
+  } else if (gameMode === "tf"){
+    startMcq(TF_BASE, 10, "tf");
+  } else if (gameMode === "order"){
+    startOrder();
+  } else if (gameMode === "sema"){
+    startMcq(SEMA_BASE, 10, "sema");
+  } else if (gameMode === "check"){
+    startChecklist(CHECK_BASE, 8);
+  } else if (gameMode === "myth"){
+    startMcq(MYTH_BASE, 10, "myth");
+  } else if (gameMode === "say"){
+    startMcq(SAY_BASE, 10, "say");
+  } else {
+    startMcq(QUESTIONS_BASE, 10, "quiz");
+  }
+}
+
+function startAgain(){
+  // Repetir con la última config usada
+  if (!lastConfig){
+    resetAll();
+    return;
+  }
+
+  gameMode = lastConfig.gameMode;
+  playMode = lastConfig.playMode;
+  quickMode = !!lastConfig.quickMode;
+
+  if (playMode === "teams"){
+    teams = lastConfig.teams.map((t, i)=>({ name: t.name || ("Equipo "+(i+1)), score: 0 }));
+    activeTeam = 0;
+  } else {
+    teams = [];
+    activeTeam = 0;
+  }
+
+  resetScores();
+  breakdown = [];
+  idx = 0;
+  answered = false;
+  followUpPending = false;
+  lastPlanText = "";
+
+  if (gameMode === "quiz"){
+    startMcq(QUESTIONS_BASE, 10, "quiz");
+  } else if (gameMode === "tf"){
+    startMcq(TF_BASE, 10, "tf");
+  } else if (gameMode === "order"){
+    startOrder();
+  } else if (gameMode === "sema"){
+    startMcq(SEMA_BASE, 10, "sema");
+  } else if (gameMode === "check"){
+    startChecklist(CHECK_BASE, 8);
+  } else if (gameMode === "myth"){
+    startMcq(MYTH_BASE, 10, "myth");
+  } else if (gameMode === "say"){
+    startMcq(SAY_BASE, 10, "say");
+  } else {
+    startMcq(QUESTIONS_BASE, 10, "quiz");
+  }
+}
+
+// ---------- MCQ (Quiz + TF) ----------
+function gradePoints(g){
+  if (g === "green") return 2;
+  if (g === "amber") return 1;
+  return 0;
+}
+
+function startMcq(bank, takeN, type){
+  // tipo: quiz | tf | sema | myth | say
+  QUESTIONS = deepCopyBank(bank);
+
+  shuffle(QUESTIONS);
+  QUESTIONS = QUESTIONS.slice(0, Math.min(takeN, QUESTIONS.length));
+  QUESTIONS.forEach(q => shuffle(q.answers));
+
+  hide("start"); hide("result"); show("quiz");
+  show("answers"); hide("orderArea"); hide("checkArea");
+
+  idx = 0;
+  answered = false;
+  followUpPending = false;
+
+  setState("En curso");
+  renderQuestion(type);
+}
+
+function renderQuestion(type){
+  answered = false;
+  followUpPending = false;
+
+  clearTimer();
+
+  hide("feedback");
+  hide("followUp");
+  hide("btnNext");
+  if ($("btnNext")){
+    $("btnNext").disabled = false;
+  }
+
+  // asegura áreas
+  show("answers"); hide("orderArea"); hide("checkArea");
+
+  const q = QUESTIONS[idx];
+
+  updateProgressUI();
+  updateScoreUI();
+
+  $("qText").textContent = q.q;
+  $("qHint").textContent = q.hint || "";
+
+  const wrap = $("answers");
+  wrap.innerHTML = "";
+
+  const lettersDefault = ["A","B","C","D"];
+  const lettersTF = ["V","F"];
+  const letters = (type === "tf" && q.answers.length === 2) ? lettersTF : lettersDefault;
+
+  q.answers.forEach((a, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "ans";
+    btn.type = "button";
+    btn.innerHTML = `<span class="tag">${letters[i] || ""}</span><span class="text">${escapeHtml(a.txt)}</span>`;
+    btn.addEventListener("click", ()=>selectAnswer(i, type, false));
+    wrap.appendChild(btn);
+  });
+
+  // Semáforo: cuenta atrás
+  if (type === "sema"){
+    startTimer(5);
+  } else {
+    if ($("qTimer")) hide("qTimer");
+  }
+}
+
+function revealAll(selectedIndex){
+  const q = QUESTIONS[idx];
+  const buttons = Array.from(document.querySelectorAll(".ans"));
+  buttons.forEach((b, i)=>{
+    const g = q.answers[i].grade;
+    b.classList.add(g, "locked");
+    b.disabled = true;
+    if (i === selectedIndex) b.classList.add("selected");
+  });
+}
+
+function findGreenAnswer(q){
+  return q.answers.find(a=>a.grade==="green")?.txt || "(verde no definido)";
+}
+
+function usesGreenPlaceholder(s){
+  return typeof s === "string" && s.includes("{{GREEN}}");
+}
+
+function selectAnswer(i, type, timedOut=false){
+  if (answered) return;
+  answered = true;
+
+  clearTimer();
+
+  const q = QUESTIONS[idx];
+
+  let a = null;
+  let pickTxt = "";
+  let grade = "red";
+  let why = "";
+
+  if (timedOut || i < 0 || !q.answers || !q.answers[i]){
+    pickTxt = "⏱ Tiempo agotado";
+    grade = "red";
+    why = "No esperes a estar seguro al 100%: si hay exposición, prioriza parar/aislar y avisar.";
+  } else {
+    a = q.answers[i];
+    pickTxt = a.txt;
+    grade = a.grade;
+    why = (a.why || "");
+  }
+
+  const pts = gradePoints(grade);
+
+  addPoints(pts);
+  revealAll(i);
+
+  const greenTxt = findGreenAnswer(q);
+  const titleEl = $("fbTitle");
+  const bodyEl  = $("fbBody");
+
+  const whyResolved = usesGreenPlaceholder(why) ? why.replaceAll("{{GREEN}}", greenTxt) : why;
+
+  let title = "";
+  let body  = "";
+
+  if (grade === "green"){
+    title = "✅ Perfecto";
+    body  = "✅ " + whyResolved;
+  } else if (grade === "amber"){
+    title = "🟠 Correcto… pero se puede hacer mejor";
+    body  = usesGreenPlaceholder(why)
+      ? ("🟠 " + whyResolved)
+      : ("🟠 " + whyResolved + "\n\n✅ Lo más correcto sería: " + greenTxt);
+  } else {
+    title = "🔴 Incorrecto";
+    body  = usesGreenPlaceholder(why)
+      ? ("🔴 " + whyResolved)
+      : ("🔴 " + whyResolved + "\n\n✅ Lo más correcto sería: " + greenTxt);
+  }
+
+  titleEl.textContent = title;
+  bodyEl.textContent  = body;
+
+  show("feedback");
+  show("btnNext");
+
+  breakdown.push({
+    n: idx+1,
+    q: q.q,
+    pick: pickTxt,
+    grade,
+    pts,
+    team: (playMode==="teams") ? (teams[activeTeam]?.name || "") : ""
+  });
+
+  updateScoreUI();
+  const pct2 = Math.round(((idx+1) / Math.max(1, roundTotal())) * 100);
+  if ($("bar")) $("bar").style.width = pct2 + "%";
+
+  // Repregunta sólo en Kahoot (quiz) y sólo si rojo (modo rápido la desactiva)
+  if (type === "quiz" && grade === "red" && !quickMode){
+    showFollowUp(q);
+  } else {
+    hide("followUp");
+    if ($("btnNext")) $("btnNext").disabled = false;
+  }
+}
+
+function showFollowUp(q){
+  followUpPending = true;
+
+  // Repregunta preventiva: refuerzo de conducta (no “adivinar la verde”)
+  const role = (q && q.bestRole) ? q.bestRole : "default";
+
+  const BANK = {
+    emergencia: [
+      ()=>({
+        q: "Primer minuto ante un accidente grave: ¿qué secuencia es la correcta?",
+        options: [
+          "Aseguro la zona, no muevo al herido, llamo al 112 e informo al mando.",
+          "Lo levanto para que se siente y luego aviso.",
+          "Espero a ver si se recupera y si eso aviso después.",
+          "Lo llevo en coche sin valorar riesgos del entorno."
+        ],
+        correct: 0,
+        hint: "Pista: primero seguridad + activar emergencia; no mover si puede agravar.",
+        ok: "✅ Bien: control de la escena + 112 + comunicación interna."
+      }),
+      ()=>({
+        q: "Al llamar al 112, ¿qué información es imprescindible dar?",
+        options: [
+          "Ubicación exacta + qué ha pasado + nº de heridos + riesgos presentes.",
+          "Solo el nombre del encargado.",
+          "Un audio largo sin indicar el punto exacto.",
+          "Esperar a tener ‘todos los datos’ antes de llamar."
+        ],
+        correct: 0,
+        hint: "Pista: ubicación y tipo de emergencia primero; lo demás se amplía después.",
+        ok: "✅ Correcto: ubicación + tipo de emergencia + riesgos del entorno."
+      })
+    ],
+    recurso: [
+      ()=>({
+        q: "Mientras avisas al recurso preventivo, ¿qué haces primero para reducir el riesgo?",
+        options: [
+          "Aseguro la zona (paro si procede), señalizo y evito exposición.",
+          "Sigo trabajando y ya lo verá alguien.",
+          "Lo dejo para el final del día.",
+          "Me limito a comentarlo en el descanso."
+        ],
+        correct: 0,
+        hint: "Pista: control temporal inmediato (parar/señalizar/aislar) antes de todo.",
+        ok: "✅ Perfecto: control inmediato + aviso."
+      }),
+      ()=>({
+        q: "¿Qué hace el recurso preventivo en obra cuando le avisas?",
+        options: [
+          "Verifica en campo y activa la corrección con mando/contratas.",
+          "Sanciona a quien pille en el acto.",
+          "Gestiona nóminas y cuadrantes.",
+          "Solo toma nota para un informe mensual."
+        ],
+        correct: 0,
+        hint: "Pista: su función es activar control real y seguimiento en obra.",
+        ok: "✅ Exacto: presencia en campo y activación de correcciones."
+      }),
+      ()=>({
+        q: "Si el mando no está localizable, ¿qué objetivo tiene avisar al recurso preventivo?",
+        options: [
+          "Activar corrección ya y evitar exposición mientras se localiza al mando.",
+          "Saltarse al mando siempre.",
+          "Guardar la incidencia para cuando haya tiempo.",
+          "Delegar la responsabilidad y desentenderme."
+        ],
+        correct: 0,
+        hint: "Pista: rapidez y control del riesgo en el momento.",
+        ok: "✅ Bien: rapidez + control temporal del riesgo."
+      })
+    ],
+    mando: [
+      ()=>({
+        q: "Tras el aviso, ¿qué debe decidir el mando antes de reanudar la tarea?",
+        options: [
+          "Paro/organizo y aplico medida colectiva o cambio de método seguro.",
+          "Que aceleren para terminar cuanto antes.",
+          "Que se pongan un EPI y sigan igual.",
+          "Ignorar si no ha pasado nada todavía."
+        ],
+        correct: 0,
+        hint: "Pista: primero eliminar/reducir el riesgo; el EPI no sustituye la medida colectiva.",
+        ok: "✅ Correcto: parar/organizar y aplicar control eficaz."
+      }),
+      ()=>({
+        q: "En prevención, ¿qué suele ir primero cuando hay riesgo en el puesto?",
+        options: [
+          "Protección colectiva/medida técnica antes que EPI.",
+          "EPI siempre vale para todo y es lo primero.",
+          "Señalizar y seguir como si nada.",
+          "Esperar al informe final para actuar."
+        ],
+        correct: 0,
+        hint: "Pista: jerarquía preventiva: colectivo/técnico antes que individual.",
+        ok: "✅ Bien: prioridad a medidas colectivas/técnicas."
+      })
+    ],
+    tecnico: [
+      ()=>({
+        q: "¿Cuándo tiene sentido escalar al técnico PRL?",
+        options: [
+          "Cuando requiere evaluación, procedimiento, medida técnica o formación.",
+          "Para decidir temas de producción diarios.",
+          "Solo si hay sanción de por medio.",
+          "Siempre, aunque sea un tema menor resuelto en el momento."
+        ],
+        correct: 0,
+        hint: "Pista: se escala cuando hace falta análisis técnico o procedimiento.",
+        ok: "✅ Exacto: evaluación y medidas técnicas/procedimentales."
+      }),
+      ()=>({
+        q: "¿Qué aporta el técnico PRL en un caso complejo?",
+        options: [
+          "Analiza causas y define medidas + seguimiento de implantación.",
+          "Da un ok verbal sin ver la zona.",
+          "Sustituye al mando en la obra.",
+          "Solo rellena papeles sin ir a campo."
+        ],
+        correct: 0,
+        hint: "Pista: análisis + propuesta + seguimiento.",
+        ok: "✅ Bien: técnica + seguimiento."
+      })
+    ],
+    css: [
+      ()=>({
+        q: "En interferencias entre empresas, ¿por qué avisar al CSS?",
+        options: [
+          "Para coordinar actividades/medidas y evitar interferencias (control real).",
+          "Para que castigue a una contrata.",
+          "Para que ejecute la tarea él.",
+          "Solo para añadir burocracia."
+        ],
+        correct: 0,
+        hint: "Pista: coordinación y control de interferencias.",
+        ok: "✅ Correcto: coordinar para prevenir interferencias."
+      }),
+      ()=>({
+        q: "¿Qué información clave darías al CSS en un aviso?",
+        options: [
+          "Zona/actividad + empresas implicadas + riesgo/interferencia + medida provisional.",
+          "Un ‘hay lío’ sin detalles.",
+          "Solo una foto sin ubicación.",
+          "Una opinión sin datos verificables."
+        ],
+        correct: 0,
+        hint: "Pista: datos operativos para coordinar ya.",
+        ok: "✅ Bien: datos concretos y medida provisional."
+      })
+    ],
+    delegado: [
+      ()=>({
+        q: "¿Cuándo es útil avisar al delegado de prevención?",
+        options: [
+          "Para canalizar propuestas/mejoras y casos reiterados no corregidos.",
+          "Para emergencias médicas (112).",
+          "Para autorizar trabajos en obra.",
+          "Para sustituir al mando en decisiones diarias."
+        ],
+        correct: 0,
+        hint: "Pista: participación, propuestas y seguimiento de reiteraciones.",
+        ok: "✅ Correcto: canal de participación y mejora."
+      }),
+      ()=>({
+        q: "Si un problema se repite, ¿qué enfoque organizativo ayuda más?",
+        options: [
+          "Registrar, proponer mejora y elevar por vía de participación.",
+          "Callar para no molestar.",
+          "Arreglarlo ‘como pueda’ cada día sin avisar.",
+          "Culpar sin evidencias."
+        ],
+        correct: 0,
+        hint: "Pista: organización + seguimiento, no parches silenciosos.",
+        ok: "✅ Bien: registro + propuesta + participación."
+      })
+    ],
+    default: [
+      ()=>({
+        q: "Además de avisar, ¿qué haces primero para controlar el riesgo?",
+        options: [
+          "Aseguro la zona: paro si procede, señalizo y evito exposición.",
+          "Espero a que lo vea alguien y sigo trabajando.",
+          "Lo comento en el descanso y ya.",
+          "Me limito a hacer una foto y me voy."
+        ],
+        correct: 0,
+        hint: "Pista: control temporal del riesgo (parar/señalizar/aislar).",
+        ok: "✅ Perfecto: primero control, luego comunicación."
+      }),
+      ()=>({
+        q: "En un aviso preventivo eficaz, ¿qué 3 datos no pueden faltar?",
+        options: [
+          "Ubicación exacta + qué pasa (riesgo) + medida provisional aplicada.",
+          "Nombre del responsable + opinión personal + hora.",
+          "Un audio largo sin ubicación clara.",
+          "Solo “vente” sin contexto."
+        ],
+        correct: 0,
+        hint: "Pista: ubicación + riesgo + control provisional.",
+        ok: "✅ Bien: información accionable."
+      })
+    ]
+  };
+
+  const list = BANK[role] || BANK.default;
+  const fu = list[Math.floor(Math.random()*list.length)]();
+
+  $("fuQ").textContent = fu.q;
+  $("fuNote").textContent = "";
+
+  const wrap = $("fuAnswers");
+  wrap.innerHTML = "";
+
+  const opts = fu.options.map((t, idx)=>({ txt: t, ok: idx === fu.correct }));
+  shuffle(opts);
+
+  opts.forEach((o)=>{
+    const b = document.createElement("button");
+    b.className = "fuBtn";
+    b.type = "button";
+    b.textContent = o.txt;
+    b.addEventListener("click", ()=>{
+      if (o.ok){
+        followUpPending = false;
+        $("fuNote").textContent = fu.ok || "✅ Bien. Seguimos.";
+        if ($("btnNext")) $("btnNext").disabled = false;
+      } else {
+        $("fuNote").textContent = "❌ " + (fu.hint || "Pista: piensa en la medida preventiva inmediata.");
+        if ($("btnNext")) $("btnNext").disabled = true;
+      }
+    });
+    wrap.appendChild(b);
+  });
+
+  if ($("btnNext")) $("btnNext").disabled = true;
+  show("followUp");
+}
+
+// ---------- Ordena (drag) ----------
+let orderChecked = false;
+
+function startOrder(){
+  ORDER_SET = ORDER_BASE.map(o=>({ ...o, steps: o.steps.slice() }));
+  shuffle(ORDER_SET);
+  ORDER_SET = ORDER_SET.slice(0, Math.min(3, ORDER_SET.length));
+
+  hide("start"); hide("result"); show("quiz");
+  hide("answers"); show("orderArea"); hide("checkArea");
+
+  idx = 0;
+  answered = false;
+  orderChecked = false;
+  followUpPending = false;
+
+  setState("En curso");
+  renderOrderRound();
+}
+
+function renderOrderRound(){
+  answered = false;
+  orderChecked = false;
+  hide("feedback");
+  hide("btnNext");
+  if ($("btnNext")) $("btnNext").disabled = false;
+
+  const o = ORDER_SET[idx];
+
+  updateProgressUI();
+  updateScoreUI();
+
+  $("qText").textContent = o.q;
+  $("qHint").textContent = o.hint || "";
+
+  // construir tarjetas
+  const list = $("orderList");
+  list.innerHTML = "";
+
+  const cards = o.steps.map((txt, correctIndex)=>({ txt, correctIndex }));
+  shuffle(cards);
+
+  cards.forEach((c, i)=>{
+    const div = document.createElement("div");
+    div.className = "cardItem";
+    div.draggable = true;
+    div.dataset.correctIndex = String(c.correctIndex);
+    div.dataset.id = String(i);
+    div.innerHTML = `<small>Arrastra</small><div>${escapeHtml(c.txt)}</div>`;
+
+    div.addEventListener("dragstart", (ev)=>{
+      div.classList.add("dragging");
+      ev.dataTransfer.setData("text/plain", div.dataset.id);
+      ev.dataTransfer.effectAllowed = "move";
+    });
+    div.addEventListener("dragend", ()=>{
+      div.classList.remove("dragging");
+    });
+
+    list.appendChild(div);
+  });
+
+  // drop handler
+  list.ondragover = (ev)=>{
+    ev.preventDefault();
+    const dragging = list.querySelector(".dragging");
+    if (!dragging) return;
+
+    const after = getDragAfterElement(list, ev.clientY);
+    if (after == null){
+      list.appendChild(dragging);
+    } else {
+      list.insertBefore(dragging, after);
+    }
+  };
+
+  if ($("btnCheckOrder")){
+    $("btnCheckOrder").disabled = false;
+    $("btnCheckOrder").onclick = checkOrder;
+  }
+}
+
+function getDragAfterElement(container, y){
+  const els = [...container.querySelectorAll(".cardItem:not(.dragging)")];
+  return els.reduce((closest, child)=>{
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if (offset < 0 && offset > closest.offset){
+      return { offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+}
+
+function checkOrder(){
+  if (orderChecked) return;
+  orderChecked = true;
+
+  const o = ORDER_SET[idx];
+  const list = $("orderList");
+  const items = Array.from(list.querySelectorAll(".cardItem"));
+
+  // bloquear drag
+  items.forEach(it=>{
+    it.draggable = false;
+    it.style.cursor = "default";
+  });
+
+  let correct = 0;
+  items.forEach((it, pos)=>{
+    if (parseInt(it.dataset.correctIndex,10) === pos) correct++;
+  });
+
+  const total = items.length;
+  let pts = 0;
+  let grade = "red";
+  if (correct === total){
+    pts = 2; grade = "green";
+  } else if (correct >= total - 1){
+    pts = 1; grade = "amber";
+  } else {
+    pts = 0; grade = "red";
+  }
+
+  addPoints(pts);
+
+  const titleEl = $("fbTitle");
+  const bodyEl  = $("fbBody");
+
+  if (grade === "green"){
+    titleEl.textContent = "✅ Perfecto";
+  } else if (grade === "amber"){
+    titleEl.textContent = "🟠 Casi";
+  } else {
+    titleEl.textContent = "🔴 No del todo";
+  }
+
+  const correctOrder = o.steps.map((s, i)=>`${i+1}) ${s}`).join("\n");
+  bodyEl.textContent =
+    `Tu orden tiene ${correct}/${total} posiciones correctas.\n\n✅ Orden recomendado:\n${correctOrder}\n\n💡 ${o.why}`;
+
+  show("feedback");
+  show("btnNext");
+  answered = true;
+
+  breakdown.push({
+    n: idx+1,
+    q: o.q,
+    pick: "Ordenado (ver explicación)",
+    grade,
+    pts,
+    team: (playMode==="teams") ? (teams[activeTeam]?.name || "") : ""
+  });
+
+  updateScoreUI();
+  const pct2 = Math.round(((idx+1) / Math.max(1, roundTotal())) * 100);
+  if ($("bar")) $("bar").style.width = pct2 + "%";
+}
+
+// ---------- Siguiente / fin ----------
+function next(){
+  if (!answered) return;
+  if (followUpPending) return;
+
+  const total = roundTotal();
+
+  if (idx < total - 1){
+    idx++;
+    rotateTeam();
+
+    if (gameMode === "order"){
+      renderOrderRound();
+    } else if (gameMode === "check"){
+      renderChecklistRound();
+    } else {
+      renderQuestion(gameMode);
+    }
+  } else {
+    finish();
+  }
+}
+
+function renderTeamBoard(){
+  const board = $("teamBoard");
+  if (!board) return;
+
+  if (playMode !== "teams"){
+    board.innerHTML = "";
+    hide("teamBoard");
+    return;
+  }
+
+  // ordenar por puntuación
+  const sorted = teams.slice().sort((a,b)=>b.score-a.score);
+  board.innerHTML = sorted.map((t, i)=>{
+    const crown = i === 0 ? " 🏆" : "";
+    return `<div class="teamRow"><span class="name">${escapeHtml(t.name)}${crown}</span><span class="pts">${t.score} pts</span></div>`;
+  }).join("");
+
+  show("teamBoard");
+}
+
+function buildActionPlan(pct){
+  // limpio: 3 + 3 + 2
+  let preventivas = [];
+  let organizativas = [];
+  let mision = [];
+
+  if (pct >= 85){
+    preventivas = [
+      "Mantener protecciones colectivas y señalización en puntos críticos (revisiones rápidas).",
+      "Corregir de inmediato los desórdenes y “puntos negros” antes de que se normalicen.",
+      "Reforzar el uso correcto de EPI como complemento, no como excusa."
+    ];
+    organizativas = [
+      "Briefing corto diario (2–3 min) con canal de aviso claro.",
+      "Trazabilidad ligera: anotar reincidencias y responsable de cierre.",
+      "Repasar cambios de tarea/equipo con mando y recurso preventivo."
+    ];
+    mision = [
+      "Hoy: detectar 1 punto crítico y dejarlo “cerrado” (foto antes/después).",
+      "Acordar un canal único de aviso por cuadrilla (mando → recurso si no está)."
+    ];
+  } else if (pct >= 60){
+    preventivas = [
+      "Aislar/señalizar de inmediato cuando detectes riesgo (antes de debatirlo).",
+      "Priorizar protección colectiva cuando proceda; EPI como última capa.",
+      "Revisar accesos/pasos y orden y limpieza en zonas de trabajo."
+    ];
+    organizativas = [
+      "Regla simple: si el mando no está, recurso preventivo para activar corrección.",
+      "1 revisión diaria de 5 minutos por cuadrilla (pasos, acopios, protecciones).",
+      "Registrar 1 incidencia repetida y comprobar su cierre al día siguiente."
+    ];
+    mision = [
+      "Hoy: elegir 1 riesgo repetido y atacar la causa (no solo el síntoma).",
+      "Definir quién cierra y cuándo (responsable + hora)."
+    ];
+  } else {
+    preventivas = [
+      "Ante riesgo: parar/aislar y comunicar YA (no esperar a “luego”).",
+      "Eliminar exposición inmediata: señalizar, retirar de paso, bloquear accesos.",
+      "Revisar tareas de mayor riesgo (alturas, maquinaria, electricidad) antes de empezar."
+    ];
+    organizativas = [
+      "Acordar el orden de aviso: mando → recurso si no está → PRL/CSS según tema.",
+      "Hacer una ‘toolbox’ de 10 minutos: 3 riesgos típicos + 3 respuestas correctas.",
+      "Dejar constancia mínima de incidencias y seguimiento de cierre."
+    ];
+    mision = [
+      "Hoy: 1 ronda de riesgos (5 min) y corregir 2 puntos en el momento.",
+      "Mañana: repetir la ronda y verificar que no reaparecen."
+    ];
+  }
+
+  return { preventivas, organizativas, mision };
+}
+
+function renderActionPlan(){
+  const max = maxScore();
+  const total = totalScore();
+  const pct = Math.round((total / Math.max(1, max)) * 100);
+
+  const plan = buildActionPlan(pct);
+  const box = $("actionPlan");
+  if (!box) return;
+
+  box.innerHTML = `
+    <div class="planBox">
+      <h4>Preventivas</h4>
+      <ul>${plan.preventivas.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+    </div>
+    <div class="planBox">
+      <h4>Organizativas</h4>
+      <ul>${plan.organizativas.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+    </div>
+    <div class="planBox">
+      <h4>Misión rápida</h4>
+      <ul>${plan.mision.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+    </div>
+  `;
+
+  // texto para copiar
+  const lines = [];
+  lines.push(`Resultado: ${total} / ${max} (${pct}%)`);
+  if (playMode === "teams"){
+    const sorted = teams.slice().sort((a,b)=>b.score-a.score);
+    lines.push("Marcador:");
+    sorted.forEach(t=>lines.push(`- ${t.name}: ${t.score} pts`));
+  }
+  lines.push("");
+  lines.push("Preventivas:");
+  plan.preventivas.forEach(x=>lines.push("- " + x));
+  lines.push("");
+  lines.push("Organizativas:");
+  plan.organizativas.forEach(x=>lines.push("- " + x));
+  lines.push("");
+  lines.push("Misión rápida:");
+  plan.mision.forEach(x=>lines.push("- " + x));
+
+  lastPlanText = lines.join("\n");
+}
+
+async function copyPlan(){
+  if (!lastPlanText) return;
+  try{
+    await navigator.clipboard.writeText(lastPlanText);
+    show("copyOk");
+    setTimeout(()=>hide("copyOk"), 1600);
+  }catch(e){
+    // fallback
+    const ta = document.createElement("textarea");
+    ta.value = lastPlanText;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try{ document.execCommand("copy"); }catch(_){}
+    document.body.removeChild(ta);
+    show("copyOk");
+    setTimeout(()=>hide("copyOk"), 1600);
+  }
+}
+
+function finish(){
+  hide("quiz"); show("result");
+  setState("Finalizado");
+
+  const max = maxScore();
+  const total = totalScore();
+
+  $("finalScore").textContent = `${total} / ${max}`;
+
+const modeLabel =
+  (gameMode==="quiz")  ? "Kahoot (test)" :
+  (gameMode==="tf")    ? "Verdadero/Falso" :
+  (gameMode==="order") ? "Ordena" :
+  (gameMode==="sema")  ? "Semáforo" :
+  (gameMode==="check") ? "Checklist" :
+  (gameMode==="myth")  ? "Frase trampa" :
+  (gameMode==="say")   ? "Qué le digo al mando" :
+  "Juego";
+  $("finalDetail").textContent = `Modo: ${modeLabel} · Verde = 2 pts · Naranja = 1 pt · Roja = 0 pt · Total rondas: ${roundTotal()}`;
+
+  renderTeamBoard();
+  renderActionPlan();
+
+  const wrap = $("breakdown");
+  wrap.innerHTML = "";
+  breakdown.forEach(b=>{
+    const div = document.createElement("div");
+    div.className = "item";
+    const badgeClass = b.grade === "green" ? "green" : (b.grade === "amber" ? "amber" : "red");
+    const badgeTxt   = b.grade === "green" ? "Verde" : (b.grade === "amber" ? "Naranja" : "Roja");
+    const teamTxt = (playMode==="teams" && b.team) ? ` · ${escapeHtml(b.team)}` : "";
+    div.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <small>P${b.n}${teamTxt}</small>
+        <span class="badge ${badgeClass}">${badgeTxt} · +${b.pts}</span>
+      </div>
+      <div style="margin-top:6px;font-size:13px;line-height:1.25">${escapeHtml(b.q)}</div>
+      <small style="display:block;margin-top:6px">Tu respuesta: ${escapeHtml(b.pick)}</small>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+
+// ---------- STOP WORK ----------
+function openStopWork(){
+  const ov = $("stopWorkOverlay");
+  if (!ov) return;
+
+  // carga último
+  const last = safeJsonParse(lsGet("sw_last") || "{}");
+  if ($("swLoc")) $("swLoc").value = last.loc || "";
+  if ($("swRisk")) $("swRisk").value = last.risk || "";
+  if ($("swControl")) $("swControl").value = last.control || "He parado la tarea y he señalizado/aislado la zona.";
+  if ($("swNeed")) $("swNeed").value = last.need || "Que venga el mando/recurso para corregir y dejar constancia.";
+
+  updateStopMsg();
+  show("stopWorkOverlay");
+}
+
+function closeStopWork(){
+  hide("stopWorkOverlay");
+  if ($("swCopied")) hide("swCopied");
+}
+
+function updateStopMsg(){
+  const loc = ($("swLoc")?.value || "").trim();
+  const risk = ($("swRisk")?.value || "").trim();
+  const control = ($("swControl")?.value || "").trim();
+  const need = ($("swNeed")?.value || "").trim();
+
+  const msg =
+`STOP WORK
+Ubicación: ${loc || "—"}
+Riesgo: ${risk || "—"}
+Control provisional: ${control || "—"}
+Necesito: ${need || "—"}`;
+
+  if ($("swMsg")) $("swMsg").textContent = msg;
+
+  // guarda
+  lsSet("sw_last", JSON.stringify({ loc, risk, control, need }));
+}
+
+function copyStopMsg(){
+  const t = $("swMsg")?.textContent || "";
+  if (!t) return;
+  try{
+    navigator.clipboard.writeText(t).then(()=>{
+      show("swCopied");
+      setTimeout(()=>hide("swCopied"), 1200);
+    }).catch(()=>{ throw new Error("clipboard"); });
+  }catch(e){
+    // fallback (file:// y algunos navegadores)
+    const ta = document.createElement("textarea");
+    ta.value = t;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try{ document.execCommand("copy"); }catch(_){}
+    document.body.removeChild(ta);
+    show("swCopied");
+    setTimeout(()=>hide("swCopied"), 1200);
+  }
+}
+
+function safeJsonParse(s){
+  try { return JSON.parse(s); } catch(e){ return {}; }
+}
+
+// ---------- Init ----------
+window.addEventListener("DOMContentLoaded", ()=>{
+  initBgTheme();
+  updateStartUI();
+$("playMode")?.addEventListener("change", updateStartUI);
+  $("teamCount")?.addEventListener("change", updateStartUI);
+  $("gameMode")?.addEventListener("change", updateStartUI);
+  $("quizPace")?.addEventListener("change", updateStartUI);
+  $("bgTheme")?.addEventListener("change", ()=>applyBgTheme($("bgTheme")?.value || "night", true));
+
+  $("btnStart")?.addEventListener("click", startGame);
+  $("btnReset")?.addEventListener("click", resetAll);
+
+  $("btnBackToStart")?.addEventListener("click", resetAll);
+  $("btnNext")?.addEventListener("click", next);
+
+  $("btnAgain")?.addEventListener("click", startAgain);
+  $("btnToStart")?.addEventListener("click", resetAll);
+
+
+
+  // STOP WORK (siempre disponible)
+  $("btnStopWork")?.addEventListener("click", openStopWork);
+  $("btnCloseStop")?.addEventListener("click", closeStopWork);
+  $("btnCopyStop")?.addEventListener("click", copyStopMsg);
+  ["swLoc","swRisk","swControl","swNeed"].forEach(id => $(id)?.addEventListener("input", updateStopMsg));
+  $("stopWorkOverlay")?.addEventListener("click", (e)=>{
+    if (e.target && e.target.id === "stopWorkOverlay") closeStopWork();
+  });
+  $("btnCopyPlan")?.addEventListener("click", copyPlan);
+});
+
+
+// =======================
+// Multijugador (Firebase RTDB)
+// =======================
+
+// 1) Config Firebase (REEMPLAZA con tu config del panel de Firebase -> "Añadir app web")
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBXahJg5L3fV94v5q27uYDDC9NJvjHpFV0",
+  authDomain: "digitalizacion-prevencion.firebaseapp.com",
+  projectId: "digitalizacion-prevencion",
+  storageBucket: "digitalizacion-prevencion.firebasestorage.app",
+  messagingSenderId: "271798265443",
+  appId: "1:271798265443:web:24a4247a006c874ddcba56"
+};
+
+const MP = {
+  mode: "local",     // local | host | join
+  room: "",
+  pid: "",
+  pname: "",
+  roundId: "",
+  started: false,
+  unsubState: null,
+  unsubAnswers: null
+};
+
+function isConfiguredFirebase(){
+  // evita ReferenceError si alguien renombra la constante por accidente
+  try{
+    return (typeof FIREBASE_CONFIG !== "undefined")
+      && FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey
+      && !String(FIREBASE_CONFIG.apiKey).includes("REEMPLAZA");
+  }catch(e){ return false; }
+}
+
+function setPill(txt){
+  const p = $("pillState");
+  if (p) p.textContent = txt;
+}
+
+function showSessionUI(){
+  const modeSel = $("sessionMode");
+  MP.mode = modeSel ? modeSel.value : "local";
+
+  if (MP.mode === "host"){
+    show("hostWrap"); hide("joinWrap");
+    // Sala → solo Kahoot por ahora (lo demás lo dejamos local)
+    if ($("gameMode") && $("gameMode").value !== "quiz"){
+      $("gameMode").value = "quiz";
+    }
+    if ($("quizPaceWrap")) show("quizPaceWrap");
+  } else if (MP.mode === "join"){
+    hide("hostWrap"); show("joinWrap");
+    if ($("gameMode") && $("gameMode").value !== "quiz"){
+      $("gameMode").value = "quiz";
+    }
+    if ($("quizPaceWrap")) show("quizPaceWrap");
+  } else {
+    hide("hostWrap"); hide("joinWrap");
+  }
+
+  // aviso config
+  if ((MP.mode === "host" || MP.mode === "join") && !isConfiguredFirebase()){
+    setPill("⚠ Config Firebase pendiente");
+  } else {
+    setPill("Listo");
+  }
+}
+
+function genRoomCode(){
+  return String(Math.floor(100000 + Math.random()*900000));
+}
+
+function safeOriginPath(){
+  // file:// -> origin "null"
+  const origin = location.origin && location.origin !== "null" ? location.origin : "";
+  if (!origin) return "";
+  return origin + location.pathname;
+}
+
+function makeJoinUrl(code){
+  return safeOriginPath() + "?join=" + encodeURIComponent(code);
+}
+
+function renderRoomBox(){
+  $("roomCode").textContent = MP.room || "—";
+  const link = MP.room ? makeJoinUrl(MP.room) : "";
+  $("roomLink").textContent = link ? ("Link: " + link) : "Publica el HTML en una URL https:// para que el QR funcione.";
+
+  // QR (opcional)
+  const qrWrap = $("roomQr");
+  if (!qrWrap) return;
+  qrWrap.innerHTML = "";
+  if (!link){
+    qrWrap.textContent = "—";
+    return;
+  }
+  try{
+    if (typeof QRCode !== "undefined" && QRCode.toCanvas){
+      const canvas = document.createElement("canvas");
+      qrWrap.appendChild(canvas);
+      QRCode.toCanvas(canvas, link, { width: 132, margin: 1 }, (err)=>{
+        if (err){
+          qrWrap.textContent = "QR";
+        }
+      });
+    } else {
+      qrWrap.textContent = "QR";
+    }
+  }catch(e){
+    qrWrap.textContent = "QR";
+  }
+}
+
+async function mpCreateRoom(){
+  if (!isConfiguredFirebase()){
+    alert("Falta configurar Firebase. Edita FIREBASE_CONFIG dentro del HTML.");
+    return;
+  }
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, set, serverTimestamp, onDisconnect, remove } = fb;
+
+  const code = genRoomCode();
+  MP.room = code;
+  MP.started = false;
+  MP.roundId = "";
+
+  const roomRef = ref(db, `rooms/${code}`);
+  await set(roomRef, {
+    createdAt: serverTimestamp(),
+    status: "lobby",
+    title: document.title || "Juego PRL",
+  });
+
+  // limpieza al cerrar pestaña (best-effort)
+  try{
+    onDisconnect(roomRef).remove();
+  }catch(_e){}
+
+  renderRoomBox();
+  show("hostWrap");
+  setPill("Sala: " + code);
+}
+
+async function mpCloseRoom(){
+  if (!MP.room) return resetAll();
+  try{
+    const fb = await window.__getFirebase(FIREBASE_CONFIG);
+    const { db, ref, remove } = fb;
+    await remove(ref(db, `rooms/${MP.room}`));
+  }catch(_e){}
+  MP.room = "";
+  MP.started = false;
+  MP.roundId = "";
+  renderRoomBox();
+  setPill("Listo");
+  resetAll();
+}
+
+async function mpJoinRoom(code, name){
+  if (!isConfiguredFirebase()){
+    alert("Falta configurar Firebase. Edita FIREBASE_CONFIG dentro del HTML.");
+    return;
+  }
+  const clean = String(code || "").replace(/\D/g,"").slice(0,6);
+  if (clean.length < 6){
+    alert("Mete un código de 6 dígitos.");
+    return;
+  }
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, set, serverTimestamp, onValue } = fb;
+
+  MP.mode = "join";
+  MP.room = clean;
+  MP.pid = "p_" + Math.random().toString(36).slice(2,10);
+  MP.pname = (name || "").trim().slice(0,24);
+
+  // registra participante (no es auth, solo presencia)
+  await set(ref(db, `rooms/${clean}/participants/${MP.pid}`), {
+    name: MP.pname || "—",
+    joinedAt: serverTimestamp()
+  });
+
+  // escucha estado del juego
+  if (MP.unsubState) MP.unsubState();
+  MP.unsubState = onValue(ref(db, `rooms/${clean}/state`), (snap)=>{
+    const st = snap.val();
+    if (!st) return;
+    mpApplyRemoteState(st);
+  });
+
+  // entra a pantalla quiz (modo participante)
+  hide("start"); show("quiz");
+  hide("btnReveal"); hide("btnNext"); // el participante no avanza
+  if ($("btnBackToStart")) $("btnBackToStart").textContent = "Salir";
+  setPill("Unido: " + clean);
+}
+
+
+function revealRemote(correctIndex){
+  const buttons = Array.from(document.querySelectorAll(".ans"));
+  buttons.forEach((b,i)=>{
+    b.classList.add("locked");
+    b.disabled = true;
+    if (i === correctIndex) b.classList.add("green");
+    else b.classList.add("red");
+  });
+}
+
+function mpApplyRemoteState(st){
+  // st: {phase, roundId, qNo, total, qText, qHint, answers[], correctIndex?}
+  if (st.phase === "ended"){
+    // fin
+    $("qText").textContent = "Fin de la sala";
+    $("qHint").textContent = "Gracias. Ya puedes cerrar esta pestaña.";
+    $("answers").innerHTML = "";
+    hide("feedback"); hide("followUp");
+    hide("btnReveal"); hide("btnNext");
+    return;
+  }
+
+  // si cambia ronda -> desbloquea
+  if (st.roundId && st.roundId !== MP.roundId){
+    MP.roundId = st.roundId;
+    answered = false;
+    followUpPending = false;
+    hide("feedback"); hide("followUp");
+  }
+
+  // pinta
+  $("qCounter").textContent = `Pregunta ${st.qNo || 1}/${st.total || 10}`;
+  $("qScore").textContent = "En sala";
+  if ($("bar")){
+    const pct = Math.round(((st.qNo || 1) / Math.max(1, st.total || 10)) * 100);
+    $("bar").style.width = pct + "%";
+  }
+
+  $("qText").textContent = st.qText || "—";
+  $("qHint").textContent = st.qHint || "";
+
+  const wrap = $("answers");
+  wrap.innerHTML = "";
+  const letters = ["A","B","C","D"];
+
+  (st.answers || []).forEach((txt, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "ans";
+    btn.type = "button";
+    btn.innerHTML = `<span class="tag">${letters[i] || ""}</span><span class="text">${escapeHtml(txt)}</span>`;
+    btn.addEventListener("click", ()=>selectAnswer(i, "quiz", false));
+    wrap.appendChild(btn);
+  });
+
+  // fase reveal: marca solución si llega
+  if (st.phase === "reveal" && typeof st.correctIndex === "number"){
+    revealRemote(st.correctIndex);
+    show("feedback");
+    $("fbTitle").textContent = "✅ Solución";
+    $("fbBody").textContent = "Revisa con el mando/recurso preventivo qué control aplicas y cómo lo comunicas.";
+    hide("followUp");
+  } else {
+    // no revelar
+    hide("feedback"); hide("followUp");
+  }
+
+  // counts no se muestran al participante
+  hide("liveCounts");
+}
+
+// ---- Host: publicar estado / contar respuestas ----
+async function mpPublishQuestion(phase, correctIndex){
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, set, serverTimestamp } = fb;
+
+  const q = QUESTIONS[idx];
+  const answersTxt = (q.answers || []).map(a=>a.txt);
+
+  const roundId = (phase === "reveal" && MP.roundId) ? MP.roundId : `${Date.now()}_${idx}`;
+  MP.roundId = roundId;
+
+  await set(ref(db, `rooms/${MP.room}/state`), {
+    phase: phase,              // "question" | "reveal"
+    roundId: roundId,
+    qNo: idx+1,
+    total: roundTotal(),
+    qText: q.q,
+    qHint: q.hint || "",
+    answers: answersTxt,
+    correctIndex: (phase === "reveal") ? (typeof correctIndex === "number" ? correctIndex : null) : null,
+    ts: serverTimestamp()
+  });
+
+  // engancha contador
+  mpAttachCounts(roundId, answersTxt.length);
+}
+
+async function mpAttachCounts(roundId, answerLen){
+  // suelta anterior
+  if (MP.unsubAnswers){ MP.unsubAnswers(); MP.unsubAnswers = null; }
+
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, onValue } = fb;
+
+  const countsEl = $("liveCounts");
+  if (!countsEl) return;
+
+  MP.unsubAnswers = onValue(ref(db, `rooms/${MP.room}/answers/${roundId}`), (snap)=>{
+    const obj = snap.val() || {};
+    const counts = new Array(answerLen).fill(0);
+    let total = 0;
+    Object.keys(obj).forEach(k=>{
+      const c = obj[k]?.choice;
+      if (typeof c === "number" && c >= 0 && c < counts.length){
+        counts[c]++; total++;
+      }
+    });
+    countsEl.innerHTML = "";
+    const letters = ["A","B","C","D"];
+    counts.forEach((n,i)=>{
+      const sp = document.createElement("span");
+      sp.className = "countPill";
+      sp.textContent = `${letters[i]}: ${n}`;
+      countsEl.appendChild(sp);
+    });
+    const sp2 = document.createElement("span");
+    sp2.className = "countPill";
+    sp2.textContent = `Respondidas: ${total}`;
+    countsEl.appendChild(sp2);
+  });
+}
+
+// ---- Override: startGame / selectAnswer / next / resetAll ----
+const __startGame = startGame;
+startGame = function(){
+  const sel = $("sessionMode");
+  MP.mode = sel ? sel.value : "local";
+
+  if (MP.mode === "local"){
+    return __startGame();
+  }
+
+  // Multijugador: solo Kahoot (quiz)
+  if ($("gameMode") && $("gameMode").value !== "quiz"){
+    $("gameMode").value = "quiz";
+  }
+
+  if (MP.mode === "host"){
+    if (!isConfiguredFirebase()){
+      alert("Falta configurar Firebase. Edita FIREBASE_CONFIG dentro del HTML.");
+      return;
+    }
+    if (!MP.room){
+      // primer click: crear sala
+      mpCreateRoom().catch(e=>alert(e.message || e));
+      return;
+    }
+    // segundo click: empezar partida como host
+    MP.started = true;
+
+    // preparamos quiz normal en local (sin equipos)
+    $("playMode").value = "solo";
+    __startGame(); // esto montará QUESTIONS + idx + UI
+
+    // host: no responde, muestra botón de solución
+    show("btnReveal");
+    show("liveCounts");
+
+    // publica primera pregunta
+    mpPublishQuestion("question", null).catch(e=>console.error(e));
+    setPill("Sala: " + MP.room);
+    return;
+  }
+
+  if (MP.mode === "join"){
+    const code = $("joinCode")?.value || "";
+    const name = $("joinName")?.value || "";
+    mpJoinRoom(code, name).catch(e=>alert(e.message || e));
+    return;
+  }
+};
+
+const __resetAll = resetAll;
+resetAll = function(){
+  // limpia listeners
+  if (MP.unsubState){ try{ MP.unsubState(); }catch(_e){} MP.unsubState=null; }
+  if (MP.unsubAnswers){ try{ MP.unsubAnswers(); }catch(_e){} MP.unsubAnswers=null; }
+
+  MP.started = false;
+  MP.roundId = "";
+  // no borramos sala automáticamente (el host tiene botón "Cerrar sala")
+  hide("btnReveal");
+  hide("liveCounts");
+  return __resetAll();
+};
+
+const __selectAnswer = selectAnswer;
+selectAnswer = function(i, type, timedOut=false){
+  // participante: no calcula puntos, solo envía
+  if (MP.mode === "join" && type === "quiz"){
+    if (answered) return;
+    answered = true;
+    // marca selección visual sin revelar
+    const buttons = Array.from(document.querySelectorAll(".ans"));
+    buttons.forEach((b, idxB)=>{
+      b.disabled = true;
+      if (idxB === i) b.classList.add("selected");
+    });
+    hide("followUp");
+    show("feedback");
+    $("fbTitle").textContent = "📨 Enviado";
+    $("fbBody").textContent = "Respuesta enviada al host. Espera a que muestre la solución.";
+
+    // escribe en RTDB
+    (async ()=>{
+      try{
+        const fb = await window.__getFirebase(FIREBASE_CONFIG);
+        const { db, ref, set, serverTimestamp } = fb;
+        await set(ref(db, `rooms/${MP.room}/answers/${MP.roundId}/${MP.pid}`), {
+          choice: i,
+          ts: serverTimestamp()
+        });
+      }catch(e){
+        $("fbTitle").textContent = "⚠ No enviado";
+        $("fbBody").textContent = "No se pudo enviar. Revisa conexión / código de sala.";
+        console.error(e);
+      }
+    })();
+
+    return;
+  }
+
+  // host: no responde (usa botón “Mostrar solución”)
+  if (MP.mode === "host" && type === "quiz"){
+    return;
+  }
+
+  return __selectAnswer(i, type, timedOut);
+};
+
+const __next = next;
+next = function(){
+  if (MP.mode === "host" && MP.started){
+    // si estamos en pregunta, obliga a revelar primero (más formativo)
+    // (si ya reveló, answered=true y next avanza)
+    if (!answered){
+      // igual que “Mostrar solución”
+      mpHostReveal();
+      return;
+    }
+
+    __next();
+
+    // fin de ronda
+    if (idx >= roundTotal()){
+      mpEndRoom().catch(e=>console.error(e));
+      return;
+    }
+
+    // publica siguiente pregunta
+    mpPublishQuestion("question", null).catch(e=>console.error(e));
+    show("btnReveal");
+    show("liveCounts");
+    return;
+  }
+
+  return __next();
+};
+
+// Botón “Mostrar solución” (solo host)
+function mpHostReveal(){
+  if (answered) return;
+  answered = true;
+  clearTimer();
+
+  const q = QUESTIONS[idx];
+  const correct = (q.answers || []).findIndex(a=>a.grade==="green");
+  revealAll(correct);
+
+  show("feedback");
+  $("fbTitle").textContent = "✅ Solución";
+  $("fbBody").textContent  = "✅ " + ((q.answers && q.answers[correct] && q.answers[correct].why) ? q.answers[correct].why : "Revisa el control preventivo correcto.");
+  hide("followUp");
+  show("btnNext");
+
+  mpPublishQuestion("reveal", correct).catch(e=>console.error(e));
+}
+
+async function mpEndRoom(){
+  if (!MP.room) return;
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, set, serverTimestamp } = fb;
+  await set(ref(db, `rooms/${MP.room}/state`), {
+    phase: "ended",
+    ts: serverTimestamp()
+  });
+}
+
+function initMultiplayer(){
+  // selector
+  if ($("sessionMode")){
+    $("sessionMode").addEventListener("change", showSessionUI);
+  }
+  // botones
+  if ($("btnJoinRoom")){
+    $("btnJoinRoom").addEventListener("click", ()=>startGame());
+  }
+  if ($("btnCloseRoom")){
+    $("btnCloseRoom").addEventListener("click", ()=>mpCloseRoom().catch(e=>alert(e.message || e)));
+  }
+  if ($("btnReveal")){
+    $("btnReveal").addEventListener("click", ()=>mpHostReveal());
+  }
+
+  // QR join param
+  const sp = new URLSearchParams(location.search);
+  const join = sp.get("join");
+  if (join){
+    if ($("sessionMode")) $("sessionMode").value = "join";
+    if ($("joinCode")) $("joinCode").value = String(join).replace(/\D/g,"").slice(0,6);
+    showSessionUI();
+  } else {
+    showSessionUI();
+  }
+}
+
+// engancha al init existente (al final del script ya se llama init())
+try{
+  // si ya hay un init() definido, no lo tocamos; solo llamamos después de DOM ready.
+  window.addEventListener("load", ()=>initMultiplayer());
+}catch(_e){}
+
+</script>
+</body>
+</html>
