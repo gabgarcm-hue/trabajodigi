@@ -361,10 +361,8 @@
               <div class="lbl">Código de sala</div>
               <div class="roomCode" id="roomCode">—</div>
               <div class="roomLink" id="roomLink"></div>
-            <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">
-              <input id="baseUrl" class="inp" placeholder="URL base (opcional) p.ej. http://192.168.1.20:8000/" />
-            </div>
-            <div class="note" style="font-size:12px;opacity:.85">Si abres el HTML desde el disco (file://), el QR no puede apuntar a tu PC. Sírvelo en la red (python -m http.server) o pega aquí la URL base.</div>
+            
+
               <div class="note" id="roomNote">Crea la sala, deja que entren, y luego pulsa “Empezar” otra vez para lanzar la partida.</div>
             </div>
             <div class="qr" id="roomQr" aria-label="QR de unión"></div>
@@ -3011,19 +3009,9 @@ function safeOriginPath(){
   return origin + location.pathname;
 }
 
-function getBaseUrlOverride(){
-  // Opcional: para cuando el HTML se abre como file:// y quieres un QR válido en red
-  const el = $("baseUrl");
-  if(!el) return "";
-  let s = (el.value||"").trim();
-  if(!s) return "";
-  if(!/^https?:\/\//i.test(s)) s = "http://" + s;
-  return s;
-}
 
 function makeJoinUrl(code){
-  const override = getBaseUrlOverride();
-  let base = override || safeOriginPath();
+  let base = safeOriginPath();
   if(!base) return "";
   // Si la URL base termina en "/", asumimos que apuntas a un directorio y añadimos el nombre del HTML actual
   if (base.endsWith("/")) {
@@ -3035,7 +3023,6 @@ function makeJoinUrl(code){
 
 function renderRoomBox(){
   if ($("roomCode")) $("roomCode").textContent = MP.room || "—";
-    const base = getBaseUrlOverride() || safeOriginPath();
   const link = MP.room ? makeJoinUrl(MP.room) : "";
 
   const linkEl = $("roomLink");
@@ -3043,8 +3030,8 @@ function renderRoomBox(){
 
   if (!MP.room){
     linkEl.textContent = "Enlace: —";
-  } else if (!base){
-    linkEl.textContent = "⚠️ Estás abriendo el HTML desde el disco (file://). Para que el QR funcione, sirve el HTML en tu red (python -m http.server) o pega una URL base arriba.";
+  } else if (!link){
+    linkEl.textContent = "⚠️ Abre esta página desde un servidor (http/https) para generar el QR.";
   } else {
     linkEl.textContent = "Link: " + link;
   }
@@ -3053,32 +3040,53 @@ function renderRoomBox(){
   if (!roomQr) return;
   roomQr.innerHTML = "";
 
+  const empty = (msg)=>{ roomQr.innerHTML = `<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">${msg}</div>`; };
+
   if (!link){
-    roomQr.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">QR no disponible</div>';
+    empty("QR no disponible");
     return;
   }
 
-  const fallback = ()=>{
+  const tryApiFallback = ()=>{
     const img = document.createElement("img");
-    img.src = `https://chart.googleapis.com/chart?cht=qr&chs=170x170&chld=M|0&chl=${encodeURIComponent(link)}`;
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(link)}`;
     img.alt = "QR";
-    img.width = 170; img.height = 170;
+    img.width = 180; img.height = 180;
     img.style.imageRendering = "pixelated";
     img.referrerPolicy = "no-referrer";
-    img.onerror = ()=>{ roomQr.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No se pudo cargar el QR</div>'; };
+    img.onerror = ()=> empty("No se pudo generar el QR");
     roomQr.appendChild(img);
   };
 
   try{
-    if (window.QRCode && typeof window.QRCode === "function") {
-      new QRCode(roomQr, { text: link, width: 170, height: 170, correctLevel: QRCode.CorrectLevel.M });
-    } else {
-      fallback();
+    // Prefer local generation via the 'qrcode' library (global QRCode with toCanvas/toDataURL)
+    if (window.QRCode && typeof window.QRCode.toCanvas === "function"){
+      const canvas = document.createElement("canvas");
+      window.QRCode.toCanvas(canvas, link, { width: 180, margin: 1, errorCorrectionLevel: "M" }, (err)=>{
+        if (err){ tryApiFallback(); return; }
+        roomQr.appendChild(canvas);
+      });
+      return;
     }
+    if (window.QRCode && typeof window.QRCode.toDataURL === "function"){
+      window.QRCode.toDataURL(link, { width: 180, margin: 1, errorCorrectionLevel: "M" }, (err, url)=>{
+        if (err || !url){ tryApiFallback(); return; }
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = "QR";
+        img.width = 180; img.height = 180;
+        img.style.imageRendering = "pixelated";
+        roomQr.appendChild(img);
+      });
+      return;
+    }
+    // Last resort: remote QR image service
+    tryApiFallback();
   } catch(e){
-    fallback();
+    tryApiFallback();
   }
 }
+
 
 async function mpCreateRoom(){
   if (!isConfiguredFirebase()){
@@ -3427,7 +3435,21 @@ next = function(){
       return;
     }
 
+    const prevIdx = idx;
+    const wasFollowUp = followUpPending;
+
     __next();
+
+    // Si __next() solo ha mostrado una repregunta, no avanzamos ni publicamos nada
+    if (idx === prevIdx && wasFollowUp){
+      return;
+    }
+
+    // Asegura que "Mostrar solución" no se quede pegado visualmente
+    resetBtnRevealUI();
+    hide("feedback");
+    lockAnswers(false);
+    answered = false;
 
     // fin de ronda
     if (idx >= roundTotal()){
@@ -3489,10 +3511,6 @@ function initMultiplayer(){
   }
   if ($("btnReveal")){
     $("btnReveal").addEventListener("click", ()=>mpHostReveal());
-  }
-  // URL base (para QR en file://)
-  if ($("baseUrl")){
-    $("baseUrl").addEventListener("input", ()=>{ if (MP.mode==="host" && MP.room) renderRoomBox(); });
   }
 
   // QR join param
