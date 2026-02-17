@@ -807,51 +807,40 @@ function applyUi(){
     sel.value = prev;
   }
 }
-function applyQTranslation(bankKey, q){
-  if (!q) return q;
-  const id = (q.id !== undefined && q.id !== null) ? String(q.id) : "";
-  if (!id) return q;
-  const bank = (I18N.q && I18N.q[bankKey]) ? I18N.q[bankKey] : null;
-  if (!bank) return q;
-  const tr = bank[id];
+function applyQTranslation(bankKey, q) {
+  // Applies per-language question translations (if present).
+  // IMPORTANT: never blank-out base content when the translation pack is incomplete.
+  const lang = currentLang();
+  const bank = I18N?.q?.[bankKey];
+  const tr = bank?.[q.id]?.[lang];
+
   if (!tr) return q;
 
-  if (typeof tr.q === "string") q.q = substSiteName(tr.q);
-  if (typeof tr.hint === "string") q.hint = substSiteName(tr.hint);
+  const out = { ...q };
 
-  // MCQ-like: answers and answer-level why
-  if (Array.isArray(tr.answers) && Array.isArray(q.answers)){
-    tr.answers.forEach((txt, i)=>{
-      if (q.answers[i] && typeof txt === "string") q.answers[i].txt = substSiteName(txt);
+  if (typeof tr.q === "string" && tr.q.trim().length) out.q = substSiteName(tr.q);
+  if (typeof tr.hint === "string" && tr.hint.trim().length) out.hint = substSiteName(tr.hint);
+  if (typeof tr.topic === "string" && tr.topic.trim().length) out.topic = substSiteName(tr.topic);
+
+  if (Array.isArray(tr.a) && tr.a.length) {
+    // answers: [{txt, ok, why?}] or strings; keep base ok flags when missing
+    out.a = tr.a.map((item, idx) => {
+      if (typeof item === "string") {
+        const base = q.a?.[idx] || {};
+        return { ...base, txt: substSiteName(item) };
+      }
+      if (item && typeof item === "object") {
+        const base = q.a?.[idx] || {};
+        const txt = (typeof item.txt === "string" && item.txt.trim().length) ? substSiteName(item.txt) : base.txt;
+        const why = (typeof item.why === "string" && item.why.trim().length) ? substSiteName(item.why) : base.why;
+        const ok = (typeof item.ok === "boolean") ? item.ok : base.ok;
+        return { ...base, txt, why, ok };
+      }
+      return q.a?.[idx] || item;
     });
   }
-  if (Array.isArray(tr.why) && Array.isArray(q.answers)){
-    tr.why.forEach((txt, i)=>{
-      if (q.answers[i] && typeof txt === "string") q.answers[i].why = substSiteName(txt);
-    });
-  }
 
-  // ORDER: steps + why (string)
-  if (Array.isArray(tr.steps) && Array.isArray(q.steps)){
-    tr.steps.forEach((txt, i)=>{
-      if (typeof txt === "string" && q.steps[i] !== undefined) q.steps[i] = substSiteName(txt);
-    });
-  }
-  if (typeof tr.why === "string" && (q.why !== undefined)){
-    q.why = substSiteName(tr.why);
-  }
-
-  // CHECKLIST: items + whyGreen/whyAmber/whyRed
-  if (Array.isArray(tr.items) && Array.isArray(q.items)){
-    tr.items.forEach((txt, i)=>{
-      if (typeof txt === "string" && q.items[i] !== undefined) q.items[i] = substSiteName(txt);
-    });
-  }
-  if (typeof tr.whyGreen === "string") q.whyGreen = substSiteName(tr.whyGreen);
-  if (typeof tr.whyAmber === "string") q.whyAmber = substSiteName(tr.whyAmber);
-  if (typeof tr.whyRed === "string") q.whyRed = substSiteName(tr.whyRed);
-
-  return q;
+  return out;
 }
 
 function applyFUTranslation(fu){
