@@ -288,8 +288,8 @@
     .roomCode{font-weight:800;letter-spacing:3px;font-size:22px}
     .roomMeta{display:flex;flex-direction:column;gap:4px}
     .roomLink{font-size:12px;color:var(--muted);word-break:break-all}
-    .qr{width:132px;height:132px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .qr canvas,.qr img{display:block}
+    .qr{width:180px;height:180px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .qr canvas,.qr img{display:block;width:100% !important;height:100% !important}
     .note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.35}
     .liveCounts{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .countPill{border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
@@ -297,6 +297,18 @@
 
 /* MP host: estado "mostrar solución" */
 .btn.isActive{ box-shadow: inset 0 0 0 2px rgba(255,255,255,.18); }
+
+/* --- i18n modal --- */
+#langModal{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; padding:18px; z-index:9999; }
+#langModal.hidden{ display:none; }
+.langCard{ width:min(560px, 100%); background:var(--panel); border:1px solid rgba(255,255,255,.10); border-radius:16px; padding:16px; box-shadow:0 18px 40px rgba(0,0,0,.55); }
+.langTitle{ font-size:18px; margin:0 0 6px 0; }
+.langBody{ color:var(--muted); font-size:13px; margin:0 0 12px 0; line-height:1.35; }
+.langGrid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+.langBtn{ width:100%; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); color:var(--txt); cursor:pointer; text-align:left; }
+.langBtn:hover{ background:rgba(255,255,255,.10); }
+@media (max-width:520px){ .langGrid{ grid-template-columns:1fr; } }
+
 </style>
 </head>
 
@@ -304,10 +316,11 @@
 <header>
   <div class="top">
     <div class="brand">
-      <b>Quién es quién en prevención, un juego simple para conocer las figuras preventivas</b>
-      <span>Actividad rápida: “¿A quién aviso?”</span>
+      <b data-i18n="brand.title">Quién es quién en prevención, un juego simple para conocer las figuras preventivas</b>
+      <span data-i18n="brand.subtitle">Actividad rápida: “¿A quién aviso?”</span>
     </div>
     <div class="row" style="gap:10px">
+      <select id="langSelect" class="sel small" aria-label="Idioma"></select>
       <button class="btn danger small" id="btnStopWork" type="button">STOP WORK</button>
       <span class="pill" id="pillState">Listo</span>
     </div>
@@ -322,24 +335,24 @@
         <div class="card" style="box-shadow:none;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:18px;padding:12px;margin-top:12px">
       <div class="row" style="gap:10px;flex-wrap:wrap;align-items:flex-end">
         <label class="field">
-          <span class="lbl">Modo de juego</span>
+          <span class="lbl" data-i18n="label.gameMode">Modo de juego</span>
           <select id="gameMode" class="sel">
 
-<option value="quiz" selected>Preguntas rápidas</option>
-<option value="tf">Verdadero / Falso</option>
-<option value="order">Ordena la actuación</option>
-<option value="sema">Semáforo (5 s)</option>
-<option value="check">Checklist express</option>
-<option value="myth">Frase trampa</option>
-<option value="say">¿Qué le digo al mando?</option>
+<option value="quiz" selected data-i18n="opt.mode.quiz">Preguntas rápidas</option>
+<option value="tf" data-i18n="opt.mode.tf">Verdadero / Falso</option>
+<option value="order" data-i18n="opt.mode.order">Ordena la actuación</option>
+<option value="sema" data-i18n="opt.mode.sema">Semáforo (5 s)</option>
+<option value="check" data-i18n="opt.mode.check">Checklist express</option>
+<option value="myth" data-i18n="opt.mode.myth">Frase trampa</option>
+<option value="say" data-i18n="opt.mode.say">¿Qué le digo al mando?</option>
           </select>
         </label>
 
         <label class="field">
-          <span class="lbl">Participación</span>
+          <span class="lbl" data-i18n="label.playMode">Participación</span>
           <select id="playMode" class="sel">
-            <option value="solo" selected>Individual</option>
-            <option value="teams">Equipos</option>
+            <option value="solo" selected data-i18n="opt.play.solo">Individual</option>
+            <option value="teams" data-i18n="opt.play.teams">Equipos</option>
           </select>
         </label>
 
@@ -347,11 +360,11 @@
         
 
         <label class="field">
-          <span class="lbl">Sala (móviles)</span>
+          <span class="lbl" data-i18n="label.sessionMode">Sala (móviles)</span>
           <select id="sessionMode" class="sel">
-            <option value="local" selected>Sin sala</option>
-            <option value="host">Crear sala (host)</option>
-            <option value="join">Unirme (móvil)</option>
+            <option value="local" selected data-i18n="opt.session.local">Sin sala</option>
+            <option value="host" data-i18n="opt.session.host">Crear sala (host)</option>
+            <option value="join" data-i18n="opt.session.join">Unirme (móvil)</option>
           </select>
         </label>
 
@@ -363,41 +376,41 @@
               <div class="roomLink" id="roomLink"></div>
             
 
-              <div class="note" id="roomNote">Crea la sala, deja que entren, y luego pulsa “Empezar” otra vez para lanzar la partida.</div>
+              <div class="note" id="roomNote" data-i18n="room.note">Crea la sala, deja que entren, y luego pulsa “Empezar” otra vez para lanzar la partida.</div>
             </div>
             <div class="qr" id="roomQr" aria-label="QR de unión"></div>
           </div>
           <div class="row" style="gap:10px;margin-top:10px;justify-content:flex-end">
-            <button class="btn" id="btnCloseRoom" type="button">Cerrar sala</button>
+            <button class="btn" id="btnCloseRoom" type="button" data-i18n="btn.closeRoom">Cerrar sala</button>
           </div>
         </div>
 
         <div id="joinWrap" class="hidden" style="flex:1 1 100%;min-width:260px">
           <div class="row" style="gap:10px;flex-wrap:wrap;align-items:flex-end">
             <label class="field" style="min-width:220px">
-              <span class="lbl">Código de sala</span>
-              <input id="joinCode" class="inp" placeholder="Ej: 123456" inputmode="numeric" maxlength="6"/>
+              <span class="lbl" data-i18n="label.roomCode">Código de sala</span>
+              <input id="joinCode" class="inp" placeholder="Ej: 123456" data-i18n-placeholder="ph.joinCode" inputmode="numeric" maxlength="6"/>
             </label>
             <label class="field" style="min-width:220px">
-              <span class="lbl">Nombre (opcional)</span>
-              <input id="joinName" class="inp" placeholder="Ej: Mario"/>
+              <span class="lbl" data-i18n="label.nameOptional">Nombre (opcional)</span>
+              <input id="joinName" class="inp" placeholder="Ej: Mario" data-i18n-placeholder="ph.joinName"/>
             </label>
           </div>
           <div class="row" style="gap:10px;margin-top:10px;justify-content:flex-end">
-            <button class="btn primary" id="btnJoinRoom" type="button">Unirme</button>
+            <button class="btn primary" id="btnJoinRoom" type="button" data-i18n="btn.joinRoom">Unirme</button>
           </div>
-          <div class="note" id="joinNote">Tip: si entras desde un QR, el código se rellena solo.</div>
+          <div class="note" id="joinNote" data-i18n="mp.joinTip">Tip: si entras desde un QR, el código se rellena solo.</div>
         </div>
 <label class="field" id="quizPaceWrap">
-          <span class="lbl">Ritmo</span>
+          <span class="lbl" data-i18n="label.pace">Ritmo</span>
           <select id="quizPace" class="sel">
-            <option value="normal" selected>Normal (con repregunta)</option>
-            <option value="fast">Rápido (sin repregunta)</option>
+            <option value="normal" selected data-i18n="opt.pace.normal">Normal (con repregunta)</option>
+            <option value="fast" data-i18n="opt.pace.fast">Rápido (sin repregunta)</option>
           </select>
         </label>
 
         <label class="field">
-          <span class="lbl">Fondo</span>
+          <span class="lbl" data-i18n="label.bg">Fondo</span>
           <select id="bgTheme" class="sel">
             <option value="night" selected>Noche</option>
             <option value="graphite">Grafito</option>
@@ -407,7 +420,7 @@
           </select>
         </label>
 <label class="field hidden" id="teamCountWrap">
-          <span class="lbl">Nº equipos</span>
+          <span class="lbl" data-i18n="label.nTeams">Nº equipos</span>
           <select id="teamCount" class="sel">
             <option value="2" selected>2</option>
             <option value="3">3</option>
@@ -421,8 +434,8 @@
     </div>
 
     <div class="row" style="margin-top:12px">
-      <button class="btn primary" id="btnStart" onclick="startGame()">Empezar</button>
-            <button class="btn" id="btnReset" onclick="resetAll()">Reiniciar</button>
+      <button class="btn primary" id="btnStart" data-i18n="btn.start">Empezar</button>
+            <button class="btn" id="btnReset" data-i18n="btn.reset">Reiniciar</button>
     </div>
 </section>
 
@@ -479,10 +492,10 @@
     </div>
 
     <div class="row" style="margin-top:12px;justify-content:space-between">
-      <button class="btn" id="btnBackToStart" onclick="resetAll()">Salir</button>
+      <button class="btn" id="btnBackToStart" data-i18n="btn.back">Salir</button>
       <div class="row" style="gap:10px">
-        <button class="btn hidden" id="btnReveal" type="button">Mostrar solución</button>
-        <button class="btn primary hidden" id="btnNext" onclick="next()">Siguiente</button>
+        <button class="btn hidden" id="btnReveal" type="button" data-i18n="btn.reveal">Mostrar solución</button>
+        <button class="btn primary hidden" id="btnNext" data-i18n="btn.next">Siguiente</button>
       </div>
     </div>
   </section>
@@ -496,8 +509,8 @@
         <p style="margin:0;color:var(--muted)" id="finalDetail">—</p>
         <div id="teamBoard" class="teamBoard hidden"></div>
         <div class="row" style="margin-top:12px">
-          <button class="btn primary" id="btnAgain" onclick="startAgain()">Repetir</button>
-          <button class="btn" id="btnToStart" onclick="resetAll()">Volver al inicio</button>
+          <button class="btn primary" id="btnAgain">Repetir</button>
+          <button class="btn" id="btnToStart">Volver al inicio</button>
         </div>
 
         <div class="list" id="breakdown"></div>
@@ -505,52 +518,52 @@
 
       <div class="card" style="box-shadow:none">
 
-        <h3 style="margin:0 0 8px">Diagrama de orden (a quién escalar)</h3>
+        <h3 style="margin:0 0 8px" data-i18n="diagram.title">Diagrama de orden (a quién escalar)</h3>
         
         <div class="diagram">
           <div class="flow" aria-label="Diagrama de orden de comunicación en PRL">
             <div class="box" id="boxTrabajador">
-              <h4>1) Trabajador/a</h4>
-              <p>Detecta el riesgo / suceso y lo comunica.</p>
+              <h4 data-i18n="diagram.worker.h">1) Trabajador/a</h4>
+              <p data-i18n="diagram.worker.p">Detecta el riesgo / suceso y lo comunica.</p>
             </div>
             <div class="arrow">→</div>
             <div class="box decision" id="boxDecision">
-              <h4>2) ¿Es grave / hay lesión?</h4>
-              <p>Si hay lesión o riesgo grave e inminente, prioriza emergencia.</p>
+              <h4 data-i18n="diagram.decision.h">2) ¿Es grave / hay lesión?</h4>
+              <p data-i18n="diagram.decision.p">Si hay lesión o riesgo grave e inminente, prioriza emergencia.</p>
             </div>
             <div class="arrow">→</div>
             <div class="box emergency" id="boxEmergencia">
-              <h4>3) Emergencia (112)</h4>
-              <p>Asegura la zona, pide ayuda y después informa por la vía interna.</p>
+              <h4 data-i18n="diagram.emergency.h">3) Emergencia (112)</h4>
+              <p data-i18n="diagram.emergency.p">Asegura la zona, pide ayuda y después informa por la vía interna.</p>
             </div>
           </div>
 
           <div class="flow">
             <div class="box" id="boxMando">
-              <h4>4) Mando directo</h4>
-              <p>Encargado/Jefe de equipo/Jefe de obra. Canal principal cuando está disponible.</p>
+              <h4 data-i18n="diagram.mando.h">4) Mando directo</h4>
+              <p data-i18n="diagram.mando.p">Encargado/Jefe de equipo/Jefe de obra. Canal principal cuando está disponible.</p>
             </div>
             <div class="arrow">→</div>
             <div class="box" id="boxRecurso">
-              <h4>5) Recurso Preventivo</h4>
-              <p>Vía rápida en obra si el mando no está localizable o para temas menores/reincidencias. Deja constancia preventiva.</p>
+              <h4 data-i18n="diagram.recurso.h">5) Recurso Preventivo</h4>
+              <p data-i18n="diagram.recurso.p">Vía rápida en obra si el mando no está localizable o para temas menores/reincidencias. Deja constancia preventiva.</p>
             </div>
             <div class="arrow">→</div>
             <div class="box" id="boxTecnico">
-              <h4>6) Técnico PRL / Servicio de Prevención</h4>
-              <p>Procesos de prevención: procedimientos, formación, EPIs, sustancias, consultas técnicas.</p>
+              <h4 data-i18n="diagram.tecnico.h">6) Técnico PRL / Servicio de Prevención</h4>
+              <p data-i18n="diagram.tecnico.p">Procesos de prevención: procedimientos, formación, EPIs, sustancias, consultas técnicas.</p>
             </div>
           </div>
 
           <div class="flow">
             <div class="box" id="boxCSS">
-              <h4>7) CSS</h4>
-              <p>Interferencias entre contratas y coordinación de actividades en obra.</p>
+              <h4 data-i18n="diagram.css.h">7) CSS</h4>
+              <p data-i18n="diagram.css.p">Interferencias entre contratas y coordinación de actividades en obra.</p>
             </div>
             <div class="arrow">→</div>
             <div class="box" id="boxDelegado">
-              <h4>8) Delegado/a de prevención</h4>
-              <p>Canal de participación y propuestas. No sustituye avisos urgentes al mando.</p>
+              <h4 data-i18n="diagram.delegado.h">8) Delegado/a de prevención</h4>
+              <p data-i18n="diagram.delegado.p">Canal de participación y propuestas. No sustituye avisos urgentes al mando.</p>
             </div>
           </div>
         </div>
@@ -560,11 +573,11 @@
         </p>
 
         
-        <h3 style="margin:14px 0 8px">Recomendaciones según tu puntuación</h3>
+        <h3 style="margin:14px 0 8px" data-i18n="result.recoTitle">Recomendaciones según tu puntuación</h3>
         <div id="actionPlan" class="plan"></div>
         <div class="row" style="margin-top:10px;gap:10px">
-          <button class="btn" id="btnCopyPlan" type="button">Copiar plan</button>
-          <span id="copyOk" class="copyOk hidden">✅ Plan copiado</span>
+          <button class="btn" id="btnCopyPlan" type="button" data-i18n="plan.btnCopy">Copiar plan</button>
+          <span id="copyOk" class="copyOk hidden" data-i18n="plan.copied">✅ Plan copiado</span>
         </div>
 
       </div>
@@ -577,43 +590,41 @@
   <div class="modal">
     <div class="row" style="justify-content:space-between;align-items:flex-start;gap:12px">
       <div>
-        <h3 style="margin:0 0 6px">STOP WORK · Parada segura</h3>
-        <p style="margin:0;color:var(--muted);line-height:1.35;font-size:13px">
-          Úsalo si hay <b>riesgo grave e inminente</b>, ausencia/fallo de protección colectiva, o interferencias peligrosas.
-          Primero <b>asegura</b> la zona; después <b>comunica</b>.
-        </p>
+        <h3 style="margin:0 0 6px" data-i18n="sw.title">STOP WORK · Parada segura</h3>
+        <p style="margin:0;color:var(--muted);line-height:1.35;font-size:13px" data-i18n-html="sw.body">Úsalo si hay <b>riesgo grave e inminente</b>, ausencia/fallo de protección colectiva, o interferencias peligrosas.
+          Primero <b>asegura</b> la zona; después <b>comunica</b>.</p>
       </div>
-      <button class="btn small" id="btnCloseStop" type="button">Cerrar</button>
+      <button class="btn small" id="btnCloseStop" type="button" data-i18n="sw.btnClose">Cerrar</button>
     </div>
 
     <div class="grid2" style="margin-top:12px">
       <label class="field">
-        <span class="lbl">Ubicación exacta</span>
-        <input class="inp" id="swLoc" type="text" placeholder="Ej.: Planta 2, ala norte, junto al hueco de escalera">
+        <span class="lbl" data-i18n="sw.lbl.loc">Ubicación exacta</span>
+        <input class="inp" id="swLoc" type="text" data-i18n-placeholder="sw.ph.loc" placeholder="Ej.: Planta 2, ala norte, junto al hueco de escalera">
       </label>
       <label class="field">
-        <span class="lbl">Qué pasa (riesgo)</span>
-        <input class="inp" id="swRisk" type="text" placeholder="Ej.: Hueco sin barandilla / cables sueltos / izado sin balizar">
+        <span class="lbl" data-i18n="sw.lbl.risk">Qué pasa (riesgo)</span>
+        <input class="inp" id="swRisk" type="text" data-i18n-placeholder="sw.ph.risk" placeholder="Ej.: Hueco sin barandilla / cables sueltos / izado sin balizar">
       </label>
     </div>
 
     <div class="grid2" style="margin-top:10px">
       <label class="field">
-        <span class="lbl">Medida provisional aplicada</span>
-        <input class="inp" id="swControl" type="text" placeholder="Ej.: He parado la tarea y he señalizado/aislado">
+        <span class="lbl" data-i18n="sw.lbl.control">Medida provisional aplicada</span>
+        <input class="inp" id="swControl" type="text" data-i18n-placeholder="sw.ph.control" placeholder="Ej.: He parado la tarea y he señalizado/aislado">
       </label>
       <label class="field">
-        <span class="lbl">Qué necesitas ahora</span>
-        <input class="inp" id="swNeed" type="text" placeholder="Ej.: Que venga el mando/recurso para corregir y dejar constancia">
+        <span class="lbl" data-i18n="sw.lbl.need">Qué necesitas ahora</span>
+        <input class="inp" id="swNeed" type="text" data-i18n-placeholder="sw.ph.need" placeholder="Ej.: Que venga el mando/recurso para corregir y dejar constancia">
       </label>
     </div>
 
     <div class="card" style="margin-top:12px;box-shadow:none;background:rgba(255,255,255,.03)">
-      <small style="display:block;color:var(--muted);margin-bottom:6px">Mensaje listo para enviar (mando / recurso / CSS):</small>
+      <small style="display:block;color:var(--muted);margin-bottom:6px" data-i18n="sw.msgReady">Mensaje listo para enviar (mando / recurso / CSS):</small>
       <div class="mono" id="swMsg">—</div>
       <div class="row" style="margin-top:10px;gap:10px">
-        <button class="btn primary" id="btnCopyStop" type="button">Copiar mensaje</button>
-        <span id="swCopied" class="copyOk hidden">✅ Copiado</span>
+        <button class="btn primary" id="btnCopyStop" type="button" data-i18n="sw.btnCopy">Copiar mensaje</button>
+        <span id="swCopied" class="copyOk hidden" data-i18n="sw.copied">✅ Copiado</span>
       </div>
     </div>
   </div>
@@ -645,6 +656,244 @@
 </script>
 
 <script>
+// ---------------- I18N (UI + question translations) ----------------
+const I18N = {
+  lang: "es",
+  ui: {},
+  q: {} // structure: { quiz: { "1": {q,hint,answers:[...],why:[...] } } }
+};
+
+const LANGS = [
+  { code:"es", label:"Español", dir:"ltr" },
+  { code:"en", label:"English", dir:"ltr" },
+  { code:"fr", label:"Français", dir:"ltr" },
+  { code:"ro", label:"Română", dir:"ltr" },
+  { code:"zh", label:"中文", dir:"ltr" },
+  { code:"ar", label:"العربية", dir:"rtl" }
+];
+function t(key, fallback){
+  try{
+    const v = (I18N && I18N.ui) ? I18N.ui[key] : null;
+    return (typeof v === "string" && v.length) ? v : fallback;
+  }catch(_e){ return fallback; }
+}
+
+
+function uiAny(key, fallback){
+  try{
+    const v = (I18N && I18N.ui) ? I18N.ui[key] : undefined;
+    return (v !== undefined && v !== null) ? v : fallback;
+  }catch(_e){ return fallback; }
+}
+
+
+function fmt(template, vars){
+  if (typeof template !== "string") return "";
+  return template.replace(/\{(\w+)\}/g, (_m,k)=> (vars && (k in vars)) ? String(vars[k]) : "");
+}
+
+function detectLang(){
+  const sp = new URLSearchParams(location.search);
+  const urlLang = (sp.get("lang") || "").toLowerCase();
+  if (urlLang) return urlLang;
+  const stored = (localStorage.getItem("lang") || "").toLowerCase();
+  if (stored) return stored;
+  const nav = (navigator.language || "es").toLowerCase();
+  if (nav.startsWith("fr")) return "fr";
+  if (nav.startsWith("ro")) return "ro";
+  if (nav.startsWith("ar")) return "ar";
+  if (nav.startsWith("zh")) return "zh";
+  if (nav.startsWith("en")) return "en";
+  return "es";
+}
+
+function setDocLang(lang){
+  const meta = LANGS.find(x=>x.code===lang) || LANGS[0];
+  document.documentElement.lang = meta.code;
+  document.documentElement.dir  = meta.dir || "ltr";
+}
+
+function substSiteName(s){
+  if (typeof s !== "string") return s;
+  try{
+    const sn = (typeof SITE_NAME !== "undefined") ? SITE_NAME : "";
+    return s.replaceAll("{SITE_NAME}", sn).replaceAll("${SITE_NAME}", sn);
+  }catch(_e){ return s; }
+}
+
+async function fetchJson(path){
+  const r = await fetch(path, { cache:"no-store" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return await r.json();
+}
+
+async function loadUi(lang){
+  // fallback to es
+  try{ return await fetchJson(`./i18n/ui/${lang}.json`); }
+  catch(_e){ if (lang!=="es"){ return await fetchJson(`./i18n/ui/es.json`); } return {}; }
+}
+
+async function loadQ(lang){
+  try{ return await fetchJson(`./i18n/questions/${lang}.json`); }
+  catch(_e){ return {}; }
+}
+
+function applyUi(){
+  // text nodes
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.getAttribute("data-i18n");
+    const val = I18N.ui[key];
+    if (typeof val === "string") el.textContent = val;
+  });
+
+  // innerHTML nodes (use only for trusted local strings)
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-html");
+    const val = I18N.ui[key];
+    if (typeof val === "string") el.innerHTML = val;
+  });
+
+  // placeholders
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-placeholder");
+    const val = I18N.ui[key];
+    if (typeof val === "string") el.setAttribute("placeholder", val);
+  });
+
+  // <option> text
+  document.querySelectorAll("option[data-i18n]").forEach(opt=>{
+    const key = opt.getAttribute("data-i18n");
+    const val = I18N.ui[key];
+    if (typeof val === "string") opt.textContent = val;
+  });
+
+  // language select labels
+  const sel = document.getElementById("langSelect");
+  if (sel){
+    const prev = sel.value || I18N.lang;
+    sel.innerHTML = "";
+    LANGS.forEach(l=>{
+      const o = document.createElement("option");
+      o.value = l.code;
+      o.textContent = l.label;
+      sel.appendChild(o);
+    });
+    sel.value = prev;
+  }
+}
+function applyQTranslation(bankKey, q){
+  if (!q) return q;
+  const id = (q.id !== undefined && q.id !== null) ? String(q.id) : "";
+  if (!id) return q;
+  const bank = (I18N.q && I18N.q[bankKey]) ? I18N.q[bankKey] : null;
+  if (!bank) return q;
+  const tr = bank[id];
+  if (!tr) return q;
+
+  if (typeof tr.q === "string") q.q = substSiteName(tr.q);
+  if (typeof tr.hint === "string") q.hint = substSiteName(tr.hint);
+
+  // MCQ-like: answers and answer-level why
+  if (Array.isArray(tr.answers) && Array.isArray(q.answers)){
+    tr.answers.forEach((txt, i)=>{
+      if (q.answers[i] && typeof txt === "string") q.answers[i].txt = substSiteName(txt);
+    });
+  }
+  if (Array.isArray(tr.why) && Array.isArray(q.answers)){
+    tr.why.forEach((txt, i)=>{
+      if (q.answers[i] && typeof txt === "string") q.answers[i].why = substSiteName(txt);
+    });
+  }
+
+  // ORDER: steps + why (string)
+  if (Array.isArray(tr.steps) && Array.isArray(q.steps)){
+    tr.steps.forEach((txt, i)=>{
+      if (typeof txt === "string" && q.steps[i] !== undefined) q.steps[i] = substSiteName(txt);
+    });
+  }
+  if (typeof tr.why === "string" && (q.why !== undefined)){
+    q.why = substSiteName(tr.why);
+  }
+
+  // CHECKLIST: items + whyGreen/whyAmber/whyRed
+  if (Array.isArray(tr.items) && Array.isArray(q.items)){
+    tr.items.forEach((txt, i)=>{
+      if (typeof txt === "string" && q.items[i] !== undefined) q.items[i] = substSiteName(txt);
+    });
+  }
+  if (typeof tr.whyGreen === "string") q.whyGreen = substSiteName(tr.whyGreen);
+  if (typeof tr.whyAmber === "string") q.whyAmber = substSiteName(tr.whyAmber);
+  if (typeof tr.whyRed === "string") q.whyRed = substSiteName(tr.whyRed);
+
+  return q;
+}
+
+function applyFUTranslation(fu){
+  if (!fu || !fu.id) return fu;
+  const bank = (I18N.q && I18N.q.fu) ? I18N.q.fu : null;
+  if (!bank) return fu;
+  const tr = bank[String(fu.id)];
+  if (!tr) return fu;
+
+  if (typeof tr.q === "string") fu.q = substSiteName(tr.q);
+  if (typeof tr.hint === "string") fu.hint = substSiteName(tr.hint);
+  if (typeof tr.ok === "string") fu.ok = substSiteName(tr.ok);
+  if (Array.isArray(tr.options) && Array.isArray(fu.options)){
+    tr.options.forEach((txt, i)=>{
+      if (typeof txt === "string" && fu.options[i] !== undefined) fu.options[i] = substSiteName(txt);
+    });
+  }
+  return fu;
+}
+
+async function setLang(lang, persist=true){
+  const clean = (lang || "es").toLowerCase();
+  I18N.lang = LANGS.some(x=>x.code===clean) ? clean : "es";
+  setDocLang(I18N.lang);
+  if (persist){ try{ localStorage.setItem("lang", I18N.lang); }catch(_e){} }
+
+  I18N.ui = await loadUi(I18N.lang);
+  I18N.q  = await loadQ(I18N.lang);
+
+  applyUi();
+}
+
+function openLangModal(onPick){
+  const modal = document.getElementById("langModal");
+  const grid  = document.getElementById("langGrid");
+  if (!modal || !grid){ onPick && onPick(detectLang()); return; }
+  grid.innerHTML = "";
+  LANGS.forEach(l=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "langBtn";
+    b.textContent = l.label;
+    b.addEventListener("click", async ()=>{
+      modal.classList.add("hidden");
+      await setLang(l.code, true);
+      if (typeof onPick === "function") onPick(l.code);
+    });
+    grid.appendChild(b);
+  });
+  modal.classList.remove("hidden");
+}
+
+// promise to wait i18n ready
+let __i18nReadyResolve;
+window.__i18nReady = new Promise(res=>{ __i18nReadyResolve = res; });
+
+// init i18n at DOM ready (before MP autostart)
+window.addEventListener("DOMContentLoaded", async ()=>{
+  const initial = detectLang();
+  await setLang(initial, true);
+  const sel = document.getElementById("langSelect");
+  if (sel){
+    sel.value = I18N.lang;
+    sel.addEventListener("change", async ()=>{ await setLang(sel.value, true); });
+  }
+  __i18nReadyResolve && __i18nReadyResolve();
+});
+
 
 /**
  * Enanos Espaciales · Kahoot PRL (web) — v8
@@ -1219,7 +1468,10 @@ function shuffle(a){
 function deepCopyBank(bank){
   return bank.map(q => ({
     ...q,
-    answers: q.answers?.map(a=>({...a})) || []
+    answers: q.answers?.map(a=>({...a})) || [],
+    items: Array.isArray(q.items) ? q.items.slice() : q.items,
+    correct: Array.isArray(q.correct) ? q.correct.slice() : q.correct,
+    steps: Array.isArray(q.steps) ? q.steps.slice() : q.steps,
   }));
 }
 
@@ -1586,6 +1838,8 @@ function startChecklist(bank, takeN){
     whyAmber: q.whyAmber || "",
     whyRed: q.whyRed || ""
   }));
+  // i18n (traduce items y explicaciones)
+  QUESTIONS.forEach(q=>applyQTranslation("check", q));
   shuffle(QUESTIONS);
   QUESTIONS = QUESTIONS.slice(0, Math.min(takeN, QUESTIONS.length));
 
@@ -1599,7 +1853,7 @@ function startChecklist(bank, takeN){
   followUpPending = false;
   checkSelected = [];
 
-  setState("En curso");
+  setState(t("state.playing","En curso"));
   renderChecklistRound();
 }
 
@@ -1627,7 +1881,7 @@ function renderChecklistRound(){
   const list = $("checkList");
   if (!list || !instr) return;
 
-  instr.textContent = "Elige los 3 imprescindibles antes de empezar. (0/3)";
+  instr.textContent = fmt(t("check.instr","Elige los 3 imprescindibles antes de empezar. ({N}/3)"), {N:0});
   list.innerHTML = "";
 
   q.items.forEach((t, i)=>{
@@ -1690,14 +1944,14 @@ function evaluateChecklist(){
   const titleEl = $("fbTitle");
   const bodyEl  = $("fbBody");
   if (grade === "green"){
-    titleEl.textContent = "✅ Perfecto";
-    bodyEl.textContent  = "✅ " + (q.whyGreen || "Bien: has seleccionado los imprescindibles.");
+    titleEl.textContent = t("check.title.green","✅ Perfecto");
+    bodyEl.textContent  = "✅ " + (q.whyGreen || t("check.body.green","Bien: has seleccionado los imprescindibles."));
   } else if (grade === "amber"){
-    titleEl.textContent = "🟠 Vas bien… pero falta un imprescindible";
-    bodyEl.textContent  = "🟠 " + (q.whyAmber || "Casi. Revisa controles básicos.");
+    titleEl.textContent = t("check.title.amber","🟠 Vas bien… pero falta un imprescindible");
+    bodyEl.textContent  = "🟠 " + (q.whyAmber || t("check.body.amber","Casi. Revisa controles básicos."));
   } else {
-    titleEl.textContent = "🔴 Ojo";
-    bodyEl.textContent  = "🔴 " + (q.whyRed || "Faltan controles básicos antes de empezar.");
+    titleEl.textContent = t("check.title.red","🔴 Ojo");
+    bodyEl.textContent  = "🔴 " + (q.whyRed || t("check.body.red","Faltan controles básicos antes de empezar."));
   }
 
   show("feedback");
@@ -1824,9 +2078,15 @@ function updateScoreUI(){
   if (!el) return;
 
   if (playMode === "teams"){
-    el.textContent = `Turno: ${teams[activeTeam]?.name || "Equipo"} · Total: ${totalScore()}`;
+    el.textContent = fmt(
+      t("quiz.teamScore","Turno: {TEAM} · Total: {TOTAL}"),
+      { TEAM: (teams[activeTeam]?.name || t("team.default","Equipo")), TOTAL: totalScore() }
+    );
   } else {
-    el.textContent = "Puntos: " + score;
+    el.textContent = fmt(
+      t("quiz.soloScore","Puntos: {SCORE}"),
+      { SCORE: score }
+    );
   }
   renderTeamBar();
 }
@@ -1835,7 +2095,7 @@ function updateProgressUI(){
   const t = roundTotal();
   const pct = Math.round((idx / Math.max(1, t)) * 100);
   if ($("bar")) $("bar").style.width = pct + "%";
-  if ($("qCounter")) $("qCounter").textContent = `Ronda ${idx+1}/${t}`;
+  if ($("qCounter")) $("qCounter").textContent = fmt(t("quiz.progress","Ronda {CUR}/{TOTAL}"), {CUR: idx+1, TOTAL: t});
 }
 
 // ---------- Inicio / UI ----------
@@ -1861,7 +2121,7 @@ function updateStartUI(){
       for (let i=0;i<n;i++){
         const lab = document.createElement("label");
         lab.className = "field";
-        lab.innerHTML = `<span class="lbl">Nombre equipo ${i+1}</span><input class="inp" type="text" placeholder="Equipo ${i+1}">`;
+        lab.innerHTML = `<span class="lbl">${escapeHtml(fmt(t("team.nameLabel","Nombre equipo {N}"), {N:i+1}))}</span><input class="inp" type="text" placeholder="${escapeHtml(fmt(t("team.namePh","Equipo {N}"), {N:i+1}))}">`;
         wrap.appendChild(lab);
       }
     }
@@ -1874,32 +2134,26 @@ function updateStartUI(){
     hide("quizPaceWrap");
   }
 
-  // ayuda modo
+    // ayuda modo
   const help = $("modeHelp");
   if (help){
-    if (gm === "quiz"){
-      help.textContent = "Preguntas rápidas: elige a quién avisar y por qué. (10 rondas)";
-    } else if (gm === "tf"){
-      help.textContent = "Verdadero/Falso: 10 frases rápidas. Puntuación: acierto = 2 · fallo = 0.";
-    } else if (gm === "order"){
-      help.textContent = "Ordena la actuación: 3 rondas. Ordena de primero a último (control inmediato → comunicar → corregir).";
-    } else if (gm === "sema"){
-      help.textContent = "Semáforo (5 s): decide la primera acción (parar / aislar / avisar). Si dudas: para y avisa.";
-    } else if (gm === "check"){
-      help.textContent = "Checklist express: elige los 3 imprescindibles antes de empezar. (8 rondas)";
-    } else if (gm === "myth"){
-      help.textContent = "Frase trampa: mito / verdad / depende. (10 rondas)";
-    } else if (gm === "say"){
-      help.textContent = "¿Qué le digo al mando?: elige el aviso más accionable (ubicación + riesgo + control provisional). (10 rondas)";
-    } else {
-      help.textContent = "—";
-    }
+    const fallback =
+      (gm === "quiz")  ? "Preguntas rápidas: elige a quién avisar y por qué. (10 rondas)" :
+      (gm === "tf")    ? "Verdadero/Falso: 10 frases rápidas. Puntuación: acierto = 2 · fallo = 0." :
+      (gm === "order") ? "Ordena la actuación: 3 rondas. Ordena de primero a último (control inmediato → comunicar → corregir)." :
+      (gm === "sema")  ? "Semáforo (5 s): decide la primera acción (parar / aislar / avisar). Si dudas: para y avisa." :
+      (gm === "check") ? "Checklist express: elige los 3 imprescindibles antes de empezar. (8 rondas)" :
+      (gm === "myth")  ? "Frase trampa: mito / verdad / depende. (10 rondas)" :
+      (gm === "say")   ? "¿Qué le digo al mando?: elige el aviso más accionable (ubicación + riesgo + control provisional). (10 rondas)" :
+      "—";
+
+    help.textContent = t(`help.${gm}`, fallback);
   }
 }
 
 function resetAll(){
   hide("quiz"); hide("result"); show("start");
-  setState("Listo");
+  setState(t("state.ready","Listo"));
   // limpiar UI quiz
   hide("feedback"); hide("btnNext"); hide("followUp");
   if ($("answers")) $("answers").innerHTML = "";
@@ -2024,7 +2278,14 @@ function startMcq(bank, takeN, type){
 
   shuffle(QUESTIONS);
   QUESTIONS = QUESTIONS.slice(0, Math.min(takeN, QUESTIONS.length));
-  QUESTIONS.forEach(q => shuffle(q.answers));
+  // Aplica traducciones por idioma (si existen) antes de barajar
+  QUESTIONS.forEach(q => applyQTranslation(type, q));
+
+  // En multijugador mantenemos el orden de respuestas (así choice index coincide entre idiomas)
+  const isMP = (typeof MP !== "undefined") && (MP.mode === "host" || MP.mode === "join");
+  if (!isMP){
+    QUESTIONS.forEach(q => shuffle(q.answers));
+  }
 
   hide("start"); hide("result"); show("quiz");
   show("answers"); hide("orderArea"); hide("checkArea");
@@ -2033,7 +2294,7 @@ function startMcq(bank, takeN, type){
   answered = false;
   followUpPending = false;
 
-  setState("En curso");
+  setState(t("state.playing","En curso"));
   renderQuestion(type);
 }
 
@@ -2125,9 +2386,9 @@ function selectAnswer(i, type, timedOut=false){
   let why = "";
 
   if (timedOut || i < 0 || !q.answers || !q.answers[i]){
-    pickTxt = "⏱ Tiempo agotado";
+    pickTxt = t("fb.timeoutPick","⏱ Tiempo agotado");
     grade = "red";
-    why = "No esperes a estar seguro al 100%: si hay exposición, prioriza parar/aislar y avisar.";
+    why = t("fb.timeoutWhy","No esperes a estar seguro al 100%: si hay exposición, prioriza parar/aislar y avisar.");
   } else {
     a = q.answers[i];
     pickTxt = a.txt;
@@ -2149,20 +2410,38 @@ function selectAnswer(i, type, timedOut=false){
   let title = "";
   let body  = "";
 
-  if (grade === "green"){
-    title = "✅ Perfecto";
-    body  = "✅ " + whyResolved;
-  } else if (grade === "amber"){
-    title = "🟠 Correcto… pero se puede hacer mejor";
-    body  = usesGreenPlaceholder(why)
+  const isEs = (I18N && I18N.lang === "es");
+
+if (grade === "green"){
+  title = t("fb.title.green","✅ Perfecto");
+  body  = "✅ " + whyResolved;
+} else if (grade === "amber"){
+  title = t("fb.title.amber","🟠 Correcto… pero se puede hacer mejor");
+  if (isEs){
+    body = usesGreenPlaceholder(why)
       ? ("🟠 " + whyResolved)
-      : ("🟠 " + whyResolved + "\n\n✅ Lo más correcto sería: " + greenTxt);
+      : ("🟠 " + whyResolved + "
+
+" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt}));
   } else {
-    title = "🔴 Incorrecto";
-    body  = usesGreenPlaceholder(why)
-      ? ("🔴 " + whyResolved)
-      : ("🔴 " + whyResolved + "\n\n✅ Lo más correcto sería: " + greenTxt);
+    body = fmt(t("fb.body.amber","🟠 Bien, pero hay un canal más adecuado aquí.
+
+✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
   }
+} else {
+  title = t("fb.title.red","🔴 Incorrecto");
+  if (isEs){
+    body = usesGreenPlaceholder(why)
+      ? ("🔴 " + whyResolved)
+      : ("🔴 " + whyResolved + "
+
+" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt}));
+  } else {
+    body = fmt(t("fb.body.red","🔴 No es la mejor opción para seguridad.
+
+✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+  }
+}
 
   titleEl.textContent = title;
   bodyEl.textContent  = body;
@@ -2396,7 +2675,10 @@ function showFollowUp(q){
   };
 
   const list = BANK[role] || BANK.default;
-  const fu = list[Math.floor(Math.random()*list.length)]();
+  const genIdx = Math.floor(Math.random()*list.length);
+  const fu = list[genIdx]();
+  fu.id = role + "_" + (genIdx+1);
+  applyFUTranslation(fu);
 
   $("fuQ").textContent = fu.q;
   $("fuNote").textContent = "";
@@ -2415,7 +2697,7 @@ function showFollowUp(q){
     b.addEventListener("click", ()=>{
       if (o.ok){
         followUpPending = false;
-        $("fuNote").textContent = fu.ok || "✅ Bien. Seguimos.";
+        $("fuNote").textContent = fu.ok || t("fu.okDefault","✅ Bien. Seguimos.");
         if ($("btnNext")) $("btnNext").disabled = false;
       } else {
         $("fuNote").textContent = "❌ " + (fu.hint || "Pista: piensa en la medida preventiva inmediata.");
@@ -2434,6 +2716,8 @@ let orderChecked = false;
 
 function startOrder(){
   ORDER_SET = ORDER_BASE.map(o=>({ ...o, steps: o.steps.slice() }));
+  // i18n (traduce pasos y explicación)
+  ORDER_SET.forEach(o=>applyQTranslation("order", o));
   shuffle(ORDER_SET);
   ORDER_SET = ORDER_SET.slice(0, Math.min(3, ORDER_SET.length));
 
@@ -2445,7 +2729,7 @@ function startOrder(){
   orderChecked = false;
   followUpPending = false;
 
-  setState("En curso");
+  setState(t("state.playing","En curso"));
   renderOrderRound();
 }
 
@@ -2477,7 +2761,7 @@ function renderOrderRound(){
     div.draggable = true;
     div.dataset.correctIndex = String(c.correctIndex);
     div.dataset.id = String(i);
-    div.innerHTML = `<small>Arrastra</small><div>${escapeHtml(c.txt)}</div>`;
+    div.innerHTML = `<small>${escapeHtml(t("order.drag","Arrastra"))}</small><div>${escapeHtml(c.txt)}</div>`;
 
     div.addEventListener("dragstart", (ev)=>{
       div.classList.add("dragging");
@@ -2560,16 +2844,20 @@ function checkOrder(){
   const bodyEl  = $("fbBody");
 
   if (grade === "green"){
-    titleEl.textContent = "✅ Perfecto";
+    titleEl.textContent = t("check.title.green","✅ Perfecto");
   } else if (grade === "amber"){
-    titleEl.textContent = "🟠 Casi";
+    titleEl.textContent = t("order.title.amber","🟠 Casi");
   } else {
-    titleEl.textContent = "🔴 No del todo";
+    titleEl.textContent = t("order.title.red","🔴 No del todo");
   }
 
   const correctOrder = o.steps.map((s, i)=>`${i+1}) ${s}`).join("\n");
-  bodyEl.textContent =
-    `Tu orden tiene ${correct}/${total} posiciones correctas.\n\n✅ Orden recomendado:\n${correctOrder}\n\n💡 ${o.why}`;
+  bodyEl.textContent = fmt(
+    t("order.body",
+      "Tu orden tiene {CORRECT}/{TOTAL} posiciones correctas.\n\n✅ Orden recomendado:\n{ORDER}\n\n💡 {WHY}"
+    ),
+    { CORRECT: correct, TOTAL: total, ORDER: correctOrder, WHY: o.why }
+  );
 
   show("feedback");
   show("btnNext");
@@ -2578,7 +2866,7 @@ function checkOrder(){
   breakdown.push({
     n: idx+1,
     q: o.q,
-    pick: "Ordenado (ver explicación)",
+    pick: t("order.pick","Ordenado (ver explicación)"),
     grade,
     pts,
     team: (playMode==="teams") ? (teams[activeTeam]?.name || "") : ""
@@ -2637,110 +2925,134 @@ function renderTeamBoard(){
 
   el.classList.remove("hidden");
   el.innerHTML = `
-    <div class="th">Equipo</div>
-    <div class="th">Puntos</div>
+    <div class="th">${escapeHtml(t("team.col.team","Equipo"))}</div>
+    <div class="th">${escapeHtml(t("team.col.points","Puntos"))}</div>
     ${teams.map(t=>`<div>${esc(t.name)}</div><div>${t.score}</div>`).join("")}
   `;
 }
 
 
 function buildActionPlan(pct){
-  // limpio: 3 + 3 + 2
-  let preventivas = [];
-  let organizativas = [];
-  let mision = [];
+  const tier = (pct >= 85) ? "high" : (pct >= 60) ? "mid" : "low";
 
-  if (pct >= 85){
-    preventivas = [
-      "Mantener protecciones colectivas y señalización en puntos críticos (revisiones rápidas).",
-      "Corregir de inmediato los desórdenes y “puntos negros” antes de que se normalicen.",
-      "Reforzar el uso correcto de EPI como complemento, no como excusa."
-    ];
-    organizativas = [
-      "Briefing corto diario (2–3 min) con canal de aviso claro.",
-      "Trazabilidad ligera: anotar reincidencias y responsable de cierre.",
-      "Repasar cambios de tarea/equipo con mando y recurso preventivo."
-    ];
-    mision = [
-      "Hoy: detectar 1 punto crítico y dejarlo “cerrado” (foto antes/después).",
-      "Acordar un canal único de aviso por cuadrilla (mando → recurso si no está)."
-    ];
-  } else if (pct >= 60){
-    preventivas = [
-      "Aislar/señalizar de inmediato cuando detectes riesgo (antes de debatirlo).",
-      "Priorizar protección colectiva cuando proceda; EPI como última capa.",
-      "Revisar accesos/pasos y orden y limpieza en zonas de trabajo."
-    ];
-    organizativas = [
-      "Regla simple: si el mando no está, recurso preventivo para activar corrección.",
-      "1 revisión diaria de 5 minutos por cuadrilla (pasos, acopios, protecciones).",
-      "Registrar 1 incidencia repetida y comprobar su cierre al día siguiente."
-    ];
-    mision = [
-      "Hoy: elegir 1 riesgo repetido y atacar la causa (no solo el síntoma).",
-      "Definir quién cierra y cuándo (responsable + hora)."
-    ];
-  } else {
-    preventivas = [
-      "Ante riesgo: parar/aislar y comunicar YA (no esperar a “luego”).",
-      "Eliminar exposición inmediata: señalizar, retirar de paso, bloquear accesos.",
-      "Revisar tareas de mayor riesgo (alturas, maquinaria, electricidad) antes de empezar."
-    ];
-    organizativas = [
-      "Acordar el orden de aviso: mando → recurso si no está → PRL/CSS según tema.",
-      "Hacer una ‘toolbox’ de 10 minutos: 3 riesgos típicos + 3 respuestas correctas.",
-      "Dejar constancia mínima de incidencias y seguimiento de cierre."
-    ];
-    mision = [
-      "Hoy: 1 ronda de riesgos (5 min) y corregir 2 puntos en el momento.",
-      "Mañana: repetir la ronda y verificar que no reaparecen."
-    ];
-  }
+  const fallback = {
+    high: {
+      preventivas: [
+        "Refuerza: protección colectiva primero (barandillas, redes, tapas).",
+        "Define y señaliza zonas de exclusión (balizamiento real).",
+        "Verifica equipos (escaleras, herramientas, discos) antes de uso."
+      ],
+      organizativas: [
+        "Briefing de 2 min al inicio: riesgos del día + control.",
+        "Canal de aviso claro: mando → recurso → PRL; y cuándo 112.",
+        "Registro de reincidencias y cierre (responsable + fecha)."
+      ],
+      mision: [
+        "Haz una “vuelta de 60 s”: detecta 1 riesgo y actúa (aislar/avisar).",
+        "Di en voz alta: ubicación + riesgo + control provisional + qué necesitas."
+      ]
+    },
+    mid: {
+      preventivas: [
+        "Prioriza control inmediato: parar/aislar antes de avisar.",
+        "Mejora orden y limpieza en zonas de paso.",
+        "EPI como complemento: verifica adecuación y uso."
+      ],
+      organizativas: [
+        "Alinea quién decide paradas y cómo se comunica.",
+        "Comprueba que señalización y vías están libres.",
+        "Si hay varias contratas: coordina (CSS/CAE)."
+      ],
+      mision: [
+        "Elige 1 tarea y define su “primero”: ¿qué harías en 5 s?",
+        "Escribe 1 aviso modelo al mando (3 líneas)."
+      ]
+    },
+    low: {
+      preventivas: [
+        "Revisa jerarquía: evita el riesgo en origen antes que EPI.",
+        "No improvises: pide procedimiento/criterio y asegura la tarea.",
+        "Corta la exposición: aisla zonas peligrosas."
+      ],
+      organizativas: [
+        "Acuerda un protocolo STOP WORK: quién para y quién corrige.",
+        "Refuerza formación breve en riesgos críticos (alturas, izado, electricidad).",
+        "Haz seguimiento: cada aviso debe tener cierre."
+      ],
+      mision: [
+        "Practica: “paro – aíslo – aviso” en un ejemplo real de obra.",
+        "En equipo: cada persona aporta 1 control inmediato."
+      ]
+    }
+  };
 
-  return { preventivas, organizativas, mision };
+  const prev = uiAny(`plan.${tier}.preventivas`, null);
+  const org  = uiAny(`plan.${tier}.organizativas`, null);
+  const mis  = uiAny(`plan.${tier}.mision`, null);
+
+  return {
+    preventivas: Array.isArray(prev) ? prev : fallback[tier].preventivas,
+    organizativas: Array.isArray(org) ? org : fallback[tier].organizativas,
+    mision: Array.isArray(mis) ? mis : fallback[tier].mision
+  };
 }
 
 function renderActionPlan(){
-  const max = maxScore();
-  const total = totalScore();
-  const pct = Math.round((total / Math.max(1, max)) * 100);
-
-  const plan = buildActionPlan(pct);
-  const box = $("actionPlan");
+  const box = $("planBox");
   if (!box) return;
 
+  const pct = scorePercent();
+  const plan = buildActionPlan(pct);
+
+  const hPrev = t("plan.section.preventivas","Medidas preventivas");
+  const hOrg  = t("plan.section.organizativas","Medidas organizativas");
+  const hMis  = t("plan.section.mision","Misión rápida (para mañana)");
+
   box.innerHTML = `
-    <div class="planBox">
-      <h4>Preventivas</h4>
-      <ul>${plan.preventivas.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
-    </div>
-    <div class="planBox">
-      <h4>Organizativas</h4>
-      <ul>${plan.organizativas.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
-    </div>
-    <div class="planBox">
-      <h4>Misión rápida</h4>
-      <ul>${plan.mision.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+    <h3 class="planTitle" data-i18n="plan.title">${escapeHtml(t("plan.title","Tu plan de acción"))}</h3>
+    <div class="planGrid">
+      <div class="planCol">
+        <h4>${escapeHtml(hPrev)}</h4>
+        <ul>${plan.preventivas.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+      </div>
+      <div class="planCol">
+        <h4>${escapeHtml(hOrg)}</h4>
+        <ul>${plan.organizativas.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+      </div>
+      <div class="planCol">
+        <h4>${escapeHtml(hMis)}</h4>
+        <ul>${plan.mision.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+      </div>
     </div>
   `;
 
-  // texto para copiar
+  // pre-genera texto copiable (en idioma actual)
+  const total = totalScore();
+  const max = maxScore();
   const lines = [];
-  lines.push(`Resultado: ${total} / ${max} (${pct}%)`);
+
+  lines.push(t("plan.copy.header","PLAN DE ACCIÓN (resumen)"));
+  lines.push(fmt(t("plan.copy.result","Resultado: {TOTAL}/{MAX} ({PCT}%)"), {TOTAL: total, MAX: max, PCT: pct}));
+
   if (playMode === "teams"){
-    const sorted = teams.slice().sort((a,b)=>b.score-a.score);
-    lines.push("Marcador:");
-    sorted.forEach(t=>lines.push(`- ${t.name}: ${t.score} pts`));
+    lines.push("");
+    lines.push(t("plan.copy.scoreboard","Marcador:"));
+    teams.forEach(ti=>{
+      lines.push(`- ${ti.name}: ${ti.score} ${t("plan.copy.pts","pts")}`);
+    });
   }
+
   lines.push("");
-  lines.push("Preventivas:");
-  plan.preventivas.forEach(x=>lines.push("- " + x));
+  lines.push(hPrev + ":");
+  plan.preventivas.forEach(x=> lines.push(`- ${x}`));
+
   lines.push("");
-  lines.push("Organizativas:");
-  plan.organizativas.forEach(x=>lines.push("- " + x));
+  lines.push(hOrg + ":");
+  plan.organizativas.forEach(x=> lines.push(`- ${x}`));
+
   lines.push("");
-  lines.push("Misión rápida:");
-  plan.mision.forEach(x=>lines.push("- " + x));
+  lines.push(hMis + ":");
+  plan.mision.forEach(x=> lines.push(`- ${x}`));
 
   lastPlanText = lines.join("\n");
 }
@@ -2769,23 +3081,32 @@ async function copyPlan(){
 
 function finish(){
   hide("quiz"); show("result");
-  setState("Finalizado");
+  setState(t("state.done","Finalizado"));
 
   const max = maxScore();
   const total = totalScore();
+  const pct = scorePercent();
 
-  $("finalScore").textContent = `${total} / ${max}`;
+  $("finalScore").textContent = fmt(
+    t("result.scoreMain","{TOTAL}/{MAX} ({PCT}%)"),
+    { TOTAL: total, MAX: max, PCT: pct }
+  );
 
-const modeLabel =
-  (gameMode==="quiz")  ? "Kahoot (test)" :
-  (gameMode==="tf")    ? "Verdadero/Falso" :
-  (gameMode==="order") ? "Ordena" :
-  (gameMode==="sema")  ? "Semáforo" :
-  (gameMode==="check") ? "Checklist" :
-  (gameMode==="myth")  ? "Frase trampa" :
-  (gameMode==="say")   ? "Qué le digo al mando" :
-  "Juego";
-  $("finalDetail").textContent = `Modo: ${modeLabel} · Verde = 2 pts · Naranja = 1 pt · Roja = 0 pt · Total rondas: ${roundTotal()}`;
+  const modeLabel = t(`mode.${gameMode}`, 
+    (gameMode==="quiz")  ? "Kahoot (test)" :
+    (gameMode==="tf")    ? "Verdadero/Falso" :
+    (gameMode==="order") ? "Ordena la actuación" :
+    (gameMode==="sema")  ? "Semáforo (5 s)" :
+    (gameMode==="check") ? "Checklist express" :
+    (gameMode==="myth")  ? "Frase trampa" :
+    (gameMode==="say")   ? "¿Qué le digo al mando?" :
+    "Juego"
+  );
+
+  $("finalDetail").textContent = fmt(
+    t("result.detail","Modo: {MODE} · Verde = 2 · Naranja = 1 · Roja = 0 · Total rondas: {ROUNDS}"),
+    { MODE: modeLabel, ROUNDS: roundTotal() }
+  );
 
   renderTeamBoard();
   renderActionPlan();
@@ -2796,15 +3117,16 @@ const modeLabel =
     const div = document.createElement("div");
     div.className = "item";
     const badgeClass = b.grade === "green" ? "green" : (b.grade === "amber" ? "amber" : "red");
-    const badgeTxt   = b.grade === "green" ? "Verde" : (b.grade === "amber" ? "Naranja" : "Roja");
+    const badgeTxt   = b.grade === "green" ? t("badge.green","Verde") : (b.grade === "amber" ? t("badge.amber","Naranja") : t("badge.red","Roja"));
     const teamTxt = (playMode==="teams" && b.team) ? ` · ${escapeHtml(b.team)}` : "";
+    const roundLabel = fmt(t("result.roundLabel","R{N}"), {N: b.n});
     div.innerHTML = `
       <div class="row" style="justify-content:space-between">
-        <small>P${b.n}${teamTxt}</small>
-        <span class="badge ${badgeClass}">${badgeTxt} · +${b.pts}</span>
+        <small>${escapeHtml(roundLabel)}${teamTxt}</small>
+        <span class="badge ${badgeClass}">${escapeHtml(badgeTxt)} · +${b.pts}</span>
       </div>
       <div style="margin-top:6px;font-size:13px;line-height:1.25">${escapeHtml(b.q)}</div>
-      <small style="display:block;margin-top:6px">Tu respuesta: ${escapeHtml(b.pick)}</small>
+      <small style="display:block;margin-top:6px">${escapeHtml(t("result.yourAnswer","Tu respuesta:"))} ${escapeHtml(b.pick)}</small>
     `;
     wrap.appendChild(div);
   });
@@ -2820,8 +3142,8 @@ function openStopWork(){
   const last = safeJsonParse(lsGet("sw_last") || "{}");
   if ($("swLoc")) $("swLoc").value = last.loc || "";
   if ($("swRisk")) $("swRisk").value = last.risk || "";
-  if ($("swControl")) $("swControl").value = last.control || "He parado la tarea y he señalizado/aislado la zona.";
-  if ($("swNeed")) $("swNeed").value = last.need || "Que venga el mando/recurso para corregir y dejar constancia.";
+  if ($("swControl")) $("swControl").value = last.control || t("sw.default.control","He parado la tarea y he señalizado/aislado la zona.");
+  if ($("swNeed")) $("swNeed").value = last.need || t("sw.default.need","Que venga el mando/recurso para corregir y dejar constancia.");
 
   updateStopMsg();
   show("stopWorkOverlay");
@@ -2838,18 +3160,20 @@ function updateStopMsg(){
   const control = ($("swControl")?.value || "").trim();
   const need = ($("swNeed")?.value || "").trim();
 
+  const dash = t("dash","—");
   const msg =
-`STOP WORK
-Ubicación: ${loc || "—"}
-Riesgo: ${risk || "—"}
-Control provisional: ${control || "—"}
-Necesito: ${need || "—"}`;
+`${t("sw.msg.header","STOP WORK")}
+${t("sw.msg.loc","Ubicación")}: ${loc || dash}
+${t("sw.msg.risk","Riesgo")}: ${risk || dash}
+${t("sw.msg.control","Control provisional")}: ${control || dash}
+${t("sw.msg.need","Necesito")}: ${need || dash}`;
 
   if ($("swMsg")) $("swMsg").textContent = msg;
 
   // guarda
   lsSet("sw_last", JSON.stringify({ loc, risk, control, need }));
 }
+
 
 function copyStopMsg(){
   const t = $("swMsg")?.textContent || "";
@@ -2936,6 +3260,9 @@ const MP = {
   started: false,
   unsubState: null,
   unsubAnswers: null
+
+  ,answerOrder: null,      // permutation of base answer indices for current question (host)
+  answerOrderQId: null     // which q.id the current answerOrder applies to
 };
 
 function isConfiguredFirebase(){
@@ -3040,6 +3367,8 @@ function renderRoomBox(){
   if (!roomQr) return;
   roomQr.innerHTML = "";
 
+  const qrSize = Math.max(120, Math.min(320, roomQr.clientWidth || 180));
+
   const empty = (msg)=>{ roomQr.innerHTML = `<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">${msg}</div>`; };
 
   if (!link){
@@ -3049,9 +3378,9 @@ function renderRoomBox(){
 
   const tryApiFallback = ()=>{
     const img = document.createElement("img");
-    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(link)}`;
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(link)}`;
     img.alt = "QR";
-    img.width = 180; img.height = 180;
+    img.width = qrSize; img.height = qrSize;
     img.style.imageRendering = "pixelated";
     img.referrerPolicy = "no-referrer";
     img.onerror = ()=> empty("No se pudo generar el QR");
@@ -3062,19 +3391,19 @@ function renderRoomBox(){
     // Prefer local generation via the 'qrcode' library (global QRCode with toCanvas/toDataURL)
     if (window.QRCode && typeof window.QRCode.toCanvas === "function"){
       const canvas = document.createElement("canvas");
-      window.QRCode.toCanvas(canvas, link, { width: 180, margin: 1, errorCorrectionLevel: "M" }, (err)=>{
+      window.QRCode.toCanvas(canvas, link, { width: qrSize, margin: 1, errorCorrectionLevel: "M" }, (err)=>{
         if (err){ tryApiFallback(); return; }
         roomQr.appendChild(canvas);
       });
       return;
     }
     if (window.QRCode && typeof window.QRCode.toDataURL === "function"){
-      window.QRCode.toDataURL(link, { width: 180, margin: 1, errorCorrectionLevel: "M" }, (err, url)=>{
+      window.QRCode.toDataURL(link, { width: qrSize, margin: 1, errorCorrectionLevel: "M" }, (err, url)=>{
         if (err || !url){ tryApiFallback(); return; }
         const img = document.createElement("img");
         img.src = url;
         img.alt = "QR";
-        img.width = 180; img.height = 180;
+        img.width = qrSize; img.height = qrSize;
         img.style.imageRendering = "pixelated";
         roomQr.appendChild(img);
       });
@@ -3101,6 +3430,8 @@ async function mpCreateRoom(){
     MP.room = code;
     MP.started = false;
     MP.roundId = "";
+  MP.answerOrder = null;
+  MP.answerOrderQId = null;
 
     const roomRef = ref(db, `rooms/${code}`);
     await set(roomRef, {
@@ -3172,7 +3503,7 @@ async function mpJoinRoom(code, name){
   // entra a pantalla quiz (modo participante)
   hide("start"); show("quiz");
   hide("btnReveal"); hide("btnNext"); // el participante no avanza
-  if ($("btnBackToStart")) $("btnBackToStart").textContent = "Salir";
+  if ($("btnBackToStart")) $("btnBackToStart").textContent = (I18N.ui["btn.back"] || "Salir");
   setPill("Unido: " + clean);
 
   }catch(e){
@@ -3194,11 +3525,11 @@ function revealRemote(correctIndex){
 }
 
 function mpApplyRemoteState(st){
-  // st: {phase, roundId, qNo, total, qText, qHint, answers[], correctIndex?}
+  // st: {phase, roundId, qNo, total, qId, correctIndex?}
   if (st.phase === "ended"){
     // fin
-    $("qText").textContent = "Fin de la sala";
-    $("qHint").textContent = "Gracias. Ya puedes cerrar esta pestaña.";
+    $("qText").textContent = (I18N.ui["mp.endedTitle"] || "Fin de la sala");
+    $("qHint").textContent = (I18N.ui["mp.endedHint"] || "Gracias. Ya puedes cerrar esta pestaña.");
     $("answers").innerHTML = "";
     hide("feedback"); hide("followUp");
     hide("btnReveal"); hide("btnNext");
@@ -3214,35 +3545,48 @@ function mpApplyRemoteState(st){
   }
 
   // pinta
-  $("qCounter").textContent = `Pregunta ${st.qNo || 1}/${st.total || 10}`;
-  $("qScore").textContent = "En sala";
+  $("qCounter").textContent = fmt(t("mp.qCounter","Pregunta {N}/{T}"), {N:(st.qNo||1), T:(st.total||10)});
+  $("qScore").textContent = t("mp.inRoom","En sala");
   if ($("bar")){
     const pct = Math.round(((st.qNo || 1) / Math.max(1, st.total || 10)) * 100);
     $("bar").style.width = pct + "%";
   }
 
-  $("qText").textContent = st.qText || "—";
-  $("qHint").textContent = st.qHint || "";
+  // Render por ID (cada móvil con su idioma)
+  const qRaw = (typeof QUESTIONS_BASE !== "undefined" && Array.isArray(QUESTIONS_BASE)) ? QUESTIONS_BASE.find(x=>x.id===st.qId) : null;
+  const q = qRaw ? JSON.parse(JSON.stringify(qRaw)) : null;
+  if (q){
+    applyQTranslation("quiz", q);
+    // aplica el orden publicado por el host (si existe)
+    if (Array.isArray(st.answerOrder) && Array.isArray(q.answers) && st.answerOrder.length === q.answers.length){
+      const old = q.answers.slice();
+      q.answers = st.answerOrder.map(i=>old[i]);
+    }
+    $("qText").textContent = q.q || "—";
+    $("qHint").textContent = q.hint || "";
+  } else {
+    $("qText").textContent = "—";
+    $("qHint").textContent = "";
+  }
 
   const wrap = $("answers");
   wrap.innerHTML = "";
   const letters = ["A","B","C","D"];
 
-  (st.answers || []).forEach((txt, i)=>{
+  (q && q.answers ? q.answers : []).forEach((a, i)=>{
     const btn = document.createElement("button");
     btn.className = "ans";
     btn.type = "button";
-    btn.innerHTML = `<span class="tag">${letters[i] || ""}</span><span class="text">${escapeHtml(txt)}</span>`;
+    btn.innerHTML = `<span class="tag">${letters[i] || ""}</span><span class="text">${escapeHtml(a.txt || "")}</span>`;
     btn.addEventListener("click", ()=>selectAnswer(i, "quiz", false));
     wrap.appendChild(btn);
   });
-
   // fase reveal: marca solución si llega
   if (st.phase === "reveal" && typeof st.correctIndex === "number"){
     revealRemote(st.correctIndex);
     show("feedback");
-    $("fbTitle").textContent = "✅ Solución";
-    $("fbBody").textContent = "Revisa con el mando/recurso preventivo qué control aplicas y cómo lo comunicas.";
+    $("fbTitle").textContent = t("mp.solutionTitle","✅ Solución");
+    $("fbBody").textContent = t("mp.revealBody","Revisa con el mando/recurso preventivo qué control aplicas y cómo lo comunicas.");
     hide("followUp");
   } else {
     // no revelar
@@ -3259,8 +3603,6 @@ async function mpPublishQuestion(phase, correctIndex){
   const { db, ref, set, serverTimestamp } = fb;
 
   const q = QUESTIONS[idx];
-  const answersTxt = (q.answers || []).map(a=>a.txt);
-
   const roundId = (phase === "reveal" && MP.roundId) ? MP.roundId : `${Date.now()}_${idx}`;
   MP.roundId = roundId;
 
@@ -3269,15 +3611,14 @@ async function mpPublishQuestion(phase, correctIndex){
     roundId: roundId,
     qNo: idx+1,
     total: roundTotal(),
-    qText: q.q,
-    qHint: q.hint || "",
-    answers: answersTxt,
+    qId: q.id,
+    answerOrder: (Array.isArray(MP.answerOrder) ? MP.answerOrder : null),
     correctIndex: (phase === "reveal") ? (typeof correctIndex === "number" ? correctIndex : null) : null,
     ts: serverTimestamp()
   });
 
   // engancha contador
-  mpAttachCounts(roundId, answersTxt.length);
+  mpAttachCounts(roundId, (q.answers || []).length);
 }
 
 async function mpAttachCounts(roundId, answerLen){
@@ -3315,6 +3656,34 @@ async function mpAttachCounts(roundId, answerLen){
   });
 }
 
+
+// ---- Override: renderQuestion (host generates synced answer order) ----
+const __renderQuestion = renderQuestion;
+renderQuestion = function(type){
+  // En multijugador, el host baraja respuestas UNA VEZ por pregunta
+  // y publica el orden para que todos (host + participantes, y todos los idiomas) vean lo mismo.
+  if (MP.mode === "host" && MP.started && type === "quiz"){
+    const q = (typeof QUESTIONS !== "undefined" && QUESTIONS && QUESTIONS[idx]) ? QUESTIONS[idx] : null;
+    if (q && Array.isArray(q.answers) && q.answers.length){
+      const needsNew =
+        (MP.answerOrderQId !== q.id) ||
+        (!Array.isArray(MP.answerOrder)) ||
+        (MP.answerOrder.length !== q.answers.length);
+
+      if (needsNew){
+        const order = Array.from({length:q.answers.length}, (_,i)=>i);
+        shuffle(order);
+        MP.answerOrder = order;
+        MP.answerOrderQId = q.id;
+
+        // reordena para que el DOM y el índice coincidan (selectAnswer / revealAll)
+        const old = q.answers.slice();
+        q.answers = order.map(i=>old[i]);
+      }
+    }
+  }
+  return __renderQuestion(type);
+};
 // ---- Override: startGame / selectAnswer / next / resetAll ----
 const __startGame = startGame;
 startGame = function(){
@@ -3394,8 +3763,8 @@ selectAnswer = function(i, type, timedOut=false){
     });
     hide("followUp");
     show("feedback");
-    $("fbTitle").textContent = "📨 Enviado";
-    $("fbBody").textContent = "Respuesta enviada al host. Espera a que muestre la solución.";
+    $("fbTitle").textContent = (I18N.ui["mp.sentTitle"] || "📨 Enviado");
+    $("fbBody").textContent = (I18N.ui["mp.sentBody"] || "Respuesta enviada al host. Espera a que muestre la solución.");
 
     // escribe en RTDB
     (async ()=>{
@@ -3479,7 +3848,7 @@ function mpHostReveal(){
   setBtnRevealUI(true);
 
   show("feedback");
-  $("fbTitle").textContent = "✅ Solución";
+  $("fbTitle").textContent = t("mp.solutionTitle","✅ Solución");
   $("fbBody").textContent  = "✅ " + ((q.answers && q.answers[correct] && q.answers[correct].why) ? q.answers[correct].why : "Revisa el control preventivo correcto.");
   hide("followUp");
   show("btnNext");
@@ -3520,6 +3889,17 @@ function initMultiplayer(){
     if ($("sessionMode")) $("sessionMode").value = "join";
     if ($("joinCode")) $("joinCode").value = String(join).replace(/\D/g,"").slice(0,6);
     showSessionUI();
+
+    // Auto-join when arriving via QR/link (?join=XXXXXX) BUT ask for language first (only if not chosen yet)
+    const hasLang = !!(localStorage.getItem("lang"));
+    window.__i18nReady.then(()=>{
+      if (!hasLang){
+        openLangModal(()=>{ try{ startGame(); } catch(e){ console.error(e); } });
+      } else {
+        setTimeout(()=>{ try{ startGame(); } catch(e){ console.error(e); } }, 50);
+      }
+    });
+
   } else {
     showSessionUI();
   }
@@ -3532,5 +3912,15 @@ try{
 }catch(_e){}
 
 </script>
+
+  <!-- LANGUAGE MODAL (shown on QR join if language not chosen yet) -->
+  <div id="langModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="langTitle">
+    <div class="langCard">
+      <div class="langTitle" id="langTitle" data-i18n="lang.title">Elige tu idioma</div>
+      <div class="langBody" data-i18n="lang.body">Selecciona tu idioma para entrar a la sala.</div>
+      <div class="langGrid" id="langGrid"></div>
+    </div>
+  </div>
+
 </body>
 </html>
