@@ -440,7 +440,20 @@
 </section>
 
   <!-- QUIZ -->
-  <section id="quiz" class="card hidden">
+  
+
+  <!-- Waiting room (player side) -->
+  <section id="waiting" class="card hidden">
+    <h2 data-i18n="mp.waitTitle">En sala</h2>
+    <p class="muted" data-i18n="mp.waitSubtitle">Esperando a que el host inicie la partida…</p>
+    <div class="row" style="margin-top:14px; gap:10px; flex-wrap:wrap;">
+      <span class="pill" id="waitingRoom">—</span>
+      <span class="pill" id="waitingPlayers">—</span>
+    </div>
+    <p class="muted" style="margin-top:10px;" data-i18n="mp.waitHint">Cuando empiece la partida, aquí aparecerán las preguntas.</p>
+  </section>
+
+<section id="quiz" class="card hidden">
     <div class="meta">
       <div class="row" style="gap:8px">
         <span class="pill" id="qCounter">Pregunta 1/1</span>
@@ -3554,6 +3567,18 @@ function mpApplyRemoteState(st){
     return;
   }
 
+  // lobby / waiting: no hay pregunta publicada aún
+  if (!st || !st.phase || st.phase === "lobby"){
+    hide("quiz");
+    hide("feedback");
+    hide("followUp");
+    show("waiting");
+    $("waitingRoom").textContent = fmt(t("mp.room","Sala {C}"), {C:(MP.roomId||"—")});
+    const n = st && st.players ? Object.keys(st.players).length : null;
+    $("waitingPlayers").textContent = n!=null ? fmt(t("mp.players","{N} participantes"), {N:n}) : t("mp.players","Participantes");
+    return;
+  }
+
   // si cambia ronda -> desbloquea
   if (st.roundId && st.roundId !== MP.roundId){
     MP.roundId = st.roundId;
@@ -3561,6 +3586,8 @@ function mpApplyRemoteState(st){
     followUpPending = false;
     hide("feedback"); hide("followUp");
   }
+
+  hide("waiting");
 
   // pinta
   $("qCounter").textContent = fmt(t("mp.qCounter","Pregunta {N}/{T}"), {N:(st.qNo||1), T:(st.total||10)});
@@ -3571,9 +3598,7 @@ function mpApplyRemoteState(st){
   }
 
   // Render por ID (cada móvil con su idioma)
-  const qRaw = (typeof QUESTIONS_BASE !== "undefined" && Array.isArray(QUESTIONS_BASE))
-    ? (QUESTIONS_BASE.find(x => String(x.id) === String(st.qId)) || QUESTIONS_BASE[(Math.max(1, Number(st.qNo||1)) - 1)] || null)
-    : null;
+  const qRaw = (typeof QUESTIONS_BASE !== "undefined" && Array.isArray(QUESTIONS_BASE)) ? QUESTIONS_BASE.find(x=>x.id===st.qId) : null;
   const q = qRaw ? JSON.parse(JSON.stringify(qRaw)) : null;
   if (q){
     applyQTranslation("quiz", q);
@@ -3585,8 +3610,7 @@ function mpApplyRemoteState(st){
     $("qText").textContent = q.q || "—";
     $("qHint").textContent = q.hint || "";
   } else {
-    const msg = (typeof t === "function") ? (t("waiting_question") || "Esperando pregunta…") : "Esperando pregunta…";
-    $("qText").textContent = msg;
+    $("qText").textContent = "—";
     $("qHint").textContent = "";
   }
 
@@ -3749,9 +3773,20 @@ startGame = function(){
   }
 
   if (MP.mode === "join"){
-    const code = $("joinCode")?.value || "";
-    const name = $("joinName")?.value || "";
-    mpJoinRoom(code, name).catch(e=>alert(e.message || e));
+    const code = ($("joinCode")?.value || "").trim();
+    const nameRaw = ($("joinName")?.value || "").trim();
+    const name = nameRaw || t("mp.guest","Invitado");
+
+    // entra a sala y espera a que el host publique la primera pregunta
+    hide("quiz");
+    show("waiting");
+    $("waitingRoom").textContent = fmt(t("mp.room","Sala {C}"), {C:code || "—"});
+    $("waitingPlayers").textContent = t("mp.players","Participantes");
+
+    mpJoinRoom(code, name).catch(e=>{
+      hide("waiting");
+      alert(e.message || e);
+    });
     return;
   }
 };
@@ -3910,17 +3945,7 @@ function initMultiplayer(){
     if ($("sessionMode")) $("sessionMode").value = "join";
     if ($("joinCode")) $("joinCode").value = String(join).replace(/\D/g,"").slice(0,6);
     showSessionUI();
-
-    // Auto-join when arriving via QR/link (?join=XXXXXX) BUT ask for language first (only if not chosen yet)
-    const hasLang = !!(localStorage.getItem("lang"));
-    window.__i18nReady.then(()=>{
-      if (!hasLang){
-        openLangModal(()=>{ try{ startGame(); } catch(e){ console.error(e); } });
-      } else {
-        setTimeout(()=>{ try{ startGame(); } catch(e){ console.error(e); } }, 50);
-      }
-    });
-
+    // No auto-join: el jugador elige nombre/idioma y pulsa "Unirme".
   } else {
     showSessionUI();
   }
