@@ -3571,7 +3571,9 @@ function mpApplyRemoteState(st){
   }
 
   // Render por ID (cada móvil con su idioma)
-  const qRaw = (typeof QUESTIONS_BASE !== "undefined" && Array.isArray(QUESTIONS_BASE)) ? QUESTIONS_BASE.find(x=>x.id===st.qId) : null;
+  const qRaw = (typeof QUESTIONS_BASE !== "undefined" && Array.isArray(QUESTIONS_BASE))
+    ? (QUESTIONS_BASE.find(x => String(x.id) === String(st.qId)) || QUESTIONS_BASE[(Math.max(1, Number(st.qNo||1)) - 1)] || null)
+    : null;
   const q = qRaw ? JSON.parse(JSON.stringify(qRaw)) : null;
   if (q){
     applyQTranslation("quiz", q);
@@ -3583,7 +3585,8 @@ function mpApplyRemoteState(st){
     $("qText").textContent = q.q || "—";
     $("qHint").textContent = q.hint || "";
   } else {
-    $("qText").textContent = "—";
+    const msg = (typeof t === "function") ? (t("waiting_question") || "Esperando pregunta…") : "Esperando pregunta…";
+    $("qText").textContent = msg;
     $("qHint").textContent = "";
   }
 
