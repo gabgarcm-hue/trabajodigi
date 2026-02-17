@@ -1,0 +1,404 @@
+{
+  "quiz": {
+    "1": {
+      "q": "Sur {SITE_NAME}, tu vois une zone en désordre (outils/matériaux au sol) et le chef n’est pas joignable à ce moment‑là. Qui préviens‑tu ?",
+      "hint": "Petit sujet/opérationnel avec chef indisponible.",
+      "answers": [
+        "La ressource prévention (chantier).",
+        "Mon chef direct (quand je le trouve).",
+        "Personne : j’évite et je continue.",
+        "Chewbacca, pour imposer l’ordre wookiee."
+      ],
+      "why": [
+        "Le moyen le plus rapide sur chantier pour déclencher la correction quand le chef n’est pas joignable.",
+        null,
+        null,
+        null
+      ]
+    },
+    "2": {
+      "q": "Sur {SITE_NAME}, tu vois un collègue chuter de 5 mètres. Qui préviens‑tu ?",
+      "hint": "Accident grave : urgence + information interne.",
+      "answers": [
+        "Le 112 (secours) et le chef (chef de chantier).",
+        "Seulement le chef (sans appeler le 112).",
+        "Je le relève pour qu’il s’assoie ‘un moment’.",
+        "J’attends de voir s’il se relève tout seul."
+      ],
+      "why": [
+        "Appel aux secours + information interne immédiate : c’est le plus correct.",
+        null,
+        null,
+        null
+      ]
+    },
+    "3": {
+      "q": "Sur {SITE_NAME}, il y a des rafales de vent à 100 km/h. Qui préviens‑tu pour arrêter les travaux pour conditions défavorables ?",
+      "hint": "Arrêt / organisation du chantier.",
+      "answers": [
+        "Mon chef (chef de chantier).",
+        "La ressource prévention (chantier).",
+        "Le maître d’ouvrage/promoteur pour décider.",
+        "Que Gandalf explique « Tu ne passeras pas ! » au vent."
+      ],
+      "why": [
+        "Il/elle peut ordonner l’arrêt ou réorganiser le travail en sécurité.",
+        null,
+        null,
+        null
+      ]
+    },
+    "4": {
+      "q": "Sur {SITE_NAME}, un luminaire électrique est mal monté et fait des étincelles. Qui préviens‑tu ?",
+      "hint": "Risque électrique : isoler et coordonner une réparation sûre.",
+      "answers": [
+        "Le chef (chef de chantier).",
+        "La ressource prévention (chantier).",
+        "J’appelle Pikachu pour réparer avec un Tonnerre.",
+        "Je le règle moi‑même avec un tournevis."
+      ],
+      "why": [
+        "Il/elle organise l’action immédiate et une réparation en sécurité.",
+        null,
+        null,
+        null
+      ]
+    },
+    "5": {
+      "q": "Sur {SITE_NAME}, tu te tords la cheville en glissant dans un escalier. Qui préviens‑tu ?",
+      "hint": "Blessure : prise en charge et information interne.",
+      "answers": [
+        "Le chef et les premiers secours.",
+        "Seulement le chef.",
+        "Je rentre chez moi sans rien dire.",
+        "Je continue : ‘ça va passer’."
+      ],
+      "why": [
+        "Information interne + premiers secours tout de suite : parfait.",
+        null,
+        null,
+        null
+      ]
+    },
+    "6": {
+      "q": "Sur {SITE_NAME}, il y a une charge suspendue et des gens passent dessous. Qui préviens‑tu ?",
+      "hint": "Risque grave : manœuvre et contrôle immédiat.",
+      "answers": [
+        "Le chef (chef de chantier).",
+        "La ressource prévention (chantier).",
+        "Je demande à un Commissaire de l’Astra Militarum ‘d’exécuter’ le risque.",
+        "Je m’écarte et voilà."
+      ],
+      "why": [
+        "Il/elle doit arrêter et maîtriser la manœuvre en sécurité.",
+        null,
+        null,
+        null
+      ]
+    },
+    "7": {
+      "q": "Sur {SITE_NAME}, pour la troisième fois tu vois la même équipe travailler sans casque (tu l’as déjà dit et rien n’a changé). Qui préviens‑tu maintenant ?",
+      "hint": "Récidive : intervention renforcée et suivi.",
+      "answers": [
+        "La ressource prévention (chantier) pour intervenir et suivre.",
+        "Mon chef encore.",
+        "J’ignore : ‘ce n’est pas ma boîte’.",
+        "Je le dis à Dora l’Exploratrice : « Trouve le casque ! »"
+      ],
+      "why": [
+        "Stoppe la répétition et exige une correction avec traçabilité.",
+        null,
+        null,
+        null
+      ]
+    },
+    "8": {
+      "q": "Sur {SITE_NAME}, tu repères un bord de dalle sans protection collective et tu ne trouves pas le chef à ce moment‑là. Qui préviens‑tu ?",
+      "hint": "Risque critique + chef indisponible : voie rapide sur chantier.",
+      "answers": [
+        "La ressource prévention (chantier).",
+        "J’attends de trouver le chef.",
+        "Je passe prudemment et je continue.",
+        "Je le note sur un post‑it et c’est bon."
+      ],
+      "why": [
+        "Présent sur chantier pour agir sur un risque critique et déclencher une correction immédiate.",
+        null,
+        null,
+        null
+      ]
+    },
+    "9": {
+      "q": "Sur {SITE_NAME}, un outil tombe de hauteur et manque de peu de frapper quelqu’un (pas de blessure). Qui préviens‑tu ?",
+      "hint": "Presque‑accident : enregistrer et éviter la répétition.",
+      "answers": [
+        "La ressource prévention (chantier) pour enregistrer et exiger la correction.",
+        "Le chef (chef de chantier).",
+        "Personne : si rien n’est arrivé, ça ne compte pas.",
+        "Je construis une barrière façon Minecraft et c’est réglé."
+      ],
+      "why": [
+        "Essentiel pour éviter que ça se répète : analyse et mesures de prévention.",
+        null,
+        null,
+        null
+      ]
+    },
+    "10": {
+      "q": "Sur {SITE_NAME}, des câbles traversent un passage et les gens trébuchent, mais le chef est occupé/indisponible. Qui préviens‑tu ?",
+      "hint": "Petit sujet/opérationnel avec chef indisponible.",
+      "answers": [
+        "La ressource prévention (chantier).",
+        "Le chef (quand je le trouve).",
+        "Je l’enjambe et je continue.",
+        "Je l’enroule et je le pose n’importe où."
+      ],
+      "why": [
+        "Peut activer une correction rapide sur chantier quand le chef n’est pas joignable.",
+        null,
+        null,
+        null
+      ]
+    },
+    "11": {
+      "q": "Sur {SITE_NAME}, tu vois une meuleuse sans carter et un collègue va l’utiliser. Qui préviens‑tu ?",
+      "hint": "Risque immédiat : arrêter et corriger.",
+      "answers": [
+        "Le chef (chef de chantier) pour arrêter et corriger.",
+        "La ressource prévention (chantier).",
+        "Je fais l’innocent : ce n’est pas moi qui l’utilise.",
+        "Je mets du scotch isolant et basta."
+      ],
+      "why": [
+        "Doit organiser l’arrêt et la correction immédiate.",
+        null,
+        null,
+        null
+      ]
+    },
+    "12": {
+      "q": "Sur {SITE_NAME}, l’alarme d’évacuation retentit ou de la fumée est détectée. Qui préviens‑tu ?",
+      "hint": "Urgence : suivre les consignes et prévenir.",
+      "answers": [
+        "Le chef et je suis les consignes.",
+        "La ressource prévention (chantier).",
+        "Je vais voir d’où vient la fumée.",
+        "Je continue : c’est sûrement une fausse alerte."
+      ],
+      "why": [
+        "Information interne et action coordonnée : parfait.",
+        null,
+        null,
+        null
+      ]
+    },
+    "13": {
+      "q": "Sur {SITE_NAME}, on te demande une tâche ‘bizarre’ et tu n’es pas sûr de la procédure sûre (tu ne veux pas improviser). Qui consultes‑tu ?",
+      "hint": "Consultation technique prévention.",
+      "answers": [
+        "Le technicien HSE / Service de prévention.",
+        "La ressource prévention (chantier).",
+        "Personne : j’improvise.",
+        "Je fais ce que dit le beau‑frère sur WhatsApp."
+      ],
+      "why": [
+        "Apporte le critère technique prévention pour définir comment faire en sécurité.",
+        null,
+        null,
+        null
+      ]
+    },
+    "14": {
+      "q": "Sur {SITE_NAME}, tu sens de fortes vapeurs dans une zone fermée et tu doutes de la sécurité pour continuer. Qui préviens‑tu ?",
+      "hint": "Exposition : avis technique prévention.",
+      "answers": [
+        "Le technicien HSE / Service de prévention.",
+        "La ressource prévention (chantier).",
+        "Je respire fort et je continue : ‘si ça pique, ça soigne’.",
+        "J’ouvre une fenêtre 10 secondes et c’est bon."
+      ],
+      "why": [
+        "Canal technique pour évaluer le risque et définir les mesures.",
+        null,
+        null,
+        null
+      ]
+    },
+    "15": {
+      "q": "Sur {SITE_NAME}, deux sous‑traitants travaillent en même temps au même endroit et se gênent (risque d’interférences). Qui préviens‑tu ?",
+      "hint": "Coordination des activités sur chantier.",
+      "answers": [
+        "Le coordinateur sécurité‑santé (CSS).",
+        "Le technicien HSE / Service de prévention.",
+        "Personne : qu’ils se débrouillent.",
+        "Je fais un pierre‑papier‑ciseaux entre sous‑traitants."
+      ],
+      "why": [
+        "Rôle clé pour coordonner les interférences et exiger la planification.",
+        null,
+        null,
+        null
+      ]
+    },
+    "16": {
+      "q": "Sur {SITE_NAME}, tu veux connaître une procédure de sécurité (comment faire ‘bien’) avant de commencer. À qui demandes‑tu ?",
+      "hint": "Chercher l’info prévention avant d’agir.",
+      "answers": [
+        "Le technicien HSE / Service de prévention.",
+        "La ressource prévention (chantier).",
+        "Je le cherche sur TikTok et voilà.",
+        "Je fais un speedrun et j’apprendrai en route."
+      ],
+      "why": [
+        "Canal adapté pour clarifier la procédure sûre sans improviser.",
+        null,
+        null,
+        null
+      ]
+    },
+    "17": {
+      "q": "Sur {SITE_NAME}, tu veux proposer une amélioration prévention (non urgente) ou donner ton avis pour qu’il soit pris en compte. À qui le transmets‑tu ?",
+      "hint": "Participation/représentation.",
+      "answers": [
+        "Le/la délégué(e) à la prévention.",
+        "Le technicien HSE / Service de prévention.",
+        "Je le balance dans le groupe de memes en espérant que ça devienne viral.",
+        "Je l’écris sur une serviette et je la laisse au bar."
+      ],
+      "why": [
+        "Canal naturel pour transmettre des propositions et assurer le suivi via la représentation.",
+        null,
+        null,
+        null
+      ]
+    },
+    "18": {
+      "q": "Sur {SITE_NAME}, tu constates que ton EPI est abîmé et doit être retiré du service. À qui le signales‑tu pour le traiter ?",
+      "hint": "Process EPI : retrait et gestion.",
+      "answers": [
+        "Le technicien HSE / Service de prévention.",
+        "La ressource prévention (chantier).",
+        "Je le scotche et je dis qu’il est ‘neuf’.",
+        "Je le laisse traîner et que le destin s’en charge."
+      ],
+      "why": [
+        "Démarche de prévention : retrait de service et gestion correcte.",
+        null,
+        null,
+        null
+      ]
+    },
+    "19": {
+      "q": "Sur {SITE_NAME}, tu dois faire une tâche et tu as besoin de formation/consignes prévention (on ne t’a pas bien expliqué). À qui la demandes‑tu ?",
+      "hint": "Formation et prévention.",
+      "answers": [
+        "Le technicien HSE / Service de prévention.",
+        "Mon chef direct.",
+        "À un PNJ : « Donne‑moi la quête ! »",
+        "J’invente : ‘on a toujours fait comme ça’."
+      ],
+      "why": [
+        "Canal prévention pour formation et consignes adaptées.",
+        null,
+        null,
+        null
+      ]
+    },
+    "20": {
+      "q": "Sur {SITE_NAME}, avant d’utiliser un produit (solvant/colle/nettoyant) tu veux connaître risques et mesures. À qui demandes‑tu ?",
+      "hint": "Substances : consultation prévention.",
+      "answers": [
+        "Le technicien HSE / Service de prévention.",
+        "La ressource prévention (chantier).",
+        "À une BD : ‘si Batman le fait, je tiens’.",
+        "Je le renifle fort et je décide selon le vertige."
+      ],
+      "why": [
+        "Canal technique pour orienter sur les risques et mesures.",
+        null,
+        null,
+        null
+      ]
+    },
+    "21": {
+      "q": "Hors chantier : on t’a remis un EPI mais ce n’est pas ta taille et tu dois l’échanger. À qui le demandes‑tu d’abord ?",
+      "hint": "Gestion opérationnelle : remise/échange.",
+      "answers": [
+        "Au chef (chef de chantier) pour gérer l’échange.",
+        "À la ressource prévention (chantier).",
+        "Je le garde même si ça ne va pas : ‘ça couvre un peu’.",
+        "Je l’échange avec quelqu’un sans rien dire."
+      ],
+      "why": [
+        "Canal opérationnel pour gérer la fourniture/le remplacement des EPI.",
+        null,
+        null,
+        null
+      ]
+    },
+    "22": {
+      "q": "Hors chantier : hier il y a eu un presque‑accident et aujourd’hui tu veux le signaler pour l’enregistrer et éviter la récidive. À qui le dis‑tu ?",
+      "hint": "Enregistrement prévention et suivi.",
+      "answers": [
+        "À la ressource prévention (chantier) pour enregistrer et suivre.",
+        "À mon chef direct.",
+        "Personne : c’est du passé.",
+        "Je le raconte façon histoire épique."
+      ],
+      "why": [
+        "Canal prévention pour enregistrer et déclencher des actions pour que ça ne se reproduise pas.",
+        null,
+        null,
+        null
+      ]
+    },
+    "23": {
+      "q": "Hors chantier : tu veux déposer une proposition d’amélioration prévention par écrit pour garder une trace. À qui la remets‑tu ?",
+      "hint": "Participation avec suivi.",
+      "answers": [
+        "Au/à la délégué(e) à la prévention.",
+        "Au technicien HSE / Service de prévention.",
+        "Je le dis à Goku pour qu’il fasse un Kamehameha au risque.",
+        "Je la laisse dans un tiroir et ça ‘se fera tout seul’."
+      ],
+      "why": [
+        "Canal idéal pour propositions et suivi via la représentation.",
+        null,
+        null,
+        null
+      ]
+    },
+    "24": {
+      "q": "Hors chantier : tu relis de la documentation et tu ne comprends pas une consigne prévention (ça te met le doute). À qui demandes‑tu ?",
+      "hint": "Consultation technique/documentaire prévention.",
+      "answers": [
+        "Au technicien HSE / Service de prévention.",
+        "À la ressource prévention (chantier).",
+        "À Spider‑Man : qu’il règle ça avec des toiles.",
+        "Je fais l’inverse et j’‘apprends’ vite."
+      ],
+      "why": [
+        "Canal technique pour résoudre les doutes de procédure/documentation.",
+        null,
+        null,
+        null
+      ]
+    },
+    "25": {
+      "q": "Hors chantier : tu dois compléter une formation prévention (ou la justifier) et tu ne connais pas le canal/process. À qui le demandes‑tu ?",
+      "hint": "Formation : process prévention.",
+      "answers": [
+        "Au technicien HSE / Service de prévention.",
+        "À mon chef direct.",
+        "Je fabrique un certificat sur Paint.",
+        "J’apprends par osmose en regardant les anciens."
+      ],
+      "why": [
+        "Canal prévention pour formation et habilitations.",
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}
