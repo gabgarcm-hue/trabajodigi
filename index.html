@@ -978,9 +978,30 @@ function applyQTranslation(bankKey, q) {
 
     if (Array.isArray(q.answers)) out.answers = mapped;
     else out.a = mapped;
+
+
+    // If the translation provides question-level why[] (as in your i18n/questions/*.json),
+    // map it to each answer's why so Results can show the explanation in the selected language.
+    const trWhyArr = Array.isArray(tr.why) ? tr.why
+                    : (Array.isArray(tr.rationale) ? tr.rationale
+                    : (Array.isArray(tr.explain) ? tr.explain : null));
+    if (trWhyArr && (out.answers || out.a)){
+      const arr = out.answers || out.a;
+      trWhyArr.forEach((w, i)=>{
+        if (typeof w === "string" && w.trim().length && arr[i]) arr[i].why = substSiteName(w);
+      });
+    }
   }
 
-  return out;
+  // Mutate original object so the rest of the code (which reads QUESTIONS[idx]) sees the translated text.
+  try{
+    q.q = out.q;
+    q.hint = out.hint;
+    if (out.topic !== undefined) q.topic = out.topic;
+    if (Array.isArray(out.answers)) q.answers = out.answers;
+    if (Array.isArray(out.a)) q.a = out.a;
+  }catch(_e){}
+  return q;
 }
 
 function applyFUTranslation(fu){
