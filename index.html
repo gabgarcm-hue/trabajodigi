@@ -758,7 +758,22 @@ function baseDirUrl(){
   // otherwise treat as directory
   return u.origin + p + "/";
 }
+
+function projectRootUrl(){
+  // Root for assets (i18n/*) when the HTML is served from a subfolder (e.g. /repo/in/).
+  // On GitHub Pages project sites: https://user.github.io/<repo>/... -> root is /<repo>/
+  const u = new URL(location.href);
+  u.hash = ""; u.search = "";
+  const parts = (u.pathname || "/").split("/").filter(Boolean);
+  const host = (u.hostname || "").toLowerCase();
+  if (host.endsWith("github.io") && parts.length >= 1){
+    return u.origin + "/" + parts[0] + "/";
+  }
+  // Fallback: assume site root
+  return u.origin + "/";
+}
 const BASE_DIR_URL = baseDirUrl();
+const PROJECT_ROOT_URL = projectRootUrl();
 
 async function fetchJson(path){
   const r = await fetch(path, { cache:"no-store" });
@@ -768,27 +783,30 @@ async function fetchJson(path){
 
 async function loadUi(lang){
   // fallback chain: lang -> es -> {}
-  try{
-    return await fetchJson(`${BASE_DIR_URL}i18n/ui/${lang}.json`);
-  }catch(e1){
-    try{
-      if (lang !== "es") return await fetchJson(`${BASE_DIR_URL}i18n/ui/es.json`);
-    }catch(e2){}
-    return {};
+  const bases = [BASE_DIR_URL, PROJECT_ROOT_URL].filter((v,i,a)=>v && a.indexOf(v)===i);
+  const langs = [lang, (lang==="es"?null:"es")].filter(Boolean);
+  for (const b of bases){
+    for (const l of langs){
+      try{ return await fetchJson(`${b}i18n/ui/${l}.json`); }catch(_e){}
+    }
   }
+  return {};
 }
 
 async function loadQ(lang){
   // Intenta cargar el pack de preguntas en varios formatos/rutas (para evitar "preguntas siempre en ES").
   const clean = (lang || "es").toLowerCase();
-  const tries = [
-    `${BASE_DIR_URL}i18n/questions/${clean}.json`,      // ruta preferida
-    `${BASE_DIR_URL}i18n/q/${clean}.json`,              // alternativa
-    `${BASE_DIR_URL}i18n/questions_${clean}.json`,      // alternativa
-    `${BASE_DIR_URL}i18n/${clean}/questions.json`,      // alternativa
-    `${BASE_DIR_URL}i18n/questions.json`,               // pack único
-    `${BASE_DIR_URL}i18n/questions/all.json`            // pack único (otra convención)
+  const bases = [BASE_DIR_URL, PROJECT_ROOT_URL].filter((v,i,a)=>v && a.indexOf(v)===i);
+  const patterns = [
+    (b)=> `${b}i18n/questions/${clean}.json`,      // ruta preferida
+    (b)=> `${b}i18n/q/${clean}.json`,              // alternativa
+    (b)=> `${b}i18n/questions_${clean}.json`,      // alternativa
+    (b)=> `${b}i18n/${clean}/questions.json`,      // alternativa
+    (b)=> `${b}i18n/questions.json`,               // pack único
+    (b)=> `${b}i18n/questions/all.json`            // pack único
   ];
+  const tries = [];
+  for (const b of bases){ for (const p of patterns){ tries.push(p(b)); } }
 
   for (const url of tries){
     try{
@@ -803,7 +821,7 @@ async function loadQ(lang){
   // fallback a ES si el idioma no existe
   if (clean !== "es"){
     try{
-      const obj = await fetchJson(`${BASE_DIR_URL}i18n/questions/es.json`);
+      const obj = await fetchJson(`${BASE_DIR_URL}i18n/questions/es.json`).catch(()=>fetchJson(`${PROJECT_ROOT_URL}i18n/questions/es.json`));
       if (obj && typeof obj === "object") return obj;
     }catch(_e){}
   }
