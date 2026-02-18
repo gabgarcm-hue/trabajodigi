@@ -779,11 +779,35 @@ async function loadUi(lang){
 }
 
 async function loadQ(lang){
-  try{
-    return await fetchJson(`${BASE_DIR_URL}i18n/questions/${lang}.json`);
-  }catch(e1){
-    return {};
+  // Intenta cargar el pack de preguntas en varios formatos/rutas (para evitar "preguntas siempre en ES").
+  const clean = (lang || "es").toLowerCase();
+  const tries = [
+    `${BASE_DIR_URL}i18n/questions/${clean}.json`,      // ruta preferida
+    `${BASE_DIR_URL}i18n/q/${clean}.json`,              // alternativa
+    `${BASE_DIR_URL}i18n/questions_${clean}.json`,      // alternativa
+    `${BASE_DIR_URL}i18n/${clean}/questions.json`,      // alternativa
+    `${BASE_DIR_URL}i18n/questions.json`,               // pack único
+    `${BASE_DIR_URL}i18n/questions/all.json`            // pack único (otra convención)
+  ];
+
+  for (const url of tries){
+    try{
+      const obj = await fetchJson(url);
+      if (obj && typeof obj === "object" && Object.keys(obj).length){
+        try{ obj.__src = url; }catch(_e){}
+        return obj;
+      }
+    }catch(_e){}
   }
+
+  // fallback a ES si el idioma no existe
+  if (clean !== "es"){
+    try{
+      const obj = await fetchJson(`${BASE_DIR_URL}i18n/questions/es.json`);
+      if (obj && typeof obj === "object") return obj;
+    }catch(_e){}
+  }
+  return {};
 }
 
 function applyUi(){
@@ -829,6 +853,22 @@ function applyUi(){
     sel.value = prev;
   }
 }
+function getQBank(bankKey){
+  // Soporta distintos "wrappers" dentro del JSON de preguntas.
+  // También soporta packs donde el root YA es un mapa id->tr (sin "quiz"/"tf" encima).
+  const q = (I18N && I18N.q) ? I18N.q : {};
+  const cand = (q && (q[bankKey] || q.questions?.[bankKey] || q.banks?.[bankKey] || q.bank?.[bankKey] || q.data?.[bankKey])) || null;
+  if (cand) return cand;
+
+  try{
+    const keys = q ? Object.keys(q) : [];
+    const looksNumeric = keys.length && keys.some(k => /^\d+$/.test(k));
+    if (looksNumeric) return q;
+  }catch(_e){}
+  return null;
+}
+
+
 function applyQTranslation(bankKey, q) {
   // Aplica traducciones de preguntas (si existen) sin romper el contenido base.
   // Soporta dos formatos de JSON:
@@ -836,7 +876,7 @@ function applyQTranslation(bankKey, q) {
   // B) un único JSON con idiomas dentro -> { quiz: { "1": { es:{...}, en:{...} }, ... } }
   if (!q || q.id == null) return q;
 
-  const bank = I18N?.q?.[bankKey];
+  const bank = getQBank(bankKey);
   if (!bank) return q;
 
   // 1) obtiene entrada por id
@@ -913,6 +953,39 @@ async function setLang(lang, persist=true){
   I18N.q  = await loadQ(I18N.lang);
 
   applyUi();
+
+  // Re-render de la vista activa para aplicar traducciones (UI + preguntas) al vuelo
+  try{
+    if (I18N && I18N.lang !== "es" && (!I18N.q || !Object.keys(I18N.q).length)){
+      console.warn("No se cargó pack de preguntas para", I18N.lang, "(revisa i18n/questions).", (I18N.q && I18N.q.__src) ? I18N.q.__src : "");
+    }
+  }catch(_e){}
+
+  try{ rerenderActiveView(); }catch(_e){}
+}
+
+function rerenderActiveView(){
+  // Re-render mínimo para aplicar traducciones sin resetear toda la app.
+  try{
+    // Multijugador: repinta según phase actual
+    if (typeof MP !== "undefined" && (MP.role === "host" || MP.role === "join") && MP.current){
+      handleStateChange(MP.current);
+      return;
+    }
+  }catch(_e){}
+
+  try{
+    const quizEl = document.getElementById("quiz");
+    const isQuizVisible = quizEl && !quizEl.classList.contains("hidden");
+    if (!isQuizVisible) return;
+
+    // Local (MCQ): repinta la pregunta actual
+    if (typeof renderQuestion === "function" && typeof gameMode === "string"){
+      if (["quiz","tf","sema","myth","say"].includes(gameMode)){
+        renderQuestion(gameMode);
+      }
+    }
+  }catch(_e){}
 }
 
 function openLangModal(onPick){
@@ -2379,6 +2452,8 @@ function renderQuestion(type){
   show("answers"); hide("orderArea"); hide("checkArea");
 
   const q = QUESTIONS[idx];
+  // Re-aplica traducción por idioma al vuelo
+  try{ applyQTranslation(type, q); }catch(_e){}
 
   updateProgressUI();
   updateScoreUI();
@@ -3313,6 +3388,7 @@ const MP = {
   current: null,
   answeredThisRound: false,
   selectedIndex: null,
+  lastRoundId: null,
 
   unsubState: null,
   unsubAnswers: null,
@@ -3671,9 +3747,14 @@ function mpRenderQuestion(st){
   hide("start"); hide("waiting"); hide("result");
   show("quiz");
 
-  // reset de flags para esta ronda
-  MP.answeredThisRound = false;
-  MP.selectedIndex = null;
+  // reset de flags solo si es una ronda nueva (evita que cambiar idioma o re-render borre la selección)
+  const _rid = st?.roundId || null;
+  const _newRound = (!_rid) ? true : (_rid !== MP.lastRoundId);
+  if (_newRound){
+    MP.lastRoundId = _rid;
+    MP.answeredThisRound = false;
+    MP.selectedIndex = null;
+  }
 
   const qId = st?.qId;
   const answerOrder = st?.answerOrder;
@@ -3769,12 +3850,26 @@ function mpRenderResults(st){
     btn.disabled = true;
     btn.innerHTML = `<span class="tag">${letters[i] || ""}</span><span class="text">${escapeHtml(a.txt || "")}</span>`;
     if (typeof correctIndex === "number" && i === correctIndex) btn.classList.add("green");
-    if (MP.selectedIndex != null && i === MP.selectedIndex) btn.classList.add("selected");
+    if (MP.selectedIndex != null && i === MP.selectedIndex){
+      btn.classList.add("selected");
+      if (typeof correctIndex === "number" && MP.selectedIndex !== correctIndex) btn.classList.add("red");
+    }
     wrap.appendChild(btn);
   });
 
   show("feedback");
-  $("fbTitle").textContent = ended ? (I18N.ui["mp.endedTitle"] || "Fin") : t("mp.solutionTitle","✅ Solución");
+  const _hasChoice = (MP.selectedIndex != null);
+  const _isCorrect = (_hasChoice && typeof correctIndex === "number" && MP.selectedIndex === correctIndex);
+  const _hasCorrect = (typeof correctIndex === "number" && correctIndex >= 0);
+  const _letters2 = ["A","B","C","D"];
+  const _corrLetter = _hasCorrect ? (_letters2[correctIndex] || String(correctIndex+1)) : "—";
+
+  $("fbTitle").textContent = ended
+    ? (I18N.ui["mp.endedTitle"] || "Fin")
+    : (_isCorrect
+        ? t("mp.correctTitle","✅ Correcto")
+        : (_hasChoice ? t("mp.wrongTitle","❌ Incorrecto") : t("mp.noAnswerTitle","⏳ Sin respuesta")));
+
 
   if (ended){
     $("fbBody").textContent = (I18N.ui["mp.endedBody"] || "La partida ha terminado.");
@@ -3796,7 +3891,14 @@ function mpRenderResults(st){
       }
     }catch(_e){}
 
-    $("fbBody").textContent = why ? ("✅ " + why) : t("mp.revealBody","Revisa el control preventivo correcto y cómo lo comunicas.");
+    const baseMsg = why ? ((_isCorrect ? "✅ " : t("mp.correctWas","✅ Correcta: ")) + why) : t("mp.revealBody","Revisa el control preventivo correcto y cómo lo comunicas.");
+    if (_isCorrect){
+      $("fbBody").textContent = baseMsg;
+    } else if (!_hasChoice){
+      $("fbBody").textContent = fmt(t("mp.noAnswerBody","⏳ No respondiste. La correcta era {L}."), {L:_corrLetter}) + (why ? (" " + baseMsg) : "");
+    } else {
+      $("fbBody").textContent = fmt(t("mp.wrongBody","❌ No era esa. La correcta era {L}."), {L:_corrLetter}) + (why ? (" " + baseMsg) : "");
+    }
   }
 
   hide("followUp");
