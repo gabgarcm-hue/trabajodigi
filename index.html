@@ -855,11 +855,24 @@ function applyUi(){
 }
 function getQBank(bankKey){
   // Soporta distintos "wrappers" dentro del JSON de preguntas.
-  // También soporta packs donde el root YA es un mapa id->tr (sin "quiz"/"tf" encima).
+  // También soporta packs donde el root YA es un mapa id->tr (sin "quiz"/"tf" encima),
+  // y también packs que sean ARRAY de entradas (p.e. [{id:1,q:"...",answers:[...]}]).
   const q = (I18N && I18N.q) ? I18N.q : {};
+
+  // pack como array
+  if (Array.isArray(q)) return q;
+
+  // wrappers típicos
   const cand = (q && (q[bankKey] || q.questions?.[bankKey] || q.banks?.[bankKey] || q.bank?.[bankKey] || q.data?.[bankKey])) || null;
   if (cand) return cand;
 
+  // a veces viene como q.questions (mapa id->tr) sin bankKey
+  if (q && q.questions && typeof q.questions === "object" && !Array.isArray(q.questions)){
+    const keys = Object.keys(q.questions);
+    if (keys.length && keys.some(k => /^\d+$/.test(k))) return q.questions;
+  }
+
+  // root mapa id->tr
   try{
     const keys = q ? Object.keys(q) : [];
     const looksNumeric = keys.length && keys.some(k => /^\d+$/.test(k));
@@ -868,19 +881,33 @@ function getQBank(bankKey){
   return null;
 }
 
-
 function applyQTranslation(bankKey, q) {
   // Aplica traducciones de preguntas (si existen) sin romper el contenido base.
-  // Soporta dos formatos de JSON:
-  // A) i18n/questions/<lang>.json  -> { quiz: { "1": { q, hint, a:[...] }, ... } }
+  // Soporta varios formatos de JSON:
+  // A) i18n/questions/<lang>.json  -> { quiz: { "1": { q, hint, answers:[...] }, ... } }
   // B) un único JSON con idiomas dentro -> { quiz: { "1": { es:{...}, en:{...} }, ... } }
+  // C) banco como array -> { quiz:[{id:1,q:"",answers:[]}, ...] } o root array.
   if (!q || q.id == null) return q;
 
   const bank = getQBank(bankKey);
   if (!bank) return q;
 
   // 1) obtiene entrada por id
-  let tr = bank[q.id] || bank[String(q.id)];
+  let tr = null;
+
+  if (Array.isArray(bank)){
+    const idStr = String(q.id);
+    tr = bank.find(e=>{
+      if (!e) return false;
+      const eid = (e.id != null) ? String(e.id) :
+                  (e.key != null) ? String(e.key) :
+                  (e.qId != null) ? String(e.qId) : null;
+      return eid === idStr;
+    }) || null;
+  }else{
+    tr = bank[q.id] || bank[String(q.id)] || null;
+  }
+
   if (!tr) return q;
 
   // 2) si viene anidado por idioma, elige el actual
@@ -892,27 +919,40 @@ function applyQTranslation(bankKey, q) {
 
   const out = { ...q };
 
-  if (typeof tr.q === "string" && tr.q.trim().length) out.q = substSiteName(tr.q);
-  if (typeof tr.hint === "string" && tr.hint.trim().length) out.hint = substSiteName(tr.hint);
-  if (typeof tr.topic === "string" && tr.topic.trim().length) out.topic = substSiteName(tr.topic);
+  // normaliza campos de texto
+  const trQ    = (typeof tr.q === "string") ? tr.q : (typeof tr.question === "string" ? tr.question : (typeof tr.text === "string" ? tr.text : null));
+  const trHint = (typeof tr.hint === "string") ? tr.hint : (typeof tr.sub === "string" ? tr.sub : (typeof tr.subtitle === "string" ? tr.subtitle : null));
+  const trTop  = (typeof tr.topic === "string") ? tr.topic : null;
 
-  const baseAns = Array.isArray(q.answers) ? q.answers : (Array.isArray(q.a) ? q.a : null);
-  const trAns = Array.isArray(tr.answers) ? tr.answers : (Array.isArray(tr.a) ? tr.a : null);
+  if (trQ && trQ.trim().length) out.q = substSiteName(trQ);
+  if (trHint && trHint.trim().length) out.hint = substSiteName(trHint);
+  if (trTop && trTop.trim().length) out.topic = substSiteName(trTop);
 
-  if (baseAns && trAns && trAns.length){
-    const mapped = trAns.map((item, idx)=>{
-      const base = baseAns[idx] || {};
+  // respuestas base (pueden ser objetos o strings)
+  const baseAnsRaw = Array.isArray(q.answers) ? q.answers : (Array.isArray(q.a) ? q.a : null);
+  const trAnsRaw   = Array.isArray(tr.answers) ? tr.answers : (Array.isArray(tr.a) ? tr.a : (Array.isArray(tr.options) ? tr.options : null));
+
+  if (baseAnsRaw && trAnsRaw && trAnsRaw.length){
+    const toBaseObj = (x)=> (typeof x === "string") ? { txt:x } : (x && typeof x === "object") ? x : {};
+    const mapped = trAnsRaw.map((item, idx)=>{
+      const base = toBaseObj(baseAnsRaw[idx] ?? {});
+      // item puede ser string u objeto
       if (typeof item === "string"){
         return { ...base, txt: substSiteName(item) };
       }
       if (item && typeof item === "object"){
-        const txt = (typeof item.txt === "string" && item.txt.trim().length) ? substSiteName(item.txt) : base.txt;
-        const why = (typeof item.why === "string" && item.why.trim().length) ? substSiteName(item.why) : base.why;
-        // NO tocar flags de corrección (grade/ok) si no vienen
+        const rawTxt = (typeof item.txt === "string") ? item.txt : (typeof item.text === "string" ? item.text : (typeof item.label === "string" ? item.label : null));
+        const rawWhy = (typeof item.why === "string") ? item.why : (typeof item.explain === "string" ? item.explain : (typeof item.rationale === "string" ? item.rationale : null));
+
+        const txt = (rawTxt && rawTxt.trim().length) ? substSiteName(rawTxt) : base.txt;
+        const why = (rawWhy && rawWhy.trim().length) ? substSiteName(rawWhy) : base.why;
+
+        // NO tocar flags de corrección si no vienen
         const next = { ...base, txt };
         if (why != null) next.why = why;
         if (typeof item.grade === "string") next.grade = item.grade;
         if (typeof item.ok === "boolean") next.ok = item.ok;
+        if (typeof item.correct === "boolean") next.ok = item.correct;
         return next;
       }
       return base;
