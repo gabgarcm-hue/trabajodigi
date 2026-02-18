@@ -720,6 +720,15 @@ function detectLang(){
   return "es";
 }
 
+function currentLang(){
+  // Fuente única de verdad del idioma actual.
+  // Prioridad: selector UI -> I18N.lang -> detectLang()
+  const sel = document.getElementById("langSelect");
+  const v = (sel && sel.value) ? String(sel.value).toLowerCase() : "";
+  return (v || (I18N && I18N.lang) || detectLang() || "es").toLowerCase();
+}
+
+
 function setDocLang(lang){
   const meta = LANGS.find(x=>x.code===lang) || LANGS[0];
   document.documentElement.lang = meta.code;
@@ -821,13 +830,25 @@ function applyUi(){
   }
 }
 function applyQTranslation(bankKey, q) {
-  // Applies per-language question translations (if present).
-  // IMPORTANT: never blank-out base content when the translation pack is incomplete.
-  const lang = currentLang();
-  const bank = I18N?.q?.[bankKey];
-  const tr = bank?.[q.id]?.[lang];
+  // Aplica traducciones de preguntas (si existen) sin romper el contenido base.
+  // Soporta dos formatos de JSON:
+  // A) i18n/questions/<lang>.json  -> { quiz: { "1": { q, hint, a:[...] }, ... } }
+  // B) un único JSON con idiomas dentro -> { quiz: { "1": { es:{...}, en:{...} }, ... } }
+  if (!q || q.id == null) return q;
 
+  const bank = I18N?.q?.[bankKey];
+  if (!bank) return q;
+
+  // 1) obtiene entrada por id
+  let tr = bank[q.id] || bank[String(q.id)];
   if (!tr) return q;
+
+  // 2) si viene anidado por idioma, elige el actual
+  if (tr && typeof tr === "object" && !Array.isArray(tr)){
+    const lang = currentLang();
+    if (tr[lang] && typeof tr[lang] === "object") tr = tr[lang];
+  }
+  if (!tr || typeof tr !== "object") return q;
 
   const out = { ...q };
 
@@ -835,22 +856,30 @@ function applyQTranslation(bankKey, q) {
   if (typeof tr.hint === "string" && tr.hint.trim().length) out.hint = substSiteName(tr.hint);
   if (typeof tr.topic === "string" && tr.topic.trim().length) out.topic = substSiteName(tr.topic);
 
-  if (Array.isArray(tr.a) && tr.a.length) {
-    // answers: [{txt, ok, why?}] or strings; keep base ok flags when missing
-    out.a = tr.a.map((item, idx) => {
-      if (typeof item === "string") {
-        const base = q.a?.[idx] || {};
+  const baseAns = Array.isArray(q.answers) ? q.answers : (Array.isArray(q.a) ? q.a : null);
+  const trAns = Array.isArray(tr.answers) ? tr.answers : (Array.isArray(tr.a) ? tr.a : null);
+
+  if (baseAns && trAns && trAns.length){
+    const mapped = trAns.map((item, idx)=>{
+      const base = baseAns[idx] || {};
+      if (typeof item === "string"){
         return { ...base, txt: substSiteName(item) };
       }
-      if (item && typeof item === "object") {
-        const base = q.a?.[idx] || {};
+      if (item && typeof item === "object"){
         const txt = (typeof item.txt === "string" && item.txt.trim().length) ? substSiteName(item.txt) : base.txt;
         const why = (typeof item.why === "string" && item.why.trim().length) ? substSiteName(item.why) : base.why;
-        const ok = (typeof item.ok === "boolean") ? item.ok : base.ok;
-        return { ...base, txt, why, ok };
+        // NO tocar flags de corrección (grade/ok) si no vienen
+        const next = { ...base, txt };
+        if (why != null) next.why = why;
+        if (typeof item.grade === "string") next.grade = item.grade;
+        if (typeof item.ok === "boolean") next.ok = item.ok;
+        return next;
       }
-      return q.a?.[idx] || item;
+      return base;
     });
+
+    if (Array.isArray(q.answers)) out.answers = mapped;
+    else out.a = mapped;
   }
 
   return out;
@@ -3381,6 +3410,33 @@ function showSessionUI(){
   } else {
     hide("hostWrap"); hide("joinWrap");
   }
+
+  // En modo JOIN (antesala), no mostramos controles de configuración del juego.
+  const isJoin = (MP.mode === "join");
+
+  const setFieldWrapVisible = (inputId, visible)=>{
+    const el = document.getElementById(inputId);
+    const wrap = el ? el.closest("label.field") : null;
+    if (wrap) wrap.style.display = visible ? "" : "none";
+  };
+  const setByIdVisible = (id, visible)=>{
+    const el = document.getElementById(id);
+    if (el) el.style.display = visible ? "" : "none";
+  };
+
+  // Config (solo host/local)
+  setFieldWrapVisible("gameMode", !isJoin);
+  setFieldWrapVisible("playMode", !isJoin);
+  setByIdVisible("quizPaceWrap", !isJoin);
+  setFieldWrapVisible("bgTheme", !isJoin);
+  setByIdVisible("teamCountWrap", !isJoin);
+  if (isJoin){ hide("teamNames"); }
+
+  // Botones locales (joiners usan "Unirme")
+  const bStart = document.getElementById("btnStart");
+  const bReset = document.getElementById("btnReset");
+  if (bStart) bStart.style.display = isJoin ? "none" : "";
+  if (bReset) bReset.style.display = isJoin ? "none" : "";
 
   mpForceQuizModeInRoom();
 
