@@ -3233,11 +3233,11 @@ $("playMode")?.addEventListener("change", updateStartUI);
   $("quizPace")?.addEventListener("change", updateStartUI);
   $("bgTheme")?.addEventListener("change", ()=>applyBgTheme($("bgTheme")?.value || "night", true));
 
-  $("btnStart")?.addEventListener("click", () => startGame());
-  $("btnReset")?.addEventListener("click", resetAll);
+  $("btnStart")?.addEventListener("click", onStartClick);
+  $("btnReset")?.addEventListener("click", onExitClick);
 
-  $("btnBackToStart")?.addEventListener("click", resetAll);
-  $("btnNext")?.addEventListener("click", () => next());
+  $("btnBackToStart")?.addEventListener("click", onExitClick);
+  $("btnNext")?.addEventListener("click", onNextClick);
 
   $("btnAgain")?.addEventListener("click", startAgain);
   $("btnToStart")?.addEventListener("click", resetAll);
@@ -3257,7 +3257,7 @@ $("playMode")?.addEventListener("change", updateStartUI);
 
 
 // =======================
-// Multijugador (Firebase RTDB)
+// Multijugador (Firebase RTDB) — Refactor estable (sin "parche sobre parche")
 // =======================
 
 // 1) Config Firebase (REEMPLAZA con tu config del panel de Firebase -> "Añadir app web")
@@ -3272,89 +3272,131 @@ const FIREBASE_CONFIG = {
 };
 
 const MP = {
-  mode: "local",     // local | host | join
+  mode: "local",           // local | host | join   (valor del selector)
+  role: "none",            // none | host | join    (sesión activa)
   room: "",
   pid: "",
   pname: "",
-  roundId: "",
-  started: false,
-  unsubState: null,
-  unsubAnswers: null
+  plang: "es",
+  gameId: "",
+  qIds: [],
+  qIndex: 0,
+  current: null,
+  answeredThisRound: false,
+  selectedIndex: null,
 
-  ,answerOrder: null,      // permutation of base answer indices for current question (host)
-  answerOrderQId: null     // which q.id the current answerOrder applies to
+  unsubState: null,
+  unsubAnswers: null,
+  unsubPlayers: null
 };
 
-function isConfiguredFirebase(){
-  // evita ReferenceError si alguien renombra la constante por accidente
+function mpIsConfigured(){
   try{
-    const cfg = (typeof FIREBASE_CONFIG !== "undefined") ? FIREBASE_CONFIG : null;
-    return !!(cfg
-      && cfg.apiKey && !String(cfg.apiKey).includes("REEMPLAZA")
-      && cfg.databaseURL && !String(cfg.databaseURL).includes("REEMPLAZA"));
-  }catch(e){ return false; }
+    return !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.databaseURL);
+  }catch(_e){ return false; }
 }
 
-function setPill(txt){
+function mpSetPill(txt){
   const p = $("pillState");
   if (p) p.textContent = txt;
 }
 
-function showSessionUI(){
-  const modeSel = $("sessionMode");
-  MP.mode = modeSel ? modeSel.value : "local";
+function mpCleanup(){
+  if (MP.unsubState){ try{ MP.unsubState(); }catch(_e){} MP.unsubState = null; }
+  if (MP.unsubAnswers){ try{ MP.unsubAnswers(); }catch(_e){} MP.unsubAnswers = null; }
+  if (MP.unsubPlayers){ try{ MP.unsubPlayers(); }catch(_e){} MP.unsubPlayers = null; }
+  MP.role = "none";
+  MP.room = "";
+  MP.pid = "";
+  MP.pname = "";
+  MP.gameId = "";
+  MP.qIds = [];
+  MP.qIndex = 0;
+  MP.current = null;
+  MP.answeredThisRound = false;
+  MP.selectedIndex = null;
+}
 
-  
-  const gmSel = $("gameMode");
-  const limitNote = $("sessionLimitNote");
-if (MP.mode === "host"){
-    show("hostWrap"); hide("joinWrap");
-    // Sala → solo Kahoot por ahora (lo demás lo dejamos local)
-    if ($("gameMode") && $("gameMode").value !== "quiz"){
-      $("gameMode").value = "quiz";
+function mpReadModeFromUI(){
+  MP.mode = $("sessionMode")?.value || "local";
+  return MP.mode;
+}
+
+function mpForceQuizModeInRoom(){
+  // En sala multijugador, por simplicidad solo soportamos Kahoot (quiz)
+  if ($("gameMode") && $("gameMode").value !== "quiz") $("gameMode").value = "quiz";
+  if ($("gameMode")) $("gameMode").disabled = (MP.mode === "host" || MP.mode === "join");
+  if ($("quizPaceWrap")) show("quizPaceWrap");
+  if ($("sessionLimitNote")){
+    if (MP.mode === "host" || MP.mode === "join") show("sessionLimitNote");
+    else hide("sessionLimitNote");
+  }
+}
+
+function mpSetStartButtonLabel(){
+  const b = $("btnStart");
+  if (!b) return;
+
+  // local
+  if (MP.mode === "local"){
+    b.textContent = (I18N.ui["btn.start"] || "Empezar");
+    b.disabled = false;
+    return;
+  }
+
+  // host
+  if (MP.mode === "host"){
+    if (!MP.room){
+      b.textContent = (I18N.ui["btn.createRoom"] || "Crear sala");
+      b.disabled = false;
+      return;
     }
-    if ($("quizPaceWrap")) show("quizPaceWrap");
+    // si hay sala pero aún no se ha empezado
+    const phase = MP.current?.phase || "lobby";
+    if (phase === "lobby"){
+      b.textContent = (I18N.ui["btn.startRoom"] || "Empezar partida");
+      b.disabled = false;
+    } else {
+      b.textContent = (I18N.ui["btn.inProgress"] || "En curso");
+      b.disabled = true;
+    }
+    return;
+  }
+
+  // join
+  if (MP.mode === "join"){
+    b.textContent = (I18N.ui["btn.start"] || "Empezar");
+    b.disabled = true; // el joiner usa su propio botón "Unirme"
+  }
+}
+
+function showSessionUI(){
+  mpReadModeFromUI();
+
+  // UI de host/join
+  if (MP.mode === "host"){
+    show("hostWrap"); hide("joinWrap");
   } else if (MP.mode === "join"){
     hide("hostWrap"); show("joinWrap");
-    if ($("gameMode") && $("gameMode").value !== "quiz"){
-      $("gameMode").value = "quiz";
-    }
-    if ($("quizPaceWrap")) show("quizPaceWrap");
   } else {
     hide("hostWrap"); hide("joinWrap");
   }
 
-  // En sala multijugador, por simplicidad solo soportamos Kahoot (quiz)
-  if (MP.mode === "host" || MP.mode === "join"){
-    if (gmSel){
-      gmSel.value = "quiz";
-      gmSel.disabled = true;
-    }
-    if (limitNote) show("sessionLimitNote");
-  } else {
-    if (gmSel) gmSel.disabled = false;
-    if (limitNote) hide("sessionLimitNote");
-  }
+  mpForceQuizModeInRoom();
 
   // aviso config
-  if ((MP.mode === "host" || MP.mode === "join") && !isConfiguredFirebase()){
-    setPill("⚠ Config Firebase pendiente");
+  if ((MP.mode === "host" || MP.mode === "join") && !mpIsConfigured()){
+    mpSetPill("⚠ Config Firebase pendiente");
   } else {
-    setPill("Listo");
+    mpSetPill("Listo");
   }
+
+  mpSetStartButtonLabel();
 }
 
 function genRoomCode(){
   return String(Math.floor(100000 + Math.random()*900000));
 }
-
-function safeOriginPath(){
-  // Deprecated: kept for backward compatibility
-  const origin = location.origin && location.origin !== "null" ? location.origin : "";
-  if (!origin) return "";
-  return origin + location.pathname;
-}
-
 
 function currentPageUrlNoQuery(){
   const origin = location.origin && location.origin !== "null" ? location.origin : "";
@@ -3363,17 +3405,14 @@ function currentPageUrlNoQuery(){
   u.hash = "";
   u.search = "";
   const p = u.pathname || "/";
-  if (p.endsWith("/")) {
-    u.pathname = p + "index.html";
-  } else if (!/\.[a-z0-9]+$/i.test(p)) {
-    u.pathname = p + "/index.html";
-  }
+  if (p.endsWith("/")) u.pathname = p + "index.html";
+  else if (!/\.[a-z0-9]+$/i.test(p)) u.pathname = p + "/index.html";
   return u.toString();
 }
 
 function makeJoinUrl(code){
   const base = currentPageUrlNoQuery();
-  if(!base) return "";
+  if (!base) return "";
   const u = new URL(base);
   u.searchParams.set("join", String(code || ""));
   return u.toString();
@@ -3381,17 +3420,13 @@ function makeJoinUrl(code){
 
 function renderRoomBox(){
   if ($("roomCode")) $("roomCode").textContent = MP.room || "—";
+
   const link = MP.room ? makeJoinUrl(MP.room) : "";
-
   const linkEl = $("roomLink");
-  if (!linkEl) return;
-
-  if (!MP.room){
-    linkEl.textContent = "Enlace: —";
-  } else if (!link){
-    linkEl.textContent = "⚠️ Abre esta página desde un servidor (http/https) para generar el QR.";
-  } else {
-    linkEl.textContent = "Link: " + link;
+  if (linkEl){
+    if (!MP.room) linkEl.textContent = "Enlace: —";
+    else if (!link) linkEl.textContent = "⚠️ Abre esta página desde un servidor (http/https) para generar el QR.";
+    else linkEl.textContent = "Link: " + link;
   }
 
   const roomQr = $("roomQr");
@@ -3399,7 +3434,6 @@ function renderRoomBox(){
   roomQr.innerHTML = "";
 
   const qrSize = Math.max(120, Math.min(320, roomQr.clientWidth || 180));
-
   const empty = (msg)=>{ roomQr.innerHTML = `<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">${msg}</div>`; };
 
   if (!link){
@@ -3419,7 +3453,6 @@ function renderRoomBox(){
   };
 
   try{
-    // Prefer local generation via the 'qrcode' library (global QRCode with toCanvas/toDataURL)
     if (window.QRCode && typeof window.QRCode.toCanvas === "function"){
       const canvas = document.createElement("canvas");
       window.QRCode.toCanvas(canvas, link, { width: qrSize, margin: 1, errorCorrectionLevel: "M" }, (err)=>{
@@ -3440,235 +3473,333 @@ function renderRoomBox(){
       });
       return;
     }
-    // Last resort: remote QR image service
     tryApiFallback();
-  } catch(e){
+  }catch(_e){
     tryApiFallback();
   }
 }
 
+async function mpSubscribePlayers(){
+  // Actualiza "Participantes" en lobby (host y joiners)
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, onValue } = fb;
+
+  if (MP.unsubPlayers){ try{ MP.unsubPlayers(); }catch(_e){} MP.unsubPlayers=null; }
+
+  MP.unsubPlayers = onValue(ref(db, `rooms/${MP.room}/players`), (snap)=>{
+    const obj = snap.val() || {};
+    const n = Object.keys(obj).length;
+    const el = $("waitingPlayers");
+    if (el) el.textContent = fmt(t("mp.players","{N} participantes"), {N:n});
+  }, (err)=>console.error(err));
+}
+
+async function mpSubscribeState(){
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, onValue } = fb;
+
+  if (MP.unsubState){ try{ MP.unsubState(); }catch(_e){} MP.unsubState=null; }
+
+  MP.unsubState = onValue(ref(db, `rooms/${MP.room}/state`), (snap)=>{
+    const st = snap.val();
+    MP.current = st || null;
+    mpSetStartButtonLabel();
+    handleStateChange(st);
+  }, (err)=>console.error(err));
+}
 
 async function mpCreateRoom(){
-  if (!isConfiguredFirebase()){
+  if (!mpIsConfigured()){
     alert("Falta configurar Firebase. Revisa FIREBASE_CONFIG (incluye databaseURL) dentro del HTML.");
     return;
   }
+
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, set, serverTimestamp, onDisconnect } = fb;
+
+  // Genera código y crea estructura limpia
+  const code = genRoomCode();
+  MP.role = "host";
+  MP.room = code;
+  MP.plang = currentLang();
+
+  // meta + state (lobby)
+  await set(ref(db, `rooms/${code}/meta`), {
+    createdAt: serverTimestamp(),
+    title: document.title || "Juego PRL",
+    hostLang: MP.plang
+  });
+  await set(ref(db, `rooms/${code}/state`), {
+    phase: "lobby",
+    ts: serverTimestamp()
+  });
+
+  // best-effort: si el host cierra pestaña, borra la sala
   try{
-    const fb = await window.__getFirebase(FIREBASE_CONFIG);
-    const { db, ref, set, serverTimestamp, onDisconnect } = fb;
+    onDisconnect(ref(db, `rooms/${code}`)).remove();
+  }catch(_e){}
 
-    const code = genRoomCode();
-    MP.room = code;
-    MP.started = false;
-    MP.roundId = "";
-  MP.answerOrder = null;
-  MP.answerOrderQId = null;
+  renderRoomBox();
+  mpSetPill("Sala: " + code);
 
-    const roomRef = ref(db, `rooms/${code}`);
-    await set(roomRef, {
-      createdAt: serverTimestamp(),
-      status: "lobby",
-      title: document.title || "Juego PRL",
-    });
+  // Suscribe para tener MP.current siempre coherente
+  await mpSubscribeState();
+  await mpSubscribePlayers();
 
-    // limpieza al cerrar pestaña (best-effort)
-    try{ onDisconnect(roomRef).remove(); }catch(_e){}
-
-    renderRoomBox();
-    show("hostWrap");
-    setPill("Sala: " + code);
-  }catch(e){
-    console.error(e);
-    alert("No puedo crear la sala en Firebase. Revisa: (1) databaseURL de Realtime Database, (2) Reglas RTDB permiten rooms, (3) que el HTML de GitHub Pages sea el actualizado.\n\nDetalle: " + (e?.message || e));
-  }
+  mpSetStartButtonLabel();
 }
 
 async function mpCloseRoom(){
-  if (!MP.room) return resetAll();
+  if (!MP.room) { onExitClick(); return; }
+
   try{
     const fb = await window.__getFirebase(FIREBASE_CONFIG);
     const { db, ref, remove } = fb;
     await remove(ref(db, `rooms/${MP.room}`));
-  }catch(_e){}
-  MP.room = "";
-  MP.started = false;
-  MP.roundId = "";
-  renderRoomBox();
-  setPill("Listo");
-  resetAll();
-}
-
-async function mpJoinRoom(code, name){
-  if (!isConfiguredFirebase()){
-    alert("Falta configurar Firebase. Edita FIREBASE_CONFIG dentro del HTML.");
-    return;
-  }
-  const clean = String(code || "").replace(/\D/g,"").slice(0,6);
-  if (clean.length < 6){
-    alert("Mete un código de 6 dígitos.");
-    return;
-  }
-  try{
-    const fb = await window.__getFirebase(FIREBASE_CONFIG);
-    const { db, ref, set, serverTimestamp, onValue } = fb;
-
-  MP.mode = "join";
-  MP.room = clean;
-  MP.pid = "p_" + Math.random().toString(36).slice(2,10);
-  MP.pname = (name || "").trim().slice(0,24);
-
-  // registra participante (no es auth, solo presencia)
-  await set(ref(db, `rooms/${clean}/participants/${MP.pid}`), {
-    name: MP.pname || "—",
-    joinedAt: serverTimestamp()
-  });
-
-  // escucha estado del juego
-  if (MP.unsubState) MP.unsubState();
-  MP.unsubState = onValue(ref(db, `rooms/${clean}/state`), (snap)=>{
-    const st = snap.val();
-    if (!st) return;
-    mpApplyRemoteState(st);
-  });
-
-  // entra a pantalla quiz (modo participante)
-  hide("start"); show("quiz");
-  hide("btnReveal"); hide("btnNext"); // el participante no avanza
-  if ($("btnBackToStart")) $("btnBackToStart").textContent = (I18N.ui["btn.back"] || "Salir");
-  setPill("Unido: " + clean);
-
   }catch(e){
     console.error(e);
-    alert("No puedo unirme a la sala. Revisa: (1) databaseURL y reglas de Realtime Database, (2) que todos entráis por la URL de GitHub Pages.\n\nDetalle: " + (e?.message || e));
-    return;
-  }
-}
-
-
-function revealRemote(correctIndex){
-  const buttons = Array.from(document.querySelectorAll(".ans"));
-  buttons.forEach((b,i)=>{
-    b.classList.add("locked");
-    b.disabled = true;
-    if (i === correctIndex) b.classList.add("green");
-    else b.classList.add("red");
-  });
-}
-
-function mpApplyRemoteState(st){
-  // st: {phase, roundId, qNo, total, qId, correctIndex?}
-  if (st.phase === "ended"){
-    // fin
-    $("qText").textContent = (I18N.ui["mp.endedTitle"] || "Fin de la sala");
-    $("qHint").textContent = (I18N.ui["mp.endedHint"] || "Gracias. Ya puedes cerrar esta pestaña.");
-    $("answers").innerHTML = "";
-    hide("feedback"); hide("followUp");
-    hide("btnReveal"); hide("btnNext");
-    return;
   }
 
-  // lobby / waiting: no hay pregunta publicada aún
-  if (!st || !st.phase || st.phase === "lobby"){
-    hide("quiz");
-    hide("feedback");
-    hide("followUp");
+  mpCleanup();
+  mpSetPill("Listo");
+  resetAll();
+  showSessionUI();
+}
+
+function mpPickQuestions(total=10){
+  const base = (typeof QUESTIONS_BASE !== "undefined" && Array.isArray(QUESTIONS_BASE)) ? QUESTIONS_BASE.slice() : [];
+  shuffle(base);
+  const picked = base.slice(0, Math.max(1, Math.min(total, base.length)));
+  return picked.map(q=>q.id);
+}
+
+function mpMakeAnswerOrder(qRaw){
+  const n = (qRaw && Array.isArray(qRaw.answers)) ? qRaw.answers.length : 4;
+  const order = Array.from({length:n}, (_,i)=>i);
+  shuffle(order);
+  return order;
+}
+
+function mpBuildQ(qId, answerOrder){
+  const qRaw = (typeof QUESTIONS_BASE !== "undefined" && Array.isArray(QUESTIONS_BASE)) ? QUESTIONS_BASE.find(x=>x.id===qId) : null;
+  if (!qRaw) return null;
+
+  const q = JSON.parse(JSON.stringify(qRaw));
+  applyQTranslation("quiz", q);
+
+  if (Array.isArray(answerOrder) && Array.isArray(q.answers) && answerOrder.length === q.answers.length){
+    const old = q.answers.slice();
+    q.answers = answerOrder.map(i=>old[i]);
+  }
+  return { q, qRaw };
+}
+
+function mpRenderLobby(){
+  // Joiners: pantalla espera
+  if (MP.role === "join"){
+    hide("start"); hide("quiz"); hide("result");
     show("waiting");
-    $("waitingRoom").textContent = fmt(t("mp.room","Sala {C}"), {C:(MP.roomId||"—")});
-    const n = st && st.players ? Object.keys(st.players).length : null;
-    $("waitingPlayers").textContent = n!=null ? fmt(t("mp.players","{N} participantes"), {N:n}) : t("mp.players","Participantes");
+    const roomTxt = fmt(t("mp.room","Sala {C}"), {C:(MP.room || "—")});
+    if ($("waitingRoom")) $("waitingRoom").textContent = roomTxt;
+    // waitingPlayers lo actualiza mpSubscribePlayers()
     return;
   }
 
-  // si cambia ronda -> desbloquea
-  if (st.roundId && st.roundId !== MP.roundId){
-    MP.roundId = st.roundId;
-    answered = false;
-    followUpPending = false;
-    hide("feedback"); hide("followUp");
-  }
+  // Host: se queda en pantalla de sala (start)
+  show("start");
+  hide("waiting"); hide("quiz"); hide("result");
+  renderRoomBox();
+}
 
-  hide("waiting");
+function mpRenderQuestion(st){
+  hide("start"); hide("waiting"); hide("result");
+  show("quiz");
 
-  // pinta
+  // reset de flags para esta ronda
+  MP.answeredThisRound = false;
+  MP.selectedIndex = null;
+
+  const qId = st?.qId;
+  const answerOrder = st?.answerOrder;
+  const built = mpBuildQ(qId, answerOrder);
+  const q = built ? built.q : null;
+
   $("qCounter").textContent = fmt(t("mp.qCounter","Pregunta {N}/{T}"), {N:(st.qNo||1), T:(st.total||10)});
-  $("qScore").textContent = t("mp.inRoom","En sala");
+  $("qScore").textContent = (MP.role === "host") ? t("mp.host","Host") : t("mp.inRoom","En sala");
+
   if ($("bar")){
     const pct = Math.round(((st.qNo || 1) / Math.max(1, st.total || 10)) * 100);
     $("bar").style.width = pct + "%";
   }
 
-  // Render por ID (cada móvil con su idioma)
-  const qRaw = (typeof QUESTIONS_BASE !== "undefined" && Array.isArray(QUESTIONS_BASE)) ? QUESTIONS_BASE.find(x=>x.id===st.qId) : null;
-  const q = qRaw ? JSON.parse(JSON.stringify(qRaw)) : null;
-  if (q){
-    applyQTranslation("quiz", q);
-    // aplica el orden publicado por el host (si existe)
-    if (Array.isArray(st.answerOrder) && Array.isArray(q.answers) && st.answerOrder.length === q.answers.length){
-      const old = q.answers.slice();
-      q.answers = st.answerOrder.map(i=>old[i]);
-    }
-    $("qText").textContent = q.q || "—";
-    $("qHint").textContent = q.hint || "";
-  } else {
-    $("qText").textContent = "—";
-    $("qHint").textContent = "";
-  }
+  $("qText").textContent = q ? (q.q || "—") : "—";
+  $("qHint").textContent = q ? (q.hint || "") : "";
+
+  hide("feedback");
+  hide("followUp");
 
   const wrap = $("answers");
   wrap.innerHTML = "";
   const letters = ["A","B","C","D"];
 
-  (q && q.answers ? q.answers : []).forEach((a, i)=>{
+  const answers = (q && Array.isArray(q.answers)) ? q.answers : [];
+  answers.forEach((a, i)=>{
     const btn = document.createElement("button");
     btn.className = "ans";
     btn.type = "button";
     btn.innerHTML = `<span class="tag">${letters[i] || ""}</span><span class="text">${escapeHtml(a.txt || "")}</span>`;
-    btn.addEventListener("click", ()=>selectAnswer(i, "quiz", false));
+
+    if (MP.role === "host"){
+      btn.disabled = true; // el host no responde
+      btn.classList.add("locked");
+    } else {
+      btn.addEventListener("click", ()=>mpJoinSelect(i));
+    }
     wrap.appendChild(btn);
   });
-  // fase reveal: marca solución si llega
-  if (st.phase === "reveal" && typeof st.correctIndex === "number"){
-    revealRemote(st.correctIndex);
-    show("feedback");
-    $("fbTitle").textContent = t("mp.solutionTitle","✅ Solución");
-    $("fbBody").textContent = t("mp.revealBody","Revisa con el mando/recurso preventivo qué control aplicas y cómo lo comunicas.");
-    hide("followUp");
+
+  // Contadores solo host
+  if (MP.role === "host") show("liveCounts"); else hide("liveCounts");
+
+  // Botonera
+  if (MP.role === "host"){
+    show("btnReveal"); hide("btnNext");
+    resetBtnRevealUI();
   } else {
-    // no revelar
-    hide("feedback"); hide("followUp");
+    hide("btnReveal"); hide("btnNext");
+  }
+}
+
+function mpRenderResults(st){
+  hide("start"); hide("waiting"); hide("result");
+  show("quiz"); // reutilizamos UI de quiz para mostrar solución, como en Kahoot
+
+  const ended = !!st?.ended;
+  const qId = st?.qId;
+  const answerOrder = st?.answerOrder;
+  const correctIndex = (typeof st?.correctIndex === "number") ? st.correctIndex : null;
+
+  const built = mpBuildQ(qId, answerOrder);
+  const q = built ? built.q : null;
+  const qRaw = built ? built.qRaw : null;
+
+  $("qCounter").textContent = ended
+    ? (I18N.ui["mp.endedTitle"] || "Fin de la sala")
+    : fmt(t("mp.qCounter","Pregunta {N}/{T}"), {N:(st.qNo||1), T:(st.total||10)});
+  $("qScore").textContent = (MP.role === "host") ? t("mp.host","Host") : t("mp.inRoom","En sala");
+
+  if ($("bar")){
+    const pct = ended ? 100 : Math.round(((st.qNo || 1) / Math.max(1, st.total || 10)) * 100);
+    $("bar").style.width = pct + "%";
   }
 
-  // counts no se muestran al participante
-  hide("liveCounts");
-}
+  if (ended){
+    $("qText").textContent = (I18N.ui["mp.endedHint"] || "Gracias. Ya puedes cerrar esta pestaña.");
+    $("qHint").textContent = "";
+  } else {
+    $("qText").textContent = q ? (q.q || "—") : "—";
+    $("qHint").textContent = q ? (q.hint || "") : "";
+  }
 
-// ---- Host: publicar estado / contar respuestas ----
-async function mpPublishQuestion(phase, correctIndex){
-  const fb = await window.__getFirebase(FIREBASE_CONFIG);
-  const { db, ref, set, serverTimestamp } = fb;
+  const wrap = $("answers");
+  wrap.innerHTML = "";
+  const letters = ["A","B","C","D"];
+  const answers = (!ended && q && Array.isArray(q.answers)) ? q.answers : [];
 
-  const q = QUESTIONS[idx];
-  const roundId = (phase === "reveal" && MP.roundId) ? MP.roundId : `${Date.now()}_${idx}`;
-  MP.roundId = roundId;
-
-  await set(ref(db, `rooms/${MP.room}/state`), {
-    phase: phase,              // "question" | "reveal"
-    roundId: roundId,
-    qNo: idx+1,
-    total: roundTotal(),
-    qId: q.id,
-    answerOrder: (Array.isArray(MP.answerOrder) ? MP.answerOrder : null),
-    correctIndex: (phase === "reveal") ? (typeof correctIndex === "number" ? correctIndex : null) : null,
-    ts: serverTimestamp()
+  answers.forEach((a, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "ans locked";
+    btn.type = "button";
+    btn.disabled = true;
+    btn.innerHTML = `<span class="tag">${letters[i] || ""}</span><span class="text">${escapeHtml(a.txt || "")}</span>`;
+    if (typeof correctIndex === "number" && i === correctIndex) btn.classList.add("green");
+    if (MP.selectedIndex != null && i === MP.selectedIndex) btn.classList.add("selected");
+    wrap.appendChild(btn);
   });
 
-  // engancha contador
-  mpAttachCounts(roundId, (q.answers || []).length);
+  show("feedback");
+  $("fbTitle").textContent = ended ? (I18N.ui["mp.endedTitle"] || "Fin") : t("mp.solutionTitle","✅ Solución");
+
+  if (ended){
+    $("fbBody").textContent = (I18N.ui["mp.endedBody"] || "La partida ha terminado.");
+  } else {
+    let why = "";
+    try{
+      // si hay why en la respuesta correcta (según idioma), lo mostramos
+      if (q && q.answers && typeof correctIndex === "number"){
+        why = q.answers[correctIndex]?.why || "";
+      }
+      // fallback a base
+      if (!why && qRaw && qRaw.answers){
+        const baseCorrect = qRaw.answers.findIndex(a=>a.grade==="green");
+        if (baseCorrect >= 0){
+          const shownCorrect = Array.isArray(answerOrder) ? answerOrder.indexOf(baseCorrect) : baseCorrect;
+          why = (qRaw.answers[baseCorrect]?.why || "");
+          // si se reordenó y el pack no trae why, seguimos mostrando base
+        }
+      }
+    }catch(_e){}
+
+    $("fbBody").textContent = why ? ("✅ " + why) : t("mp.revealBody","Revisa el control preventivo correcto y cómo lo comunicas.");
+  }
+
+  hide("followUp");
+
+  if (MP.role === "host"){
+    hide("btnReveal");
+    show("btnNext");
+    show("liveCounts");
+  } else {
+    hide("btnReveal");
+    hide("btnNext");
+    hide("liveCounts");
+  }
 }
 
+function handleStateChange(st){
+  if (!st){
+    // sala borrada o estado vacío
+    if (MP.role === "join"){
+      hide("quiz"); hide("waiting"); show("start");
+      mpSetPill("Sala no disponible");
+    }
+    return;
+  }
+
+  const phase = st.phase || "lobby";
+
+  if (phase === "lobby"){
+    mpRenderLobby();
+    return;
+  }
+
+  if (phase === "question"){
+    mpRenderQuestion(st);
+    // Contadores live (host)
+    if (MP.role === "host" && st.roundId){
+      mpAttachCounts(st.roundId, st.answerOrder?.length || 4);
+    }
+    return;
+  }
+
+  if (phase === "results"){
+    mpRenderResults(st);
+    // Contadores live (host)
+    if (MP.role === "host" && st.roundId){
+      mpAttachCounts(st.roundId, st.answerOrder?.length || 4);
+    }
+    return;
+  }
+
+  // fallback
+  mpRenderLobby();
+}
+
+// ---- Contadores (host) ----
 async function mpAttachCounts(roundId, answerLen){
-  // suelta anterior
-  if (MP.unsubAnswers){ MP.unsubAnswers(); MP.unsubAnswers = null; }
+  if (MP.role !== "host") return;
+
+  if (MP.unsubAnswers){ try{ MP.unsubAnswers(); }catch(_e){} MP.unsubAnswers=null; }
 
   const fb = await window.__getFirebase(FIREBASE_CONFIG);
   const { db, ref, onValue } = fb;
@@ -3691,270 +3822,280 @@ async function mpAttachCounts(roundId, answerLen){
     counts.forEach((n,i)=>{
       const sp = document.createElement("span");
       sp.className = "countPill";
-      sp.textContent = `${letters[i]}: ${n}`;
+      sp.textContent = `${letters[i] || i+1}: ${n}`;
       countsEl.appendChild(sp);
     });
     const sp2 = document.createElement("span");
     sp2.className = "countPill";
     sp2.textContent = `Respondidas: ${total}`;
     countsEl.appendChild(sp2);
-  });
+  }, (err)=>console.error(err));
 }
 
-
-// ---- Override: renderQuestion (host generates synced answer order) ----
-const __renderQuestion = renderQuestion;
-renderQuestion = function(type){
-  // En multijugador, el host baraja respuestas UNA VEZ por pregunta
-  // y publica el orden para que todos (host + participantes, y todos los idiomas) vean lo mismo.
-  if (MP.mode === "host" && MP.started && type === "quiz"){
-    const q = (typeof QUESTIONS !== "undefined" && QUESTIONS && QUESTIONS[idx]) ? QUESTIONS[idx] : null;
-    if (q && Array.isArray(q.answers) && q.answers.length){
-      const needsNew =
-        (MP.answerOrderQId !== q.id) ||
-        (!Array.isArray(MP.answerOrder)) ||
-        (MP.answerOrder.length !== q.answers.length);
-
-      if (needsNew){
-        const order = Array.from({length:q.answers.length}, (_,i)=>i);
-        shuffle(order);
-        MP.answerOrder = order;
-        MP.answerOrderQId = q.id;
-
-        // reordena para que el DOM y el índice coincidan (selectAnswer / revealAll)
-        const old = q.answers.slice();
-        q.answers = order.map(i=>old[i]);
-      }
-    }
-  }
-  return __renderQuestion(type);
-};
-// ---- Override: startGame / selectAnswer / next / resetAll ----
-const __startGame = startGame;
-startGame = function(){
-  const sel = $("sessionMode");
-  MP.mode = sel ? sel.value : "local";
-
-  if (MP.mode === "local"){
-    return __startGame();
-  }
-
-  // Multijugador: solo Kahoot (quiz)
-  if ($("gameMode") && $("gameMode").value !== "quiz"){
-    $("gameMode").value = "quiz";
-  }
-
-  if (MP.mode === "host"){
-    if (!isConfiguredFirebase()){
-      alert("Falta configurar Firebase. Edita FIREBASE_CONFIG dentro del HTML.");
-      return;
-    }
-    if (!MP.room){
-      // primer click: crear sala
-      mpCreateRoom().catch(e=>alert(e.message || e));
-      return;
-    }
-    // segundo click: empezar partida como host
-    MP.started = true;
-
-    // preparamos quiz normal en local (sin equipos)
-    $("playMode").value = "solo";
-    __startGame(); // esto montará QUESTIONS + idx + UI
-
-    // host: no responde, muestra botón de solución
-    show("btnReveal");
-    resetBtnRevealUI();
-    show("liveCounts");
-
-    // publica primera pregunta
-    mpPublishQuestion("question", null).catch(e=>console.error(e));
-    setPill("Sala: " + MP.room);
-    return;
-  }
-
-  if (MP.mode === "join"){
-    const code = ($("joinCode")?.value || "").trim();
-    const nameRaw = ($("joinName")?.value || "").trim();
-    const name = nameRaw || t("mp.guest","Invitado");
-
-    // entra a sala y espera a que el host publique la primera pregunta
-    hide("quiz");
-    show("waiting");
-    $("waitingRoom").textContent = fmt(t("mp.room","Sala {C}"), {C:code || "—"});
-    $("waitingPlayers").textContent = t("mp.players","Participantes");
-
-    mpJoinRoom(code, name).catch(e=>{
-      hide("waiting");
-      alert(e.message || e);
-    });
-    return;
-  }
-};
-
-const __resetAll = resetAll;
-resetAll = function(){
-  // limpia listeners
-  if (MP.unsubState){ try{ MP.unsubState(); }catch(_e){} MP.unsubState=null; }
-  if (MP.unsubAnswers){ try{ MP.unsubAnswers(); }catch(_e){} MP.unsubAnswers=null; }
-
-  MP.started = false;
-  MP.roundId = "";
-  // no borramos sala automáticamente (el host tiene botón "Cerrar sala")
-  hide("btnReveal");
-  hide("liveCounts");
-  return __resetAll();
-};
-
-const __selectAnswer = selectAnswer;
-selectAnswer = function(i, type, timedOut=false){
-  // participante: no calcula puntos, solo envía
-  if (MP.mode === "join" && type === "quiz"){
-    if (answered) return;
-    answered = true;
-    // marca selección visual sin revelar
-    const buttons = Array.from(document.querySelectorAll(".ans"));
-    buttons.forEach((b, idxB)=>{
-      b.disabled = true;
-      if (idxB === i) b.classList.add("selected");
-    });
-    hide("followUp");
-    show("feedback");
-    $("fbTitle").textContent = (I18N.ui["mp.sentTitle"] || "📨 Enviado");
-    $("fbBody").textContent = (I18N.ui["mp.sentBody"] || "Respuesta enviada al host. Espera a que muestre la solución.");
-
-    // escribe en RTDB
-    (async ()=>{
-      try{
-        const fb = await window.__getFirebase(FIREBASE_CONFIG);
-        const { db, ref, set, serverTimestamp } = fb;
-        await set(ref(db, `rooms/${MP.room}/answers/${MP.roundId}/${MP.pid}`), {
-          choice: i,
-          ts: serverTimestamp()
-        });
-      }catch(e){
-        $("fbTitle").textContent = "⚠ No enviado";
-        $("fbBody").textContent = "No se pudo enviar. Revisa conexión / código de sala.";
-        console.error(e);
-      }
-    })();
-
-    return;
-  }
-
-  // host: no responde (usa botón “Mostrar solución”)
-  if (MP.mode === "host" && type === "quiz"){
-    return;
-  }
-
-  return __selectAnswer(i, type, timedOut);
-};
-
-const __next = next;
-next = function(){
-  if (MP.mode === "host" && MP.started){
-    // si estamos en pregunta, obliga a revelar primero (más formativo)
-    // (si ya reveló, answered=true y next avanza)
-    if (!answered){
-      // igual que “Mostrar solución”
-      mpHostReveal();
-      return;
-    }
-
-    const prevIdx = idx;
-    const wasFollowUp = followUpPending;
-
-    __next();
-
-    // Si __next() solo ha mostrado una repregunta, no avanzamos ni publicamos nada
-    if (idx === prevIdx && wasFollowUp){
-      return;
-    }
-
-    // Asegura que "Mostrar solución" no se quede pegado visualmente
-    resetBtnRevealUI();
-    hide("feedback");
-    lockAnswers(false);
-    answered = false;
-
-    // fin de ronda
-    if (idx >= roundTotal()){
-      mpEndRoom().catch(e=>console.error(e));
-      return;
-    }
-
-    // publica siguiente pregunta
-    mpPublishQuestion("question", null).catch(e=>console.error(e));
-    show("btnReveal");
-    show("liveCounts");
-    return;
-  }
-
-  return __next();
-};
-
-// Botón “Mostrar solución” (solo host)
-function mpHostReveal(){
-  if (answered) return;
-  answered = true;
-  clearTimer();
-
-  const q = QUESTIONS[idx];
-  const correct = (q.answers || []).findIndex(a=>a.grade==="green");
-  revealAll(correct);
-  setBtnRevealUI(true);
-
-  show("feedback");
-  $("fbTitle").textContent = t("mp.solutionTitle","✅ Solución");
-  $("fbBody").textContent  = "✅ " + ((q.answers && q.answers[correct] && q.answers[correct].why) ? q.answers[correct].why : "Revisa el control preventivo correcto.");
-  hide("followUp");
-  show("btnNext");
-
-  mpPublishQuestion("reveal", correct).catch(e=>console.error(e));
-}
-
-async function mpEndRoom(){
-  if (!MP.room) return;
+// ---- Host publicar estado ----
+async function mpHostPublishQuestion(){
   const fb = await window.__getFirebase(FIREBASE_CONFIG);
   const { db, ref, set, serverTimestamp } = fb;
+
+  const qId = MP.qIds[MP.qIndex];
+  const qRaw = QUESTIONS_BASE.find(x=>x.id===qId);
+  const answerOrder = mpMakeAnswerOrder(qRaw);
+  const roundId = `${Date.now()}_${qId}`;
+
+  MP.answeredThisRound = false;
+  MP.selectedIndex = null;
+
   await set(ref(db, `rooms/${MP.room}/state`), {
-    phase: "ended",
+    phase: "question",
+    gameId: MP.gameId,
+    roundId,
+    qNo: MP.qIndex + 1,
+    total: MP.qIds.length,
+    qId,
+    answerOrder,
+    ts: serverTimestamp()
+  });
+
+  mpSetPill("Sala: " + MP.room);
+}
+
+async function mpHostReveal(){
+  const st = MP.current;
+  if (!st || st.phase !== "question") return;
+
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, set, serverTimestamp } = fb;
+
+  const qRaw = QUESTIONS_BASE.find(x=>x.id===st.qId);
+  const baseCorrect = qRaw ? (qRaw.answers || []).findIndex(a=>a.grade==="green") : -1;
+  const order = Array.isArray(st.answerOrder) ? st.answerOrder : null;
+  const correctIndex = (baseCorrect >= 0 && order) ? order.indexOf(baseCorrect) : baseCorrect;
+
+  await set(ref(db, `rooms/${MP.room}/state`), {
+    ...st,
+    phase: "results",
+    correctIndex: (typeof correctIndex === "number" && correctIndex >= 0) ? correctIndex : null,
     ts: serverTimestamp()
   });
 }
 
-function initMultiplayer(){
-  // selector
-  if ($("sessionMode")){
-    $("sessionMode").addEventListener("change", showSessionUI);
-  }
-  // botones
-  if ($("btnJoinRoom")){
-    $("btnJoinRoom").addEventListener("click", ()=>startGame());
-  }
-  if ($("btnCloseRoom")){
-    $("btnCloseRoom").addEventListener("click", ()=>mpCloseRoom().catch(e=>alert(e.message || e)));
-  }
-  if ($("btnReveal")){
-    $("btnReveal").addEventListener("click", ()=>mpHostReveal());
+async function mpHostNext(){
+  const st = MP.current;
+  if (!st || st.phase !== "results") return;
+
+  // fin
+  if ((MP.qIndex + 1) >= MP.qIds.length){
+    const fb = await window.__getFirebase(FIREBASE_CONFIG);
+    const { db, ref, set, serverTimestamp } = fb;
+    await set(ref(db, `rooms/${MP.room}/state`), {
+      phase: "results",
+      ended: true,
+      ts: serverTimestamp()
+    });
+    return;
   }
 
-  // QR join param
+  MP.qIndex++;
+  await mpHostPublishQuestion();
+}
+
+async function mpHostStartGame(){
+  // Sólo si estamos en lobby
+  const phase = MP.current?.phase || "lobby";
+  if (phase !== "lobby") return;
+
+  MP.gameId = "g_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,6);
+  MP.qIds = mpPickQuestions(10);
+  MP.qIndex = 0;
+
+  // limpiar respuestas antiguas por si se reutilizó el código (best-effort)
+  try{
+    const fb = await window.__getFirebase(FIREBASE_CONFIG);
+    const { db, ref, remove } = fb;
+    await remove(ref(db, `rooms/${MP.room}/answers`));
+  }catch(_e){}
+
+  await mpHostPublishQuestion();
+}
+
+async function mpJoinStart(){
+  if (!mpIsConfigured()){
+    alert("Falta configurar Firebase. Edita FIREBASE_CONFIG dentro del HTML.");
+    return;
+  }
+  const code = ($("joinCode")?.value || "").trim().replace(/\D/g,"").slice(0,6);
+  if (code.length < 6){
+    alert("Mete un código de 6 dígitos.");
+    return;
+  }
+
+  const nameRaw = ($("joinName")?.value || "").trim();
+  const name = (nameRaw || t("mp.guest","Invitado")).slice(0,24);
+  const lang = currentLang();
+
+  const fb = await window.__getFirebase(FIREBASE_CONFIG);
+  const { db, ref, set, serverTimestamp, onDisconnect } = fb;
+
+  MP.role = "join";
+  MP.room = code;
+  MP.pid = "p_" + Math.random().toString(36).slice(2,10);
+  MP.pname = name;
+  MP.plang = lang;
+
+  // registra jugador
+  await set(ref(db, `rooms/${code}/players/${MP.pid}`), {
+    name: MP.pname,
+    lang: MP.plang,
+    joinedAt: serverTimestamp()
+  });
+
+  try{
+    onDisconnect(ref(db, `rooms/${code}/players/${MP.pid}`)).remove();
+  }catch(_e){}
+
+  mpSetPill("Unido: " + code);
+
+  // Suscripciones
+  await mpSubscribeState();
+  await mpSubscribePlayers();
+
+  // entra a lobby (espera)
+  mpRenderLobby();
+}
+
+// ---- Joiner: enviar respuesta ----
+function mpJoinSelect(choiceIndex){
+  const st = MP.current;
+  if (!st || st.phase !== "question") return;
+  if (MP.answeredThisRound) return;
+
+  MP.answeredThisRound = true;
+  MP.selectedIndex = choiceIndex;
+
+  // marca selección visual
+  const buttons = Array.from(document.querySelectorAll(".ans"));
+  buttons.forEach((b, i)=>{
+    b.disabled = true;
+    b.classList.add("locked");
+    if (i === choiceIndex) b.classList.add("selected");
+  });
+
+  show("feedback");
+  $("fbTitle").textContent = (I18N.ui["mp.sentTitle"] || "📨 Enviado");
+  $("fbBody").textContent = (I18N.ui["mp.sentBody"] || "Respuesta enviada al host. Espera a que muestre la solución.");
+  hide("followUp");
+
+  // escribe en RTDB
+  (async ()=>{
+    try{
+      const fb = await window.__getFirebase(FIREBASE_CONFIG);
+      const { db, ref, set, serverTimestamp } = fb;
+      await set(ref(db, `rooms/${MP.room}/answers/${st.roundId}/${MP.pid}`), {
+        choice: choiceIndex,
+        ts: serverTimestamp()
+      });
+    }catch(e){
+      console.error(e);
+      $("fbTitle").textContent = "⚠ No enviado";
+      $("fbBody").textContent = "No se pudo enviar. Revisa conexión / código de sala.";
+      MP.answeredThisRound = false; // deja reintentar
+    }
+  })();
+}
+
+// ---- Handlers UI: Start / Next / Exit (sin overrides) ----
+async function onStartClick(){
+  const mode = mpReadModeFromUI();
+
+  if (mode === "local"){
+    startGame();
+    return;
+  }
+
+  if (mode === "host"){
+    if (!MP.room){
+      try{
+        await mpCreateRoom();
+      }catch(e){
+        console.error(e);
+        alert("No puedo crear la sala en Firebase.\n\nDetalle: " + (e?.message || e));
+      }
+      return;
+    }
+    // Si ya hay sala, y seguimos en lobby → lanzar partida
+    try{
+      await mpHostStartGame();
+    }catch(e){
+      console.error(e);
+      alert("No puedo iniciar la partida.\n\nDetalle: " + (e?.message || e));
+    }
+    return;
+  }
+
+  // join: se usa botón específico "Unirme"
+}
+
+async function onNextClick(){
+  // si host en MP, 'Siguiente' avanza
+  if (MP.role === "host"){
+    try{
+      await mpHostNext();
+    }catch(e){
+      console.error(e);
+    }
+    return;
+  }
+
+  // local
+  next();
+}
+
+async function onExitClick(){
+  // Host: al salir, cerramos sala (para no dejar salas "fantasma")
+  if (MP.role === "host" && MP.room){
+    try{ await mpCloseRoom(); }catch(_e){}
+    return;
+  }
+
+  // Joiner: eliminar presencia al salir (best-effort)
+  if (MP.role === "join" && MP.room && MP.pid){
+    try{
+      const fb = await window.__getFirebase(FIREBASE_CONFIG);
+      const { db, ref, remove } = fb;
+      await remove(ref(db, `rooms/${MP.room}/players/${MP.pid}`));
+    }catch(_e){}
+  }
+
+  mpCleanup();
+  mpSetPill("Listo");
+  resetAll();
+  showSessionUI();
+}
+
+// ---- Init MP (único) ----
+function initMultiplayerRefactor(){
+  // selector
+  $("sessionMode")?.addEventListener("change", showSessionUI);
+
+  // botones host/join
+  $("btnJoinRoom")?.addEventListener("click", ()=>mpJoinStart().catch(e=>alert(e?.message || e)));
+  $("btnCloseRoom")?.addEventListener("click", ()=>mpCloseRoom().catch(e=>alert(e?.message || e)));
+  $("btnReveal")?.addEventListener("click", ()=>mpHostReveal().catch(e=>console.error(e)));
+
+  // join param (NO auto-join)
   const sp = new URLSearchParams(location.search);
   const join = sp.get("join");
   if (join){
-    if ($("sessionMode")) $("sessionMode").value = "join";
-    if ($("joinCode")) $("joinCode").value = String(join).replace(/\D/g,"").slice(0,6);
-    showSessionUI();
-    // No auto-join: el jugador elige nombre/idioma y pulsa "Unirme".
-  } else {
-    showSessionUI();
+    $("sessionMode") && ($("sessionMode").value = "join");
+    $("joinCode") && ($("joinCode").value = String(join).replace(/\D/g,"").slice(0,6));
   }
+
+  showSessionUI();
 }
 
-// engancha al init existente (al final del script ya se llama init())
+// arranca tras load (cuando ya están creados los listeners base)
 try{
-  // si ya hay un init() definido, no lo tocamos; solo llamamos después de DOM ready.
-  window.addEventListener("load", ()=>initMultiplayer());
+  window.addEventListener("load", ()=>initMultiplayerRefactor());
 }catch(_e){}
 
 </script>
