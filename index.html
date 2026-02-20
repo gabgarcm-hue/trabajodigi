@@ -2488,6 +2488,13 @@ function startMcq(bank, takeN, type){
   // tipo: quiz | tf | sema | myth | say
   QUESTIONS = deepCopyBank(bank);
 
+  // Blindaje: asigna un id estable por respuesta antes de traducir/barajar
+  QUESTIONS.forEach(q=>{
+    if (Array.isArray(q.answers)){
+      q.answers.forEach((a,i)=>{ if (a && typeof a === 'object' && a.__aid == null) a.__aid = i; });
+    }
+  });
+
   shuffle(QUESTIONS);
   QUESTIONS = QUESTIONS.slice(0, Math.min(takeN, QUESTIONS.length));
   // Aplica traducciones por idioma (si existen) antes de barajar
@@ -3204,8 +3211,21 @@ function buildActionPlan(pct){
 }
 
 function renderActionPlan(){
-  const box = $("planBox");
+  const box = $("actionPlan");
   if (!box) return;
+
+  // Solo en individual (no teams ni multijugador)
+  const isMPActive = (typeof MP !== "undefined") && (MP.role && MP.role !== "none");
+  if (isMPActive || playMode !== "single"){
+    box.innerHTML = "";
+    box.classList.add("hidden");
+    hide("btnCopyPlan");
+    hide("copyOk");
+    return;
+  }
+  box.classList.remove("hidden");
+  show("btnCopyPlan");
+  hide("copyOk");
 
   const pct = scorePercent();
   const plan = buildActionPlan(pct);
