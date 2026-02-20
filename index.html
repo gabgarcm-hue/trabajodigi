@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Quién es quién en prevención, un juego simple para conocer las figuras preventivas</title>
+  <!-- BUILD: v8 (fix multiline fb.body strings) -->
   <style>
     :root{
       --bg0:#05070f;
@@ -670,6 +671,7 @@
 
 <script>
 // ---------------- I18N (UI + question translations) ----------------
+const BUILD_ID = "v8";
 const I18N = {
   lang: "es",
   ui: {},
@@ -2673,9 +2675,7 @@ function selectAnswer(i, type, timedOut=false){
     if (whyHasText){
       body = "🔴 " + whyResolved;
     } else {
-      body = fmt(t("fb.body.red","🔴 No es la mejor opción para seguridad.
-
-✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+      body = fmt(t("fb.body.red","🔴 No es la mejor opción para seguridad.\n\n✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
     }
     if (!usesGreenPlaceholder(why)){
       body += "\n\n" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
