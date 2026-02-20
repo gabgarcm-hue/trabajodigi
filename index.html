@@ -873,6 +873,48 @@ function applyUi(){
     sel.value = prev;
   }
 }
+
+// Restricciones por idioma:
+// - Si el idioma NO es ES: solo se permite Kahoot (Preguntas rápidas)
+// - Dentro de Kahoot: solo ritmo Rápido (sin repregunta)
+function enforceLangRestrictions(){
+  const isEs = (typeof I18N !== "undefined" && I18N && I18N.lang === "es");
+
+  // 1) Game mode: solo Kahoot fuera de ES
+  const gmSel = $("gameMode");
+  if (gmSel){
+    const opts = Array.from(gmSel.querySelectorAll("option"));
+    if (!isEs){
+      gmSel.value = "quiz";
+      gmSel.disabled = true;
+      opts.forEach(o=>{
+        if (o.value !== "quiz") o.disabled = true;
+        else o.disabled = false;
+      });
+    } else {
+      gmSel.disabled = false;
+      opts.forEach(o=>{ o.disabled = false; });
+    }
+  }
+
+  // 2) Pace: solo fast fuera de ES (en Kahoot)
+  const paceSel = $("quizPace");
+  if (paceSel){
+    const optNormal = paceSel.querySelector('option[value="normal"]');
+    if (!isEs){
+      if (optNormal) optNormal.disabled = true;
+      paceSel.value = "fast";
+      paceSel.disabled = true;
+    } else {
+      if (optNormal) optNormal.disabled = false;
+      paceSel.disabled = false;
+    }
+  }
+
+  // Actualiza UI dependiente de modo/ritmo
+  try{ if (typeof updateStartUI === "function") updateStartUI(); }catch(_e){}
+}
+
 function getQBank(bankKey){
   // Soporta distintos "wrappers" dentro del JSON de preguntas.
   // También soporta packs donde el root YA es un mapa id->tr (sin "quiz"/"tf" encima),
@@ -1037,17 +1079,7 @@ async function setLang(lang, persist=true){
   I18N.q  = await loadQ(I18N.lang);
 
   applyUi();
-  // Enforce: en idiomas ≠ ES, Kahoot sin repregunta
-  try{ enforceQuizPaceByLang(); }catch(_e){}
-  try{ // lang-fast: si estás jugando y cambias a idioma ≠ ES, desactiva repregunta
-    const quizEl = document.getElementById("quiz");
-    const inQuiz = quizEl && !quizEl.classList.contains("hidden");
-    const isQuizMode = (typeof gameMode === "string" && gameMode === "quiz");
-    if (inQuiz && isQuizMode && I18N && I18N.lang && I18N.lang !== "es"){
-      quickMode = true;
-      followUpPending = false;
-    }
-  }catch(_e){}
+  try{ enforceLangRestrictions(); }catch(_e){}
 
   // Re-render de la vista activa para aplicar traducciones (UI + preguntas) al vuelo
   try{
@@ -1111,6 +1143,7 @@ window.__i18nReady = new Promise(res=>{ __i18nReadyResolve = res; });
 window.addEventListener("DOMContentLoaded", async ()=>{
   const initial = detectLang();
   await setLang(initial, true);
+  try{ enforceLangRestrictions(); }catch(_e){}
   const sel = document.getElementById("langSelect");
   if (sel){
     sel.value = I18N.lang;
@@ -2345,30 +2378,6 @@ function updateProgressUI(){
 }
 
 // ---------- Inicio / UI ----------
-function enforceQuizPaceByLang(){
-  const paceSel = $("quizPace");
-  if (!paceSel) return;
-  const gm = $("gameMode")?.value || "quiz";
-  const isQuiz = (gm === "quiz");
-  const isEs = (typeof I18N !== "undefined" && I18N && I18N.lang === "es");
-  const optNormal = paceSel.querySelector('option[value="normal"]');
-  if (!isQuiz){
-    // no aplica fuera del Kahoot
-    paceSel.disabled = false;
-    if (optNormal) optNormal.disabled = false;
-    return;
-  }
-  if (!isEs){
-    // Otros idiomas: solo sin repregunta
-    if (optNormal) optNormal.disabled = true;
-    paceSel.value = "fast";
-    paceSel.disabled = true;
-  } else {
-    if (optNormal) optNormal.disabled = false;
-    paceSel.disabled = false;
-  }
-}
-
 function updateStartUI(){
   const pm = $("playMode")?.value || "solo";
   const gm = $("gameMode")?.value || "quiz";
@@ -2403,8 +2412,6 @@ function updateStartUI(){
   } else {
     hide("quizPaceWrap");
   }
-
-  enforceQuizPaceByLang();
 
     // ayuda modo
   const help = $("modeHelp");
@@ -2444,12 +2451,21 @@ function resetAll(){
 }
 
 function startGame(){
+  // locks por idioma (no ES => solo Kahoot sin repregunta)
+  const isEsLangLock = (typeof I18N !== "undefined" && I18N && I18N.lang === "es");
+  if (!isEsLangLock){
+    try{ $("gameMode") && ($("gameMode").value = "quiz"); }catch(_e){}
+    try{ $("quizPace") && ($("quizPace").value = "fast"); }catch(_e){}
+  }
+
   // lee UI
   gameMode = $("gameMode")?.value || "quiz";
+  if (!isEsLangLock) gameMode = "quiz";
   playMode = $("playMode")?.value || "solo";
 
   // ritmo (solo Kahoot)
-  quickMode = (gameMode === "quiz") && (((typeof I18N !== "undefined" && I18N && I18N.lang && I18N.lang !== "es")) || (($("quizPace")?.value || "normal") === "fast"));
+  quickMode = (gameMode === "quiz") && (($("quizPace")?.value || "normal") === "fast");
+  if (!isEsLangLock && gameMode === "quiz") quickMode = true;
 
   if (playMode === "teams"){
     buildTeamsFromUI();
