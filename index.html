@@ -517,13 +517,13 @@
   <section id="result" class="card hidden">
     <div class="split">
       <div class="card" style="box-shadow:none">
-        <h2 style="margin:0 0 6px">Resultado</h2>
+        <h2 style="margin:0 0 6px" data-i18n="result.title">Resultado</h2>
         <p class="scoreBig" id="finalScore">0</p>
         <p style="margin:0;color:var(--muted)" id="finalDetail">—</p>
         <div id="teamBoard" class="teamBoard hidden"></div>
         <div class="row" style="margin-top:12px">
-          <button class="btn primary" id="btnAgain">Repetir</button>
-          <button class="btn" id="btnToStart">Volver al inicio</button>
+          <button class="btn primary" id="btnAgain" data-i18n="result.btnAgain">Repetir</button>
+          <button class="btn" id="btnToStart" data-i18n="result.btnToStart">Volver al inicio</button>
         </div>
 
         <div class="list" id="breakdown"></div>
@@ -581,7 +581,7 @@
           </div>
         </div>
 </div>
-        <p style="margin:10px 0 0;color:var(--muted);font-size:12px">
+        <p style="margin:10px 0 0;color:var(--muted);font-size:12px" data-i18n="result.emergencyNote">
           En situaciones graves: activar emergencia (ej. 112) cuando proceda y después informar por la vía interna.
         </p>
 
@@ -2156,21 +2156,35 @@ function evaluateChecklist(){
   const titleEl = $("fbTitle");
   const bodyEl  = $("fbBody");
   if (grade === "green"){
-    titleEl.textContent = t("check.title.green","✅ Perfecto");
-    bodyEl.textContent  = "✅ " + (q.whyGreen || t("check.body.green","Bien: has seleccionado los imprescindibles."));
-  } else if (grade === "amber"){
-    titleEl.textContent = t("check.title.amber","🟠 Vas bien… pero falta un imprescindible");
-    bodyEl.textContent  = "🟠 " + (q.whyAmber || t("check.body.amber","Casi. Revisa controles básicos."));
+  title = t("fb.title.green","✅ Perfecto");
+  body  = "✅ " + (whyResolved || "");
+} else if (grade === "amber"){
+  title = t("fb.title.amber","🟠 Correcto… pero se puede hacer mejor");
+  if (whyResolved){
+    body = "🟠 " + whyResolved;
   } else {
-    titleEl.textContent = t("check.title.red","🔴 Ojo");
-    bodyEl.textContent  = "🔴 " + (q.whyRed || t("check.body.red","Faltan controles básicos antes de empezar."));
+    body = fmt(t("fb.body.amber","🟠 Bien, pero hay un canal más adecuado aquí.\n\n✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
   }
+  if (!usesGreenPlaceholder(why)){
+    body += "\n\n" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+  }
+} else {
+  title = t("fb.title.red","🔴 Incorrecto");
+  if (whyResolved){
+    body = "🔴 " + whyResolved;
+  } else {
+    body = fmt(t("fb.body.red","🔴 No es la mejor opción para seguridad.\n\n✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+  }
+  if (!usesGreenPlaceholder(why)){
+    body += "\n\n" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+  }
+}
 
   show("feedback");
   show("btnNext");
 
   breakdown.push({
-    n: idx+1,
+    n: idx+1x+1,
     q: q.q,
     pick: picksTxt || "—",
     grade,
@@ -2663,7 +2677,7 @@ if (grade === "green"){
   show("btnNext");
 
   breakdown.push({
-    n: idx+1,
+    n: idx+1x+1,
     q: q.q,
     pick: pickTxt,
     grade,
@@ -3077,7 +3091,7 @@ function checkOrder(){
   answered = true;
 
   breakdown.push({
-    n: idx+1,
+    n: idx+1x+1,
     q: o.q,
     pick: t("order.pick","Ordenado (ver explicación)"),
     grade,
@@ -3216,7 +3230,8 @@ function renderActionPlan(){
 
   // Solo en individual (no teams ni multijugador)
   const isMPActive = (typeof MP !== "undefined") && (MP.role && MP.role !== "none");
-  if (isMPActive || playMode !== "single"){
+  const isSolo = (playMode === "solo" || playMode === "single");
+  if (isMPActive || !isSolo){
     box.innerHTML = "";
     box.classList.add("hidden");
     hide("btnCopyPlan");
