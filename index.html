@@ -2663,14 +2663,10 @@ function selectAnswer(i, type, timedOut=false){
     if (whyHasText){
       body = "🟠 " + whyResolved;
     } else {
-      body = fmt(t("fb.body.amber","🟠 Bien, pero hay un canal más adecuado aquí.
-
-✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+      body = fmt(t("fb.body.amber","🟠 Bien, pero hay un canal más adecuado aquí.\n\n✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
     }
     if (!usesGreenPlaceholder(why)){
-      body += "
-
-" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+      body += "\n\n" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
     }
   } else {
     title = t("fb.title.red","🔴 Incorrecto");
@@ -2682,9 +2678,7 @@ function selectAnswer(i, type, timedOut=false){
 ✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
     }
     if (!usesGreenPlaceholder(why)){
-      body += "
-
-" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+      body += "\n\n" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
     }
   }
 
