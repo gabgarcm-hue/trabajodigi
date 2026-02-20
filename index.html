@@ -1037,6 +1037,17 @@ async function setLang(lang, persist=true){
   I18N.q  = await loadQ(I18N.lang);
 
   applyUi();
+  // Enforce: en idiomas ≠ ES, Kahoot sin repregunta
+  try{ enforceQuizPaceByLang(); }catch(_e){}
+  try{ // lang-fast: si estás jugando y cambias a idioma ≠ ES, desactiva repregunta
+    const quizEl = document.getElementById("quiz");
+    const inQuiz = quizEl && !quizEl.classList.contains("hidden");
+    const isQuizMode = (typeof gameMode === "string" && gameMode === "quiz");
+    if (inQuiz && isQuizMode && I18N && I18N.lang && I18N.lang !== "es"){
+      quickMode = true;
+      followUpPending = false;
+    }
+  }catch(_e){}
 
   // Re-render de la vista activa para aplicar traducciones (UI + preguntas) al vuelo
   try{
@@ -2334,6 +2345,30 @@ function updateProgressUI(){
 }
 
 // ---------- Inicio / UI ----------
+function enforceQuizPaceByLang(){
+  const paceSel = $("quizPace");
+  if (!paceSel) return;
+  const gm = $("gameMode")?.value || "quiz";
+  const isQuiz = (gm === "quiz");
+  const isEs = (typeof I18N !== "undefined" && I18N && I18N.lang === "es");
+  const optNormal = paceSel.querySelector('option[value="normal"]');
+  if (!isQuiz){
+    // no aplica fuera del Kahoot
+    paceSel.disabled = false;
+    if (optNormal) optNormal.disabled = false;
+    return;
+  }
+  if (!isEs){
+    // Otros idiomas: solo sin repregunta
+    if (optNormal) optNormal.disabled = true;
+    paceSel.value = "fast";
+    paceSel.disabled = true;
+  } else {
+    if (optNormal) optNormal.disabled = false;
+    paceSel.disabled = false;
+  }
+}
+
 function updateStartUI(){
   const pm = $("playMode")?.value || "solo";
   const gm = $("gameMode")?.value || "quiz";
@@ -2368,6 +2403,8 @@ function updateStartUI(){
   } else {
     hide("quizPaceWrap");
   }
+
+  enforceQuizPaceByLang();
 
     // ayuda modo
   const help = $("modeHelp");
@@ -2412,7 +2449,7 @@ function startGame(){
   playMode = $("playMode")?.value || "solo";
 
   // ritmo (solo Kahoot)
-  quickMode = (gameMode === "quiz") && (($("quizPace")?.value || "normal") === "fast");
+  quickMode = (gameMode === "quiz") && (((typeof I18N !== "undefined" && I18N && I18N.lang && I18N.lang !== "es")) || (($("quizPace")?.value || "normal") === "fast"));
 
   if (playMode === "teams"){
     buildTeamsFromUI();
