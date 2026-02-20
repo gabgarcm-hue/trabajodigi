@@ -1,0 +1,404 @@
+{
+  "quiz": {
+    "1": {
+      "q": "At {SITE_NAME}, you see a messy area (tools/materials on the floor) and the supervisor can’t be found right now. Who do you notify?",
+      "hint": "Minor/operational issue with the supervisor unavailable.",
+      "answers": [
+        "The onsite preventive resource.",
+        "My supervisor (when I find them).",
+        "No one — I avoid it and keep going.",
+        "Chewbacca, to enforce Wookiee order."
+      ],
+      "why": [
+        "Fastest on site to trigger a fix when the supervisor isn’t reachable.",
+        "Correct, but if the supervisor can’t be reached right now, the onsite preventive resource can trigger the fix immediately.",
+        "If you don’t report it, the risk will repeat (trips/falls).",
+        "Wookiees are great shooters, but terrible at occupational safety.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "2": {
+      "q": "At {SITE_NAME}, you see a coworker fall from 5 meters. Who do you notify?",
+      "hint": "Serious accident: emergency services + internal notification.",
+      "answers": [
+        "112 (emergency services) and the supervisor (foreman/site manager).",
+        "Only the supervisor (without calling 112).",
+        "I pick them up so they can sit ‘for a moment’.",
+        "I wait to see if they get up on their own."
+      ],
+      "why": [
+        "Emergency call + immediate internal notification: that’s the right move.",
+        "Notifying internally is good, but with a 5 m fall the safest move is to call 112.",
+        "Moving the person can worsen injuries. Activate the proper response.",
+        "The priority is to activate the right response and notify the right people."
+      ]
+    },
+    "3": {
+      "q": "At {SITE_NAME} there are wind gusts of 100 km/h. Who do you notify to stop work due to adverse conditions?",
+      "hint": "Work stoppage / site organization.",
+      "answers": [
+        "My supervisor (foreman/site manager).",
+        "The onsite preventive resource.",
+        "The client/developer to decide.",
+        "Let Gandalf explain “You shall not pass!” to the wind."
+      ],
+      "why": [
+        "They can order a stop or reorganize the work safely.",
+        "Correct, but the supervisor is the one who organizes and orders the stop.",
+        "That’s not the immediate channel for a safety stop.",
+        "Gandalf is a legend, but he doesn’t run the site and can’t order a stop.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "4": {
+      "q": "At {SITE_NAME}, there’s a badly installed electrical fitting that’s sparking. Who do you notify?",
+      "hint": "Electrical risk: isolate and coordinate a safe repair.",
+      "answers": [
+        "The supervisor (foreman/site manager).",
+        "The onsite preventive resource.",
+        "Call Pikachu to fix it with a Thunderbolt.",
+        "I adjust it myself with a screwdriver."
+      ],
+      "why": [
+        "They coordinate the immediate response and a safe repair.",
+        "Correct, but the supervisor coordinates the immediate response on the workface.",
+        "Pikachu is adorable, but not licensed as a site electrician.\nThe correct answer in this case is: {{GREEN}}",
+        "Messing with something that’s sparking is a serious risk."
+      ]
+    },
+    "5": {
+      "q": "At {SITE_NAME}, you sprain your ankle after slipping on stairs. Who do you notify?",
+      "hint": "Injury: care and internal notification.",
+      "answers": [
+        "The supervisor and first aid.",
+        "Only the supervisor.",
+        "I go home without saying anything.",
+        "I keep working: ‘it’ll pass’."
+      ],
+      "why": [
+        "Internal reporting + first aid right away: perfect.",
+        "Good, but if first aid is available, it’s also worth notifying them.",
+        "Injuries/incidents must be reported to treat them and prevent repeats.",
+        "You can worsen the injury, and the cause of the slip is still there."
+      ]
+    },
+    "6": {
+      "q": "At {SITE_NAME}, there’s a suspended load and people are walking underneath. Who do you notify?",
+      "hint": "Serious risk: maneuver and immediate control.",
+      "answers": [
+        "The supervisor (foreman/site manager).",
+        "The onsite preventive resource.",
+        "Ask an Astra Militarum Commissar to ‘execute’ the risk.",
+        "I just step aside and that’s it."
+      ],
+      "why": [
+        "They must stop and control the operation safely.",
+        "Correct, but the immediate operational channel is the supervisor.",
+        "That’s epic, but on site you don’t ‘purge’ a risk: you report it and control it.\nThe correct answer in this case is: {{GREEN}}",
+        "If you don’t notify anyone, the risk remains for others."
+      ]
+    },
+    "7": {
+      "q": "At {SITE_NAME}, for the third time you see the same crew working without helmets (you already mentioned it and nothing changed). Who do you notify now?",
+      "hint": "Repeated non‑compliance: stronger intervention and follow‑up.",
+      "answers": [
+        "The onsite preventive resource for intervention and follow‑up.",
+        "My supervisor again.",
+        "Ignore it: ‘it’s not my company’.",
+        "Tell Dora the Explorer: ‘Find the helmet!’"
+      ],
+      "why": [
+        "Stops the repeat and demands a fix with traceability.",
+        "Correct, but if it’s still not fixed, the most effective is for the onsite preventive resource to intervene.",
+        "On a shared site, reporting risks protects everyone.",
+        "Dora can find things, but she doesn’t manage a construction site.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "8": {
+      "q": "At {SITE_NAME}, you spot an unprotected slab edge (no collective protection) and you can’t find the supervisor right now. Who do you notify?",
+      "hint": "Critical risk + supervisor unavailable: the fastest on‑site route.",
+      "answers": [
+        "The onsite preventive resource.",
+        "I wait until I find the supervisor.",
+        "I pass carefully and keep going.",
+        "I put it on a post‑it and done."
+      ],
+      "why": [
+        "They’re on site to act on critical risks and trigger immediate correction.",
+        "Notifying the supervisor is fine, but if they’re not available, you must activate whoever can act right away.",
+        "The risk is still there for anyone.",
+        "That doesn’t ensure immediate action."
+      ]
+    },
+    "9": {
+      "q": "At {SITE_NAME}, a tool falls from height and almost hits someone (no injury). Who do you notify?",
+      "hint": "Near miss: record it and prevent repetition.",
+      "answers": [
+        "The onsite preventive resource to record it and demand correction.",
+        "The supervisor (foreman/site manager).",
+        "No one: if nothing happened, it doesn’t count.",
+        "I start building a Minecraft‑style fence and call it fixed."
+      ],
+      "why": [
+        "Key to prevent recurrence: analyze and apply preventive measures.",
+        "Correct, but the preventive channel ensures the near-miss is recorded and followed up.",
+        "Near-misses should be reported.",
+        "It works in Minecraft; it doesn’t on site.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "10": {
+      "q": "At {SITE_NAME}, there’s cable crossing a walkway and people are tripping, but the supervisor is busy/unreachable. Who do you notify?",
+      "hint": "Minor/operational issue with the supervisor unavailable.",
+      "answers": [
+        "The onsite preventive resource.",
+        "The supervisor (when I find them).",
+        "I step over it and keep going.",
+        "I roll it up and leave it wherever."
+      ],
+      "why": [
+        "They can activate a quick fix on site when the supervisor isn’t reachable.",
+        "Correct, but if they can’t be reached right now, notify someone who can act immediately.",
+        "The risk remains for everyone.",
+        "You might create another hazard. Better to report it via the proper channel."
+      ]
+    },
+    "11": {
+      "q": "At {SITE_NAME}, you see an angle grinder with no guard and a coworker is about to use it. Who do you notify?",
+      "hint": "Immediate risk: stop and correct.",
+      "answers": [
+        "The supervisor (foreman/site manager) to stop and correct it.",
+        "The onsite preventive resource.",
+        "I play dumb: I’m not the one using it.",
+        "I slap electrical tape on it and send it."
+      ],
+      "why": [
+        "They must organize the stop and the immediate correction.",
+        "Correct, but the supervisor channels the immediate fix on the workface.",
+        "If you don’t report it, the risk remains.",
+        "That’s not an adequate protection."
+      ]
+    },
+    "12": {
+      "q": "At {SITE_NAME}, the evacuation alarm sounds or smoke is detected in an area. Who do you notify?",
+      "hint": "Emergency: follow instructions and notify.",
+      "answers": [
+        "The supervisor and I follow instructions.",
+        "The onsite preventive resource.",
+        "I go check where the smoke is coming from.",
+        "I keep working: it’s probably a false alarm."
+      ],
+      "why": [
+        "Internal communication and coordinated action: perfect.",
+        "Correct, but the immediate site channel is the supervisor.",
+        "Don’t expose yourself: report it and follow the procedure.",
+        "When an alarm sounds, you act following instructions."
+      ]
+    },
+    "13": {
+      "q": "At {SITE_NAME}, you’re asked to do a ‘weird’ task and you’re not sure of the safe procedure (you don’t want to improvise). Who do you consult?",
+      "hint": "Technical prevention consultation.",
+      "answers": [
+        "The safety technician / Prevention Service.",
+        "The onsite preventive resource.",
+        "No one: I improvise.",
+        "I do whatever the WhatsApp brother‑in‑law tells me."
+      ],
+      "why": [
+        "Provides technical prevention criteria to define how to do it safely.",
+        "Correct, but the H&S technician usually has the most complete/documented guidance.",
+        "Improvising in occupational safety is a bad idea.",
+        "That’s not a reliable technical source."
+      ]
+    },
+    "14": {
+      "q": "At {SITE_NAME}, you notice strong vapors in a closed area and you’re unsure if it’s safe to keep working there. Who do you notify?",
+      "hint": "Exposure: preventive technical judgment.",
+      "answers": [
+        "The safety technician / Prevention Service.",
+        "The onsite preventive resource.",
+        "I take a deep breath and keep going: ‘if it stings, it heals’.",
+        "I open a window for 10 seconds and done."
+      ],
+      "why": [
+        "Technical channel to assess the risk and set measures.",
+        "Correct, but the H&S technician is the most suitable support to assess exposure.",
+        "Exposing yourself without assessing can be dangerous.",
+        "Opening a window for 10 seconds doesn’t guarantee the risk is controlled."
+      ]
+    },
+    "15": {
+      "q": "At {SITE_NAME}, you see two subcontractors working at the same time in the same area and getting in each other’s way (interference risk). Who do you notify?",
+      "hint": "Coordination of activities on site.",
+      "answers": [
+        "The Health & Safety Coordinator (CSS/HSC).",
+        "The safety technician / Prevention Service.",
+        "No one: they’ll sort it out.",
+        "I run rock‑paper‑scissors between subcontractors."
+      ],
+      "why": [
+        "Key role to coordinate interferences and demand planning.",
+        "Correct, but interference coordination is handled especially via the CSS.",
+        "If you don’t coordinate, the accident risk increases.",
+        "Funny, but it doesn’t actually coordinate anything."
+      ]
+    },
+    "16": {
+      "q": "At {SITE_NAME}, you want to know the safe procedure (how to do a task ‘properly’) before starting. Who do you ask?",
+      "hint": "Get preventive information before acting.",
+      "answers": [
+        "The safety technician / Prevention Service.",
+        "The onsite preventive resource.",
+        "I look it up on TikTok and done.",
+        "I do a speedrun and I’ll learn on the way."
+      ],
+      "why": [
+        "Best channel to clarify the safe procedure without improvising.",
+        "Correct, but the H&S technician usually has the most complete/documented guidance.",
+        "TikTok is not a reliable source for a site procedure.",
+        "Learning through scares isn’t prevention.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "17": {
+      "q": "At {SITE_NAME}, you want to propose a preventive improvement (not urgent) or share your opinion so it’s considered. Who do you pass it to?",
+      "hint": "Worker participation/representation.",
+      "answers": [
+        "The safety representative.",
+        "The safety technician / Prevention Service.",
+        "I drop it in the meme group and hope it goes viral.",
+        "I write it on a napkin and leave it at the bar."
+      ],
+      "why": [
+        "Natural channel to submit proposals and follow up via worker representation.",
+        "Correct, but for proposals and participation, the prevention delegate is a very direct channel.",
+        "That doesn’t ensure it gets managed or followed up.",
+        "That’s not a real site channel.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "18": {
+      "q": "At {SITE_NAME}, you notice your PPE (EPI) is damaged and must be taken out of service. Who do you notify to process it?",
+      "hint": "PPE process: withdrawal and management.",
+      "answers": [
+        "The safety technician / Prevention Service.",
+        "The onsite preventive resource.",
+        "I tape it up and say it’s ‘new’.",
+        "I leave it around and let fate find it."
+      ],
+      "why": [
+        "Preventive process: take it out of service and manage it correctly.",
+        "Correct, but the H&S technician is the most appropriate channel to process it as a preventive process.",
+        "A damaged PPE is removed from service; you don’t ‘fix it by eye’.",
+        "Someone could end up using it without knowing.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "19": {
+      "q": "At {SITE_NAME}, you’re about to do a task and you need preventive training/instructions (it hasn’t been explained well). Who do you request it from?",
+      "hint": "Training and prevention.",
+      "answers": [
+        "The safety technician / Prevention Service.",
+        "My supervisor.",
+        "An NPC in the game: “Give me the quest!”",
+        "I make it up: ‘we’ve always done it this way’."
+      ],
+      "why": [
+        "Preventive channel for proper training and instructions.",
+        "Correct, but the preventive channel for training/instructions is the H&S technician.",
+        "Prevention isn’t about missions; it’s about procedure and real training.",
+        "That’s exactly what causes nasty surprises.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "20": {
+      "q": "At {SITE_NAME}, before using a product (solvent/adhesive/cleaner) you want to know risks and measures. Who do you ask?",
+      "hint": "Substances: preventive consultation.",
+      "answers": [
+        "The safety technician / Prevention Service.",
+        "The onsite preventive resource.",
+        "A comic book: ‘if it happens to Batman, I can handle it’.",
+        "I smell it hard and decide based on the dizziness."
+      ],
+      "why": [
+        "Technical channel to advise on risks and measures.",
+        "Correct, but the H&S technician is the most complete support for substances.",
+        "That’s not a real prevention criterion.\nThe correct answer in this case is: {{GREEN}}",
+        "You don’t assess a product ‘by nose’: you consult the proper information."
+      ]
+    },
+    "21": {
+      "q": "Off‑site: you’ve been issued PPE but the size isn’t yours and you need an exchange. Who do you ask first?",
+      "hint": "Operational issue: issue/exchange process.",
+      "answers": [
+        "The supervisor (foreman/site manager) to arrange the exchange.",
+        "The onsite preventive resource.",
+        "I keep it even if it doesn’t fit: ‘it covers something’.",
+        "I swap it with someone else without saying anything."
+      ],
+      "why": [
+        "Operational channel to manage supply/replacement of PPE.",
+        "Correct, but supply is usually channeled through the supervisor.",
+        "PPE that doesn’t fit properly may not protect as it should.",
+        "You could leave someone else without the right PPE.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "22": {
+      "q": "Off‑site: yesterday there was a near miss and today you want to report it so it’s recorded and doesn’t happen again. Who do you notify?",
+      "hint": "Preventive record and follow‑up.",
+      "answers": [
+        "The onsite preventive resource to record it and follow up.",
+        "My supervisor.",
+        "No one: what happened, happened.",
+        "I tell it as an epic story."
+      ],
+      "why": [
+        "Preventive channel to record it and trigger actions so it doesn’t happen again.",
+        "Correct, but the preventive resource ensures the near-miss is recorded and followed up.",
+        "If it isn’t recorded, it will happen again.",
+        "Epic stories are fun, but you must report through the real channel.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    },
+    "23": {
+      "q": "Off‑site: you want to submit a written preventive improvement proposal so there’s traceability. Who do you hand it to?",
+      "hint": "Participation with follow‑up.",
+      "answers": [
+        "The safety representative.",
+        "The safety technician / Prevention Service.",
+        "Tell Goku to Kamehameha the risk.",
+        "I leave it in a drawer and it’ll ‘sort itself out’."
+      ],
+      "why": [
+        "Ideal channel for proposals and follow-up via representation.",
+        "Correct, but the prevention delegate is a very direct channel for participation proposals.",
+        "Goku wins fights; he doesn’t manage preventive proposals.\nThe correct answer in this case is: {{GREEN}}",
+        "Without a channel and follow-up, it won’t be managed."
+      ]
+    },
+    "24": {
+      "q": "Off‑site: you’re reviewing documentation and you don’t understand a preventive instruction (it raises doubts). Who do you ask?",
+      "hint": "Technical/documentation prevention consultation.",
+      "answers": [
+        "The safety technician / Prevention Service.",
+        "The onsite preventive resource.",
+        "Spider‑Man — to solve it with webs.",
+        "I do the opposite so I ‘learn’ fast."
+      ],
+      "why": [
+        "Technical channel to resolve procedure/documentation doubts.",
+        "Correct, but the H&S technician usually has the most complete interpretation and guidance.",
+        "Webs don’t replace real technical guidance.\nThe correct answer in this case is: {{GREEN}}",
+        "Learning by making mistakes on site is expensive."
+      ]
+    },
+    "25": {
+      "q": "Off‑site: you need to complete preventive training (or prove it) and you don’t know the channel/process. Who do you request it from?",
+      "hint": "Training: prevention process.",
+      "answers": [
+        "The safety technician / Prevention Service.",
+        "My supervisor.",
+        "I make a certificate in Paint.",
+        "I learn by osmosis watching the veterans."
+      ],
+      "why": [
+        "Preventive channel for training and accreditations.",
+        "Correct, but the preventive channel for training is usually the H&S technician.",
+        "That’s not real training (nor a valid channel).",
+        "Training and instructions must be real and verifiable.\nThe correct answer in this case is: {{GREEN}}"
+      ]
+    }
+  }
+}
