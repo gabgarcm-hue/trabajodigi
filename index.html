@@ -2270,6 +2270,13 @@ function maxScore(){
   return roundTotal() * 2;
 }
 
+function scorePercent(){
+  const max = maxScore();
+  const total = totalScore();
+  if (!max || max <= 0) return 0;
+  return Math.round((total / max) * 100);
+}
+
 function roundTotal(){
   if (gameMode === "order") return ORDER_SET.length;
   return QUESTIONS.length;
@@ -2645,30 +2652,44 @@ function selectAnswer(i, type, timedOut=false){
   let title = "";
   let body  = "";
 
-  const isEs = (I18N && I18N.lang === "es");
+  // Mostrar el "why" específico en cualquier idioma si existe; si no, usar fallback genérico
+  const whyHasText = (whyResolved && String(whyResolved).trim().length > 0);
 
-if (grade === "green"){
-  title = t("fb.title.green","✅ Perfecto");
-  body  = "✅ " + whyResolved;
-} else if (grade === "amber"){
-  title = t("fb.title.amber","🟠 Correcto… pero se puede hacer mejor");
-  if (isEs){
-    body = usesGreenPlaceholder(why)
-      ? ("🟠 " + whyResolved)
-      : ("🟠 " + whyResolved + "\n\n" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt}));
+  if (grade === "green"){
+    title = t("fb.title.green","✅ Perfecto");
+    body  = "✅ " + (whyHasText ? whyResolved : greenTxt);
+  } else if (grade === "amber"){
+    title = t("fb.title.amber","🟠 Correcto… pero se puede hacer mejor");
+    if (whyHasText){
+      body = "🟠 " + whyResolved;
+    } else {
+      body = fmt(t("fb.body.amber","🟠 Bien, pero hay un canal más adecuado aquí.
+
+✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+    }
+    if (!usesGreenPlaceholder(why)){
+      body += "
+
+" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+    }
   } else {
-    body = fmt(t("fb.body.amber","🟠 Bien, pero hay un canal más adecuado aquí.\n\n✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+    title = t("fb.title.red","🔴 Incorrecto");
+    if (whyHasText){
+      body = "🔴 " + whyResolved;
+    } else {
+      body = fmt(t("fb.body.red","🔴 No es la mejor opción para seguridad.
+
+✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+    }
+    if (!usesGreenPlaceholder(why)){
+      body += "
+
+" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
+    }
   }
-} else {
-  title = t("fb.title.red","🔴 Incorrecto");
-  if (isEs){
-    body = usesGreenPlaceholder(why)
-      ? ("🔴 " + whyResolved)
-      : ("🔴 " + whyResolved + "\n\n" + fmt(t("fb.mostCorrect","✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt}));
-  } else {
-    body = fmt(t("fb.body.red","🔴 No es la mejor opción para seguridad.\n\n✅ Lo más correcto sería: {GREEN}"), {GREEN: greenTxt});
-  }
-}
+
+  titleEl.textContent = title;
+  bodyEl.textContent  = body;
 
   titleEl.textContent = title;
   bodyEl.textContent  = body;
