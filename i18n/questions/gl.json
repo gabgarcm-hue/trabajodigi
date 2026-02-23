@@ -1,403 +1,403 @@
 {
   "quiz": {
     "1": {
-      "q": "En {SITE_NAME}, ves una zona desorganizada (ferramentas/materiais por el suelo) y el mando no está localizable en ese momento. A quen avisas?",
-      "hint": "Tema menor/operativo con mando no disponible.",
+      "q": "En {SITE_NAME}, ves unha zona desorganizada (ferramentas/materiais polo chan) e o mando non está localizable nese momento. A quen avisas?",
+      "hint": "Tema menor/operativo con mando non dispoñible.",
       "answers": [
         "Ao recurso preventivo (obra).",
-        "Ao meu mando directo (cuando lo encuentre).",
-        "A ninguén, lo esquivo y sigo.",
-        "A Chewbacca, que impone el orden wookiee."
+        "Ao meu mando directo (cando o atope).",
+        "A nadie, lo esquivo e sigo.",
+        "A Chewbacca, que impón a orde wookiee."
       ],
       "why": [
-        "Vía rápida en obra para activar corrección cuando el mando no está disponible.",
-        "Correcto, pero si no está localizable ahora, el recurso preventivo puede activar la corrección ya.",
-        "Si no se comunica, el risco se repite (tropiezos/caídas).",
-        "Los wookies son magníficos tiradores, pero pésimos en PRL.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Vía rápida en obra para activar corrección cuando el mando non está disponible.",
+        "Correcto, pero se non está localizable ahora, el recurso preventivo puede activar la corrección ya.",
+        "Si non se comunica, el risco se repite (tropiezos/caídas).",
+        "Los wookies son magníficos tiradores, pero pésimos en PRL.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "2": {
-      "q": "En {SITE_NAME}, ves caer a un compañeiro desde 5 metros. A quen avisas?",
-      "hint": "Accidente grave: emergencia + comunicación interna.",
+      "q": "En {SITE_NAME}, ves caer un compañeiro desde 5 metros. A quen avisas?",
+      "hint": "Accidente grave: emerxencia + comunicación interna.",
       "answers": [
-        "Ao 112 y al mando (encargado/xefe de obra).",
-        "Solo al mando (sin llamar al 112).",
-        "Lo levanto para que se siente ‘un momento’.",
-        "Me espero a ver si se levanta solo."
+        "Ao 112 e ao mando (encargado/xefe de obra).",
+        "Só ao mando (sen chamar ao 112).",
+        "Levántoo para que se sente ‘un momento’.",
+        "Espero a ver se se ergue só."
       ],
       "why": [
-        "Emergencia + aviso interno inmediato: es lo más correcto.",
-        "Avisar internamente está bien, pero con 5 m lo más seguro es activar 112.",
-        "Mover a la persona puede empeorar lesiones. Se activa la respuesta adecuada.",
-        "La prioridad es activar respuesta y avisos correctos."
+        "Emergencia + aviso interno inmediato: es lo máis correcto.",
+        "Avisar internamente está bien, pero con 5 m lo máis seguro es activar 112.",
+        "Mover a la persona puede empeorar lesiones. Se activa la resposta adecuada.",
+        "La prioridad es activar resposta e avisos correctos."
       ]
     },
     "3": {
-      "q": "En {SITE_NAME} hay rachas de viento de 100 km/h. ¿A quién avisas para parar trabajos por condiciones adversas?",
+      "q": "En {SITE_NAME} hai refachos de vento de 100 km/h. A quen avisas para parar traballos por condicións adversas?",
       "hint": "Parada/organización de obra.",
       "answers": [
         "Ao meu mando directo (encargado/xefe de obra).",
         "Ao recurso preventivo (obra).",
         "Ao promotor para que decida.",
-        "Que le explique Gandalf el «¡No pasarás!» al viento."
+        "Que le explique Gandalf el «No pasarás!» al vento."
       ],
       "why": [
-        "Puede ordenar parar o reorganizar el trabajo de forma segura.",
-        "Correcto, pero quien organiza y ordena la parada es el mando.",
-        "No es el canal inmediato para una parada por seguridad.",
-        "Gandalf es un crack, pero no dirige la obra ni puede ordenar la parada.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Pode ordenar parar ou reorganizar o traballo de forma segura.",
+        "Correcto, pero quien organiza e ordena la parada es el mando.",
+        "Non é el canal inmediato para unha parada por seguridade.",
+        "Gandalf es un crack, pero non dirige la obra ni puede ordenar la parada.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "4": {
-      "q": "En {SITE_NAME}, hay un aplique eléctrico mal montado del que saltan chispas. A quen avisas?",
-      "hint": "Risco eléctrico: aislar y coordinar reparación segura.",
+      "q": "En {SITE_NAME}, hai un aplique eléctrico mal montado do que saltan chispas. A quen avisas?",
+      "hint": "Risco eléctrico: illar e coordinar reparación segura.",
       "answers": [
         "Ao mando (encargado/xefe de obra).",
         "Ao recurso preventivo (obra).",
-        "Llamo a Pikachu para que lo arregle con un impactrueno.",
-        "Lo ajusto yo con un destornillador."
+        "Chamo a Pikachu para que o arranxe cun impactrueno.",
+        "Axústoo eu cun desaparafusador."
       ],
       "why": [
-        "Organiza la actuación inmediata y la reparación segura.",
-        "Correcto, pero el mando coordina la respuesta inmediata en el tajo.",
-        "Pikachu es adorable, pero no está habilitado como electricista de obra.\nA resposta correcta neste caso é: {{GREEN}}",
+        "Organiza la actuación inmediata e la reparación segura.",
+        "Correcto, pero el mando coordina la resposta inmediata en el tajo.",
+        "Pikachu es adorable, pero non está habilitado como electricista de obra.\nLa resposta correcta en este caso es: {{GREEN}}",
         "Manipular algo que chispea es un risco grave."
       ]
     },
     "5": {
-      "q": "En {SITE_NAME}, te tuerces el tobillo al resbalar en unas escaleras. A quen avisas?",
-      "hint": "Lesión: atención y comunicación interna.",
+      "q": "En {SITE_NAME}, torces o nocello ao esvarar nunhas escaleiras. A quen avisas?",
+      "hint": "Lesión: atención e comunicación interna.",
       "answers": [
-        "Ao mando y a primeros auxilios.",
-        "Solo al mando.",
-        "Me voy a casa sin decir nada.",
-        "Sigo trabajando: ‘ya se pasará’."
+        "Ao mando e a primeiros auxilios.",
+        "Só ao mando.",
+        "Vou para a casa sen dicir nada.",
+        "Sigo traballando: ‘xa pasará’."
       ],
       "why": [
         "Comunicación interna + atención inmediata: perfecto.",
-        "Ben, pero si hay primeros auxilios disponibles, también conviene avisarles.",
-        "Hay que comunicar lesiones/incidentes para atender y evitar repetición.",
-        "Puedes empeorar la lesión y la causa del resbalón sigue ahí."
+        "Ben, pero si hay primeros auxilios disponibles, también convén avisarles.",
+        "Hay que comunicar lesiones/incidentes para atender e evitar repetición.",
+        "Puedes empeorar la lesión e la causa do esvarón sigue ahí."
       ]
     },
     "6": {
-      "q": "En {SITE_NAME}, hay una carga suspendida y gente pasando por debajo. A quen avisas?",
-      "hint": "Risco grave: maniobra y control inmediato.",
+      "q": "En {SITE_NAME}, hai unha carga suspendida e xente pasando por debaixo. A quen avisas?",
+      "hint": "Risco grave: manobra e control inmediato.",
       "answers": [
         "Ao mando (encargado/xefe de obra).",
         "Ao recurso preventivo (obra).",
-        "Pido a un Comisario del Astra Militarum que ‘ejecute’ al risco.",
-        "Me aparto yo y ya."
+        "Pido a un Comisario do Astra Militarum que ‘ejecute’ al risco.",
+        "Me aparto yo e ya."
       ],
       "why": [
-        "Debe detener y controlar la maniobra de forma segura.",
-        "Correcto, pero el canal operativo inmediato es el mando.",
-        "Eso es épico, pero en obra no se purga el risco: se comunica y se controla.\nA resposta correcta neste caso é: {{GREEN}}",
-        "Si no avisas, el risco sigue para otros."
+        "Debe detener e controlar la maniobra de forma segura.",
+        "Correcto, pero o canal operativo inmediato é o mando.",
+        "Eso es épico, pero en obra non se purga el risco: se comunica e se controla.\nLa resposta correcta en este caso es: {{GREEN}}",
+        "Si non avisas, el risco sigue para otros."
       ]
     },
     "7": {
-      "q": "En {SITE_NAME}, ves por tercera vez a la misma cuadrilla trabajando sin casco (ya lo comentaste y no cambió). ¿A quién avisas ahora?",
-      "hint": "Reincidencia: refuerzo preventivo y seguimento.",
+      "q": "En {SITE_NAME}, ves por terceira vez a mesma cuadrilla traballando sen casco (xa o comentaches e non mudou). A quen avisas agora?",
+      "hint": "Reincidencia: reforzo preventivo e seguimento.",
       "answers": [
-        "Ao recurso preventivo (obra) para intervención y seguimento.",
-        "Ao mando directo otra vez.",
-        "Lo ignoro: ‘no es mi empresa’.",
-        "Se lo digo a Dora la Exploradora: ‘¡encuentra el casco!’"
+        "Ao recurso preventivo (obra) para intervención e seguimento.",
+        "Ao mando directo outra vez.",
+        "Ignóroo: ‘non é a miña empresa’.",
+        "Se lo digo a Dora la Exploradora: ‘encuentra el casco!’"
       ],
       "why": [
-        "Corta la repetición y exige corrección con trazabilidad.",
-        "Correcto, pero si ya no se corrige, lo más eficaz es que intervenga el recurso preventivo.",
+        "Corta la repetición e exige corrección con trazabilidad.",
+        "Correcto, pero si ya non se corrige, lo máis eficaz es que intervenga el recurso preventivo.",
         "En obra compartida, comunicar riscos protege a todos.",
-        "Dora encuentra cosas, pero eso no gestiona la obra.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Dora encuentra cosas, pero eso non gestiona la obra.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "8": {
-      "q": "En {SITE_NAME}, detectas un borde de forjado sin protección colectiva y NO localizas al mando en ese momento. A quen avisas?",
-      "hint": "Risco crítico + mando no disponible: vía rápida en obra.",
+      "q": "En {SITE_NAME}, detectas un bordo de forxado sen protección colectiva e NON localizas o mando nese momento. A quen avisas?",
+      "hint": "Risco crítico + mando non dispoñible: vía rápida en obra.",
       "answers": [
         "Ao recurso preventivo (obra).",
-        "Espero a encontrar al mando.",
-        "Paso con cuidado y sigo.",
-        "Lo pongo en un post-it y listo."
+        "Espero a atopar o mando.",
+        "Paso con cuidado e sigo.",
+        "Lo pongo en un post-it e listo."
       ],
       "why": [
-        "Está en obra para actuar ante riscos críticos y activar corrección inmediata.",
-        "Avisar al mando está bien, pero si no está disponible, hay que activar a quien pueda actuar ya.",
+        "Está en obra para actuar ante riscos críticos e activar corrección inmediata.",
+        "Avisar al mando está bien, pero se non está disponible, hay que activar a quien pueda actuar ya.",
         "El risco sigue ahí para cualquiera.",
-        "No asegura acción inmediata."
+        "Non asegura acción inmediata."
       ]
     },
     "9": {
-      "q": "En {SITE_NAME}, cae una herramienta desde altura y por poco golpea a alguien (no hay lesión). A quen avisas?",
-      "hint": "Casi accidente: registrar y evitar repetición.",
+      "q": "En {SITE_NAME}, cae unha ferramenta desde altura e por pouco golpea a alguén (non hai lesión). A quen avisas?",
+      "hint": "Case accidente: rexistrar e evitar repetición.",
       "answers": [
-        "Ao recurso preventivo (obra) para registrar y exigir corrección.",
+        "Ao recurso preventivo (obra) para rexistrar e esixir corrección.",
         "Ao mando (encargado/xefe de obra).",
-        "A ninguén: si no pasó nada, no cuenta.",
-        "Me pongo a construir una valla tipo Minecraft y ya se arregla."
+        "A nadie: se non pasó nada, non cuenta.",
+        "Me pongo a construir unha valla tipo Minecraft e ya se arregla."
       ],
       "why": [
-        "Clave para que no se repita: análisis y medidas preventivas.",
-        "Correcto, pero el canal preventivo asegura rexistro y seguimento del casi accidente.",
-        "Los casi accidentes se comunican.",
-        "En Minecraft funciona, en obra no.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Clave para que non se repita: análisis e medidas preventivas.",
+        "Correcto, pero el canal preventivo asegura rexistro e seguimento do case accidente.",
+        "Los case accidentes se comunican.",
+        "En Minecraft funciona, en obra no.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "10": {
-      "q": "En {SITE_NAME}, hay cableado por una zona de paso y la gente tropieza, pero el mando está ocupado/no localizable. A quen avisas?",
-      "hint": "Tema menor/operativo con mando no disponible.",
+      "q": "En {SITE_NAME}, hai cableado nunha zona de paso e a xente tropexa, pero o mando está ocupado/non localizable. A quen avisas?",
+      "hint": "Tema menor/operativo con mando non dispoñible.",
       "answers": [
         "Ao recurso preventivo (obra).",
-        "Ao mando (cuando lo encuentre).",
-        "Lo salto y sigo.",
-        "Lo enrollo y lo dejo donde sea."
+        "Ao mando (cando o atope).",
+        "Lo salto e sigo.",
+        "Lo enrollo e lo dejo donde sea."
       ],
       "why": [
-        "Puede activar la corrección rápida en obra cuando el mando no está disponible.",
-        "Correcto, pero si no está localizable ahora, avisa a quien pueda actuar ya.",
+        "Puede activar la corrección rápida en obra cuando el mando non está disponible.",
+        "Correcto, pero se non está localizable ahora, avisa a quien pueda actuar ya.",
         "El risco permanece para todos.",
         "Puedes crear otro risco. Mejor avisar por el canal."
       ]
     },
     "11": {
-      "q": "En {SITE_NAME}, ves una radial sin resguardo y un compañeiro va a usarla. A quen avisas?",
-      "hint": "Risco inmediato: parar y corregir.",
+      "q": "En {SITE_NAME}, ves unha radial sen resgardo e un compañeiro vai usala. A quen avisas?",
+      "hint": "Risco inmediato: parar e corrixir.",
       "answers": [
-        "Ao mando (encargado/xefe de obra) para detener y corregir.",
+        "Al mando (encargado/xefe de obra) para detener e corregir.",
         "Ao recurso preventivo (obra).",
-        "Me hago el loco: yo no la voy a usar.",
-        "Le pongo cinta aislante y arreando."
+        "Me hago el loco: yo non la voy a usar.",
+        "Le pongo cinta aislante e arreando."
       ],
       "why": [
-        "Debe organizar la parada y la corrección inmediata.",
-        "Correcto, pero el mando canaliza la corrección inmediata en el tajo.",
-        "Si no lo comunicas, el risco sigue.",
-        "No es una protección adecuada."
+        "Debe organizar la parada e la corrección inmediata.",
+        "Correcto, pero o mando canaliza a corrección inmediata no tajo.",
+        "Si non lo comunicas, el risco sigue.",
+        "Non é unha protección adecuada."
       ]
     },
     "12": {
-      "q": "En {SITE_NAME}, suena alarma de evacuación o se detecta humo en una zona. A quen avisas?",
-      "hint": "Emergencia: seguir instrucciones y avisar.",
+      "q": "En {SITE_NAME}, soa alarma de evacuación ou detéctase fume nunha zona. A quen avisas?",
+      "hint": "Emerxencia: seguir instrucións e avisar.",
       "answers": [
-        "Ao mando y sigo instrucciones.",
+        "Ao mando e sigo instrucións.",
         "Ao recurso preventivo (obra).",
-        "Voy a mirar de dónde viene el humo.",
-        "Sigo trabajando: seguro que es falsa alarma."
+        "Voy a mirar de dónde viene el fume.",
+        "Sigo traballando: seguro que é falsa alarma."
       ],
       "why": [
-        "Comunicación interna y actuación coordinada: perfecto.",
-        "Correcto, pero el canal inmediato en obra es el mando.",
-        "No te expongas: comunica y sigue el procedimiento.",
-        "Ante alarma, se actúa siguiendo instrucciones."
+        "Comunicación interna e actuación coordinada: perfecto.",
+        "Correcto, pero o canal inmediato en obra é o mando.",
+        "No te expongas: comunica e sigue el procedemento.",
+        "Ante alarma, se actúa siguiendo instrucións."
       ]
     },
     "13": {
-      "q": "En {SITE_NAME}, te piden una tarea “rara” y no tienes claro el procedimiento seguro (no quieres improvisar). A quen consultas?",
+      "q": "En {SITE_NAME}, pídenche unha tarefa “rara” e non tes claro o procedemento seguro (non queres improvisar). A quen consultas?",
       "hint": "Consulta técnica de prevención.",
       "answers": [
-        "Ao técnico de PRL / Servicio de Prevención.",
+        "Ao técnico de PRL / Servizo de prevención.",
         "Ao recurso preventivo (obra).",
-        "A ninguén: improviso según me salga.",
-        "Hago lo que me diga el cuñado de WhatsApp."
+        "A ninguén: improviso segundo me saia.",
+        "Fago o que me diga o cuñado de WhatsApp."
       ],
       "why": [
-        "Aporta criterio técnico preventivo para definir cómo hacerlo seguro.",
-        "Correcto, pero el técnico de PRL suele tener la pauta más completa/documentada.",
-        "Improvisar en PRL es mala idea.",
-        "No es un canal técnico fiable."
+        "Achega criterio técnico preventivo para definir como facelo seguro.",
+        "Correcto, pero el técnico PRL suele tener la pauta máis completa/documentada.",
+        "Improvisar en PRL é mala idea.",
+        "Non é un canal técnico fiable."
       ]
     },
     "14": {
-      "q": "En {SITE_NAME}, notas vapores fuertes en una zona cerrada y dudas si es seguro seguir trabajando ahí. A quen avisas?",
+      "q": "En {SITE_NAME}, notas vapores fortes nunha zona pechada e dubidas se é seguro seguir traballando aí. A quen avisas?",
       "hint": "Exposición: criterio técnico preventivo.",
       "answers": [
-        "Ao técnico de PRL / Servicio de Prevención.",
+        "Ao técnico de PRL / Servizo de prevención.",
         "Ao recurso preventivo (obra).",
-        "Respiro hondo y sigo: ‘si pica, cura’.",
-        "Abro una ventana 10 segundos y listo."
+        "Respiro hondo e sigo: ‘si pica, cura’.",
+        "Abro unha ventana 10 segundos e listo."
       ],
       "why": [
-        "Es el canal técnico para valorar el risco y pautar medidas.",
-        "Correcto, pero el técnico de PRL es el soporte más adecuado para valorar exposición.",
-        "Exponerse sin evaluar puede ser peligroso.",
-        "No garantiza control del risco."
+        "Es el canal técnico para valorar el risco e pautar medidas.",
+        "Correcto, pero el técnico PRL es el soporte máis adecuado para valorar exposición.",
+        "Expoñerse sen avaliar pode ser perigoso.",
+        "No garantiza control do risco."
       ]
     },
     "15": {
-      "q": "En {SITE_NAME}, ves dos contratas trabajando a la vez en la misma zona y se estorban (risco por interferencias). A quen avisas?",
+      "q": "En {SITE_NAME}, ves dúas contratas traballando á vez na mesma zona e estórbanse (risco por interferencias). A quen avisas?",
       "hint": "Coordinación de actividades en obra.",
       "answers": [
-        "Ao coordinador de seguridad y salud (CSS).",
-        "Ao técnico de PRL / Servicio de Prevención.",
-        "A ninguén: que se apañen.",
-        "Hago un piedra-papel-tijera entre contratas."
+        "Ao coordinador de seguridade e saúde (CSS).",
+        "Ao técnico de PRL / Servizo de prevención.",
+        "A ninguén: que se amañen.",
+        "Fago un pedra-papel-tesoira entre contratas."
       ],
       "why": [
-        "Figura clave para coordinar interferencias y exigir planificación.",
-        "Correcto, pero la coordinación de interferencias se gestiona especialmente vía CSS.",
-        "Si no se coordina, sube el risco de accidente.",
-        "Divertido, pero no coordina de verdad."
+        "Figura clave para coordinar interferencias e exigir planificación.",
+        "Correcto, pero a coordinación de interferencias xestiónase especialmente vía CSS.",
+        "Si non se coordina, sube el risco de accidente.",
+        "Divertido, pero non coordina de verdad."
       ]
     },
     "16": {
-      "q": "En {SITE_NAME}, quieres informarte de un procedimiento de seguridad (cómo se hace una tarea “bien”) antes de empezar. A quen preguntas?",
+      "q": "En {SITE_NAME}, queres informarte dun procedemento de seguridade (como se fai unha tarefa “ben”) antes de empezar. A quen preguntas?",
       "hint": "Buscar información preventiva antes de actuar.",
       "answers": [
-        "Ao técnico de PRL / Servicio de Prevención.",
+        "Ao técnico de PRL / Servizo de prevención.",
         "Ao recurso preventivo (obra).",
-        "Lo busco en TikTok y listo.",
-        "Hago “speedrun” y ya aprenderé por el camino."
+        "Lo busco en TikTok e listo.",
+        "Hago “speedrun” e ya aprenderé por el camino."
       ],
       "why": [
-        "Es el canal para aclarar procedimiento seguro sin improvisar.",
-        "Correcto, pero el técnico de PRL suele tener la pauta más completa/documentada.",
-        "No es una fuente fiable para un procedimiento de obra.",
-        "Aprender a base de sustos no es prevención.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Es el canal para aclarar procedemento seguro sin improvisar.",
+        "Correcto, pero el técnico PRL suele tener la pauta máis completa/documentada.",
+        "Non é unha fuente fiable para un procedemento de obra.",
+        "Aprender a base de sustos non es prevención.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "17": {
-      "q": "En {SITE_NAME}, quieres proponer una mejora preventiva (no urgente) o dar tu opinión para que se tenga en cuenta. ¿A quién se lo trasladas?",
+      "q": "En {SITE_NAME}, queres propoñer unha mellora preventiva (non urxente) ou dar a túa opinión para que se teña en conta. A quen llo trasladas?",
       "hint": "Participación/representación.",
       "answers": [
         "Ao delegado/a de prevención.",
-        "Ao técnico de PRL / Servicio de Prevención.",
-        "Lo suelto en el grupo de memes y que ‘se haga viral’.",
-        "Lo escribo en una servilleta y la dejo en el bar."
+        "Ao técnico de PRL / Servizo de prevención.",
+        "Lo suelto en el grupo de memes e que ‘se haga viral’.",
+        "Lo escribo en unha servilleta e la dejo en el bar."
       ],
       "why": [
-        "Canal natural para trasladar propuestas y hacer seguimento desde la representación.",
-        "Correcto, pero para propuestas y participación, el delegado es un canal muy directo.",
+        "Canal natural para trasladar propostas e hacer seguimento desde la representación.",
+        "Correcto, pero para propostas e participación, el delegado es un canal muy directo.",
         "No garantiza que se gestione ni se haga seguimento.",
-        "No es un canal real de obra.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Non é un canal real de obra.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "18": {
-      "q": "En {SITE_NAME}, detectas que tu EPI está dañado y debe retirarse de uso (“dar de baja”). ¿A quién lo comunicas para tramitarlo como prevención?",
-      "hint": "Proceso preventivo (EPI): retirada y gestión.",
+      "q": "En {SITE_NAME}, detectas que o teu EPI está danado e debe retirarse de uso (“dar de baixa”). A quen o comunicas para tramitalo como prevención?",
+      "hint": "Proceso preventivo (EPI): retirada e xestión.",
       "answers": [
-        "Ao técnico de PRL / Servicio de Prevención.",
+        "Ao técnico de PRL / Servizo de prevención.",
         "Ao recurso preventivo (obra).",
-        "Lo pego con cinta y digo que está ‘nuevo’.",
-        "Lo dejo por ahí y que lo encuentre el destino."
+        "Lo pego con cinta e digo que está ‘nuevo’.",
+        "Lo dejo por ahí e que lo encuentre el destino."
       ],
       "why": [
-        "Es un proceso preventivo: se retira de uso y se gestiona correctamente.",
-        "Correcto, pero el técnico de PRL es el canal más adecuado para tramitarlo como proceso preventivo.",
-        "Un EPI dañado se retira de uso: no se “arregla a ojo”.",
-        "Puede acabar usándolo alguien sin saberlo.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Es un proceso preventivo: se retira de uso e se gestiona correctamente.",
+        "Correcto, pero el técnico PRL es el canal máis adecuado para tramitarlo como proceso preventivo.",
+        "Un EPI danado se retira de uso: non se “arregla a ojo”.",
+        "Puede acabar usándolo alguien sin saberlo.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "19": {
-      "q": "En {SITE_NAME}, vas a hacer una tarea y necesitas formación/instrucciones preventivas (no te han explicado bien). ¿A quién la solicitas?",
-      "hint": "Formación y prevención.",
+      "q": "En {SITE_NAME}, vas facer unha tarefa e precisas formación/instrucións preventivas (non cho explicaron ben). A quen a solicitas?",
+      "hint": "Formación e prevención.",
       "answers": [
-        "Ao técnico de PRL / Servicio de Prevención.",
+        "Ao técnico de PRL / Servizo de prevención.",
         "Ao mando directo.",
-        "A un NPC del juego: “¡Dame la misión y ya!”",
-        "Me lo invento: total, ‘siempre se ha hecho así’."
+        "A un NPC do juego: “Dame la misión e ya!”",
+        "Invéntoo: total, ‘sempre se fixo así’."
       ],
       "why": [
-        "Canal preventivo para formación e instrucciones adecuadas.",
-        "Correcto, pero el canal preventivo para formación/instrucciones es el técnico de PRL.",
-        "La prevención no va por misiones, va por procedimiento y formación real.",
-        "Eso es justo lo que provoca sustos.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Canal preventivo para formación e instrucións adecuadas.",
+        "Correcto, pero el canal preventivo para formación/instrucións es el técnico PRL.",
+        "La prevención non va por misiones, va por procedemento e formación real.",
+        "Eso es justo lo que provoca sustos.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "20": {
-      "q": "En {SITE_NAME}, antes de usar un producto (disolvente/adhesivo/limpiador) quieres saber riscos y medidas. A quen preguntas?",
-      "hint": "Sustancias: consulta preventiva.",
+      "q": "En {SITE_NAME}, antes de usar un produto (dissolvente/adhesivo/limpador) queres saber riscos e medidas. A quen preguntas?",
+      "hint": "Substancias: consulta preventiva.",
       "answers": [
-        "Ao técnico de PRL / Servicio de Prevención.",
+        "Ao técnico de PRL / Servizo de prevención.",
         "Ao recurso preventivo (obra).",
-        "A un cómic: ‘si le pasa a Batman, aguanto yo’.",
-        "Lo huelo fuerte y decido según el mareo."
+        "A un cómic: ‘se lle pasa a Batman, aguanto eu’.",
+        "Lo huelo fuerte e decido según el mareo."
       ],
       "why": [
-        "Es el canal técnico para orientar sobre riscos y medidas.",
-        "Correcto, pero el técnico de PRL es el soporte más completo para sustancias.",
-        "No es criterio preventivo real.\nA resposta correcta neste caso é: {{GREEN}}",
-        "No se evalúa un producto “a nariz”: se consulta."
+        "Es el canal técnico para orientar sobre riscos e medidas.",
+        "Correcto, pero el técnico PRL es el soporte máis completo para substancias.",
+        "Non é criterio preventivo real.\nLa resposta correcta en este caso es: {{GREEN}}",
+        "Non se evalúa un producto “a nariz”: se consulta."
       ]
     },
     "21": {
-      "q": "Fóra da obra: te han entregado un EPI pero la talla no es la tuya y necesitas cambio. A quen o pides primeiro?",
-      "hint": "Gestión operativa de entrega/cambio.",
+      "q": "Fóra da obra: entregáronche un EPI pero a talla non é a túa e precisas cambio. A quen o pides primeiro?",
+      "hint": "Xestión operativa de entrega/cambio.",
       "answers": [
-        "Ao mando (encargado/xefe de obra) para que gestione el cambio.",
+        "Al mando (encargado/xefe de obra) para que gestione el cambio.",
         "Ao recurso preventivo (obra).",
-        "Me lo quedo aunque no valga, total ‘cubre algo’.",
-        "Me lo cambio con otro sin decir nada."
+        "Me lo quedo aunque non valga, total ‘cubre algo’.",
+        "Cámbioo con outro sen dicir nada."
       ],
       "why": [
-        "Es el canal operativo para gestionar suministro/cambio de EPI.",
-        "Correcto, pero la gestión de suministro normalmente la canaliza el mando.",
-        "Un EPI que no ajusta bien puede no proteger como debe.",
-        "Puede dejar a otra persona sin el EPI correcto.\nA resposta correcta neste caso é: {{GREEN}}"
+        "É o canal operativo para xestionar subministración/cambio de EPI.",
+        "Correcto, pero a xestión de subministración normalmente canalízaa o mando.",
+        "Un EPI que non ajusta bien puede non proteger como debe.",
+        "Puede dejar a otra persona sin el EPI correcto.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "22": {
-      "q": "Fóra da obra: ayer hubo un casi accidente y hoy quieres comunicarlo para que se registre y no se repita. A quen llo comunicas?",
-      "hint": "Rexistro preventivo y seguimento.",
+      "q": "Fóra da obra: onte houbo un case accidente e hoxe queres comunicalo para que se rexistre e non se repita. A quen llo comunicas?",
+      "hint": "Rexistro preventivo e seguimento.",
       "answers": [
-        "Ao recurso preventivo (obra) para registrar y hacer seguimento.",
+        "Ao recurso preventivo (obra) para rexistrar e facer seguimento.",
         "Ao mando directo.",
-        "A ninguén: lo que pasó, pasó.",
-        "Lo cuento en modo historia épica"
+        "A ninguén: o que pasou, pasou.",
+        "Cóntoo en modo historia épica"
       ],
       "why": [
-        "Es el canal preventivo para registrar y activar acciones para que no se repita.",
-        "Correcto, pero el recurso preventivo asegura rexistro y seguimento del casi accidente.",
-        "Si no se registra, se repite.",
-        "Las épicas molan, pero hay que comunicar por el canal real.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Es el canal preventivo para rexistrar e activar acciones para que non se repita.",
+        "Correcto, pero el recurso preventivo asegura rexistro e seguimento do case accidente.",
+        "Si non se registra, se repite.",
+        "Las épicas molan, pero hay que comunicar por el canal real.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     },
     "23": {
-      "q": "Fóra da obra: quieres presentar una propuesta de mejora preventiva por escrito para que quede trazabilidad. ¿A quién se la entregas?",
+      "q": "Fóra da obra: queres presentar unha proposta de mellora preventiva por escrito para que quede trazabilidade. A quen lla entregas?",
       "hint": "Participación con seguimento.",
       "answers": [
         "Ao delegado/a de prevención.",
-        "Ao técnico de PRL / Servicio de Prevención.",
-        "Se la digo a Goku y que le meta un Kamehameha al risco.",
-        "La dejo en un cajón y ya ‘saldrá sola’."
+        "Ao técnico de PRL / Servizo de prevención.",
+        "Se la digo a Goku e que le meta un Kamehameha al risco.",
+        "La dejo en un cajón e ya ‘saldrá sola’."
       ],
       "why": [
-        "Canal idóneo para propuestas y seguimento desde representación.",
-        "Correcto, pero el delegado es un canal muy directo para propuestas de participación.",
-        "Goku gana combates, no gestiona propuestas preventivas.\nA resposta correcta neste caso é: {{GREEN}}",
-        "Sin canal y seguimento, no se gestiona."
+        "Canal idóneo para propostas e seguimento desde representación.",
+        "Correcto, pero el delegado es un canal muy directo para propostas de participación.",
+        "Goku gana combates, non gestiona propostas preventivas.\nLa resposta correcta en este caso es: {{GREEN}}",
+        "Sin canal e seguimento, non se gestiona."
       ]
     },
     "24": {
-      "q": "Fóra da obra: estás revisando documentación y no entiendes una instrucción preventiva (te genera dudas). ¿A quién la consultas?",
+      "q": "Fóra da obra: estás revisando documentación e non entendes unha instrución preventiva (xérache dúbidas). A quen a consultas?",
       "hint": "Consulta técnica/documental de prevención.",
       "answers": [
-        "Ao técnico de PRL / Servicio de Prevención.",
+        "Ao técnico de PRL / Servizo de prevención.",
         "Ao recurso preventivo (obra).",
-        "A Spider‑Man: que lo solucione con telarañas.",
-        "Hago lo contrario y así ‘aprendo’ rápido."
+        "A Spider‑Man: que o arranxe con tea de araña.",
+        "Hago lo contrario e así ‘aprendo’ rápido."
       ],
       "why": [
-        "Es el canal técnico para resolver dudas de procedimiento/documentación.",
-        "Correcto, pero el técnico de PRL suele tener la interpretación y pauta más completa.",
-        "La telaraña no sustituye una pauta técnica real.\nA resposta correcta neste caso é: {{GREEN}}",
-        "Aprender a base de errores en obra sale caro."
+        "Es el canal técnico para resolver dudas de procedemento/documentación.",
+        "Correcto, pero el técnico PRL suele tener la interpretación e pauta máis completa.",
+        "La telaraña non sustituye unha pauta técnica real.\nLa resposta correcta en este caso es: {{GREEN}}",
+        "Aprender a base de erros en obra sae caro."
       ]
     },
     "25": {
-      "q": "Fóra da obra: necesitas completar formación preventiva (o justificarla) y no sabes el canal/proceso. A quen o pides?",
+      "q": "Fóra da obra: precisas completar formación preventiva (ou xustificala) e non sabes o canal/proceso. A quen o pides?",
       "hint": "Formación: proceso preventivo.",
       "answers": [
-        "Ao técnico de PRL / Servicio de Prevención.",
+        "Ao técnico de PRL / Servizo de prevención.",
         "Ao mando directo.",
-        "Me fabrico un certificado en Paint.",
-        "Me lo aprendo por osmosis mirando a los veteranos."
+        "Fábricome un certificado en Paint.",
+        "Me lo aprendo por osmosis mirando a os veteranos."
       ],
       "why": [
-        "Canal preventivo para formación y acreditaciones.",
-        "Correcto, pero el canal preventivo para formación suele ser el técnico de PRL.",
-        "Eso no es una formación real (ni un canal válido).",
-        "Formación e instrucciones deben ser reales y verificables.\nA resposta correcta neste caso é: {{GREEN}}"
+        "Canal preventivo para formación e acreditaciones.",
+        "Correcto, pero o canal preventivo para formación adoita ser o técnico de PRL.",
+        "Eso non es unha formación real (ni un canal válido).",
+        "formación e instrucións deben ser reales e verificables.\nLa resposta correcta en este caso es: {{GREEN}}"
       ]
     }
   }
