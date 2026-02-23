@@ -1,0 +1,404 @@
+{
+  "quiz": {
+    "1": {
+      "q": "{SITE_NAME}n, ikusten duzu una zona desorganizada (tresnak/materialak por el suelo) y el arduradun no está localizable en ese momento. Nori abisatzen diozu?",
+      "hint": "Tema menor/operativo con arduradun no disponible.",
+      "answers": [
+        " -ra prebentzio-baliabide (obra).",
+        "Nire arduradun directo (cuando lo encuentre).",
+        "Inori ez, lo esquivo y sigo.",
+        "A Chewbacca, que impone el orden wookiee."
+      ],
+      "why": [
+        "Vía rápida en obra para activar corrección cuando el arduradun no está disponible.",
+        "Zuzena, baina si no está localizable ahora, el prebentzio-baliabide puede activar la corrección ya.",
+        "Si no se comunica, el arrisku se repite (tropiezos/caídas).",
+        "Los wookies son magníficos tiradores, pero pésimos en PRL.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "2": {
+      "q": "{SITE_NAME}n, ikusten duzu caer a un lankide desde 5 metros. Nori abisatzen diozu?",
+      "hint": "Accidente grave: emergencia + comunicación interna.",
+      "answers": [
+        "112ra y al arduradun (obra-arduradun/obra-buru).",
+        "Solo al arduradun (sin llamar al 112).",
+        "Lo levanto para que se siente ‘un momento’.",
+        "Me espero a ver si se levanta solo."
+      ],
+      "why": [
+        "Emergencia + aviso interno inmediato: es lo más correcto.",
+        "Avisar internamente está bien, pero con 5 m lo más seguro es activar 112.",
+        "Mover a la persona puede empeorar lesiones. Se activa la respuesta adecuada.",
+        "La prioridad es activar respuesta y avisos correctos."
+      ]
+    },
+    "3": {
+      "q": "En {SITE_NAME} hay rachas de viento de 100 km/h. ¿A quién avisas para parar trabajos por condiciones adversas?",
+      "hint": "Parada/organización de obra.",
+      "answers": [
+        "Nire arduradun directo (obra-arduradun/obra-buru).",
+        " -ra prebentzio-baliabide (obra).",
+        " -ra promotor para que decida.",
+        "Que le explique Gandalf el «¡No pasarás!» al viento."
+      ],
+      "why": [
+        "Puede ordenar parar o reorganizar el trabajo de forma segura.",
+        "Zuzena, baina quien organiza y ordena la parada es el arduradun.",
+        "No es el canal inmediato para una parada por seguridad.",
+        "Gandalf es un crack, pero no dirige la obra ni puede ordenar la parada.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "4": {
+      "q": "{SITE_NAME}n, hay un aplique eléctrico mal montado del que saltan chispas. Nori abisatzen diozu?",
+      "hint": "Arrisku eléctrico: aislar y coordinar reparación segura.",
+      "answers": [
+        " -ra arduradun (obra-arduradun/obra-buru).",
+        " -ra prebentzio-baliabide (obra).",
+        "Llamo a Pikachu para que lo arregle con un impactrueno.",
+        "Lo ajusto yo con un destornillador."
+      ],
+      "why": [
+        "Organiza la jarduera inmediata y la reparación segura.",
+        "Zuzena, baina el arduradun coordina la respuesta inmediata en el tajo.",
+        "Pikachu es adorable, pero no está habilitado como electricista de obra.\nKasu honetan erantzun zuzena hau da: {{GREEN}}",
+        "Manipular algo que chispea es un arrisku grave."
+      ]
+    },
+    "5": {
+      "q": "{SITE_NAME}n, te tuerces el tobillo al resbalar en unas escaleras. Nori abisatzen diozu?",
+      "hint": "Lesión: atención y comunicación interna.",
+      "answers": [
+        " -ra arduradun y a primeros auxilios.",
+        "Solo al arduradun.",
+        "Me voy a casa sin decir nada.",
+        "Sigo trabajando: ‘ya se pasará’."
+      ],
+      "why": [
+        "Comunicación interna + atención inmediata: primeran.",
+        "Ondo, baina si hay primeros auxilios disponibles, también conviene avisarles.",
+        "Hay que comunicar lesiones/incidentes para atender y evitar repetición.",
+        "Puedes empeorar la lesión y la causa del resbalón sigue ahí."
+      ]
+    },
+    "6": {
+      "q": "{SITE_NAME}n, hay una carga suspendida y gente pasando por debajo. Nori abisatzen diozu?",
+      "hint": "Arrisku grave: maniobra y control inmediato.",
+      "answers": [
+        " -ra arduradun (obra-arduradun/obra-buru).",
+        " -ra prebentzio-baliabide (obra).",
+        "Pido a un Comisario del Astra Militarum que ‘ejecute’ al arrisku.",
+        "Me aparto yo y ya."
+      ],
+      "why": [
+        "Debe detener y controlar la maniobra de forma segura.",
+        "Zuzena, baina el canal operativo inmediato es el arduradun.",
+        "Eso es épico, pero en obra no se purga el arrisku: se comunica y se controla.\nKasu honetan erantzun zuzena hau da: {{GREEN}}",
+        "Si no avisas, el arrisku sigue para otros."
+      ]
+    },
+    "7": {
+      "q": "{SITE_NAME}n, ikusten duzu por tercera vez a la misma cuadrilla trabajando sin casco (ya lo comentaste y no cambió). ¿A quién avisas ahora?",
+      "hint": "Reincidencia: refuerzo preventivo y jarraipena.",
+      "answers": [
+        " -ra prebentzio-baliabide (obra) para intervención y jarraipena.",
+        " -ra arduradun directo otra vez.",
+        "Lo ignoro: ‘no es mi empresa’.",
+        "Se lo digo a Dora la Exploradora: ‘¡encuentra el casco!’"
+      ],
+      "why": [
+        "Corta la repetición y exige corrección con trazabilidad.",
+        "Zuzena, baina si ya no se corrige, lo más eficaz es que intervenga el prebentzio-baliabide.",
+        "En obra compartida, comunicar arriskus protege a todos.",
+        "Dora encuentra cosas, pero eso no gestiona la obra.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "8": {
+      "q": "{SITE_NAME}n, detectas un borde de forjado sin protección colectiva y NO localizas al arduradun en ese momento. Nori abisatzen diozu?",
+      "hint": "Arrisku crítico + arduradun no disponible: vía rápida en obra.",
+      "answers": [
+        " -ra prebentzio-baliabide (obra).",
+        "Espero a encontrar al arduradun.",
+        "Paso con cuidado y sigo.",
+        "Lo pongo en un post-it y listo."
+      ],
+      "why": [
+        "Está en obra para jardun ante arriskus críticos y activar corrección inmediata.",
+        "Avisar al arduradun está bien, pero si no está disponible, hay que activar a quien pueda jardun ya.",
+        "El arrisku sigue ahí para cualquiera.",
+        "No asegura acción inmediata."
+      ]
+    },
+    "9": {
+      "q": "{SITE_NAME}n, cae una herramienta desde altura y por poco golpea a alguien (no hay lesión). Nori abisatzen diozu?",
+      "hint": "Casi accidente: registrar y evitar repetición.",
+      "answers": [
+        " -ra prebentzio-baliabide (obra) para registrar y exigir corrección.",
+        " -ra arduradun (obra-arduradun/obra-buru).",
+        "Inori ez: si no pasó nada, no cuenta.",
+        "Me pongo a construir una valla tipo Minecraft y ya se arregla."
+      ],
+      "why": [
+        "Clave para que no se repita: análisis y medidas preventivas.",
+        "Zuzena, baina el canal preventivo asegura erregistro y jarraipena del casi accidente.",
+        "Los casi accidentes se comunican.",
+        "En Minecraft funciona, en obra no.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "10": {
+      "q": "{SITE_NAME}n, hay cableado por una pasabide y la gente tropieza, pero el arduradun está ocupado/no localizable. Nori abisatzen diozu?",
+      "hint": "Tema menor/operativo con arduradun no disponible.",
+      "answers": [
+        " -ra prebentzio-baliabide (obra).",
+        " -ra arduradun (cuando lo encuentre).",
+        "Lo salto y sigo.",
+        "Lo enrollo y lo dejo donde sea."
+      ],
+      "why": [
+        "Puede activar la corrección rápida en obra cuando el arduradun no está disponible.",
+        "Zuzena, baina si no está localizable ahora, avisa a quien pueda jardun ya.",
+        "El arrisku permanece para todos.",
+        "Puedes crear otro arrisku. Mejor avisar por el canal."
+      ]
+    },
+    "11": {
+      "q": "{SITE_NAME}n, ikusten duzu una radial sin resguardo y un lankide va a usarla. Nori abisatzen diozu?",
+      "hint": "Arrisku inmediato: parar y corregir.",
+      "answers": [
+        " -ra arduradun (obra-arduradun/obra-buru) para detener y corregir.",
+        " -ra prebentzio-baliabide (obra).",
+        "Me hago el loco: yo no la voy a usar.",
+        "Le pongo cinta aislante y arreando."
+      ],
+      "why": [
+        "Debe organizar la parada y la corrección inmediata.",
+        "Zuzena, baina el arduradun canaliza la corrección inmediata en el tajo.",
+        "Si no lo comunicas, el arrisku sigue.",
+        "No es una protección adecuada."
+      ]
+    },
+    "12": {
+      "q": "{SITE_NAME}n, suena alarma de evacuación o se detecta humo en una zona. Nori abisatzen diozu?",
+      "hint": "Emergencia: seguir instrucciones y avisar.",
+      "answers": [
+        " -ra arduradun y sigo instrucciones.",
+        " -ra prebentzio-baliabide (obra).",
+        "Voy a mirar de dónde viene el humo.",
+        "Sigo trabajando: seguro que es falsa alarma."
+      ],
+      "why": [
+        "Comunicación interna y jarduera coordinada: primeran.",
+        "Zuzena, baina el canal inmediato en obra es el arduradun.",
+        "No te expongas: comunica y sigue el procedimiento.",
+        "Ante alarma, se actúa siguiendo instrucciones."
+      ]
+    },
+    "13": {
+      "q": "{SITE_NAME}n, te piden una tarea “rara” y no tienes claro el procedimiento seguro (no quieres improvisar). Nori galdetzen diozu?",
+      "hint": "Consulta técnica de prebentzio.",
+      "answers": [
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        " -ra prebentzio-baliabide (obra).",
+        "Inori ez: improviso según me salga.",
+        "Hago lo que me diga el cuñado de WhatsApp."
+      ],
+      "why": [
+        "Aporta criterio técnico preventivo para definir cómo hacerlo seguro.",
+        "Zuzena, baina el PRL teknikaria suele tener la pauta más completa/documentada.",
+        "Improvisar en PRL es mala idea.",
+        "No es un canal técnico fiable."
+      ]
+    },
+    "14": {
+      "q": "{SITE_NAME}n, notas vapores fuertes en una zona cerrada y dudas si es seguro seguir trabajando ahí. Nori abisatzen diozu?",
+      "hint": "Exposición: criterio técnico preventivo.",
+      "answers": [
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        " -ra prebentzio-baliabide (obra).",
+        "Respiro hondo y sigo: ‘si pica, cura’.",
+        "Abro una ventana 10 segundos y listo."
+      ],
+      "why": [
+        "Es el canal técnico para valorar el arrisku y pautar medidas.",
+        "Zuzena, baina el PRL teknikaria es el soporte más adecuado para valorar exposición.",
+        "Exponerse sin evaluar puede ser peligroso.",
+        "No garantiza control del arrisku."
+      ]
+    },
+    "15": {
+      "q": "{SITE_NAME}n, ikusten duzu dos contratas trabajando a la vez en la misma zona y se estorban (arrisku por interferencias). Nori abisatzen diozu?",
+      "hint": "Coordinación de actividades en obra.",
+      "answers": [
+        " -ra coordinador de seguridad y salud (CSS).",
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        "Inori ez: que se apañen.",
+        "Hago un piedra-papel-tijera entre contratas."
+      ],
+      "why": [
+        "Figura clave para coordinar interferencias y exigir planificación.",
+        "Zuzena, baina la coordinación de interferencias se gestiona especialmente vía CSS.",
+        "Si no se coordina, sube el arrisku de accidente.",
+        "Divertido, pero no coordina de verdad."
+      ]
+    },
+    "16": {
+      "q": "{SITE_NAME}n, quieres informarte de un procedimiento de seguridad (cómo se hace una tarea “bien”) antes de empezar. Nori galdetzen diozu?",
+      "hint": "Buscar inprestakuntza preventiva antes de jardun.",
+      "answers": [
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        " -ra prebentzio-baliabide (obra).",
+        "Lo busco en TikTok y listo.",
+        "Hago “speedrun” y ya aprenderé por el camino."
+      ],
+      "why": [
+        "Es el canal para aclarar procedimiento seguro sin improvisar.",
+        "Zuzena, baina el PRL teknikaria suele tener la pauta más completa/documentada.",
+        "No es una fuente fiable para un procedimiento de obra.",
+        "Aprender a base de sustos no es prebentzio.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "17": {
+      "q": "{SITE_NAME}n, quieres proponer una mejora preventiva (no urgente) o dar tu opinión para que se tenga en cuenta. ¿A quién se lo trasladas?",
+      "hint": "Participación/representación.",
+      "answers": [
+        " -ra prebentzio-ordezkaria.",
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        "Lo suelto en el grupo de memes y que ‘se haga viral’.",
+        "Lo escribo en una servilleta y la dejo en el bar."
+      ],
+      "why": [
+        "Canal natural para trasladar propuestas y hacer jarraipena desde la representación.",
+        "Zuzena, baina para propuestas y participación, el delegado es un canal muy directo.",
+        "No garantiza que se gestione ni se haga jarraipena.",
+        "No es un canal real de obra.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "18": {
+      "q": "{SITE_NAME}n, detectas que tu EPI está dañado y debe retirarse de uso (“dar de baja”). ¿A quién lo comunicas para tramitarlo como prebentzio?",
+      "hint": "Proceso preventivo (EPI): retirada y gestión.",
+      "answers": [
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        " -ra prebentzio-baliabide (obra).",
+        "Lo pego con cinta y digo que está ‘nuevo’.",
+        "Lo dejo por ahí y que lo encuentre el destino."
+      ],
+      "why": [
+        "Es un proceso preventivo: se retira de uso y se gestiona correctamente.",
+        "Zuzena, baina el PRL teknikaria es el canal más adecuado para tramitarlo como proceso preventivo.",
+        "Un EPI dañado se retira de uso: no se “arregla a ojo”.",
+        "Puede acabar usándolo alguien sin saberlo.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "19": {
+      "q": "{SITE_NAME}n, vas a hacer una tarea y necesitas prestakuntza/instrucciones preventivas (no te han explicado bien). ¿A quién la solicitas?",
+      "hint": "Prestakuntza y prebentzio.",
+      "answers": [
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        " -ra arduradun directo.",
+        "A un NPC del juego: “¡Dame la misión y ya!”",
+        "Me lo invento: total, ‘siempre se ha hecho así’."
+      ],
+      "why": [
+        "Canal preventivo para prestakuntza e instrucciones adecuadas.",
+        "Zuzena, baina el canal preventivo para prestakuntza/instrucciones es el PRL teknikaria.",
+        "La prebentzio no va por misiones, va por procedimiento y prestakuntza real.",
+        "Eso es justo lo que provoca sustos.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "20": {
+      "q": "{SITE_NAME}n, antes de usar un producto (disolvente/adhesivo/limpiador) quieres saber arriskus y medidas. Nori galdetzen diozu?",
+      "hint": "Sustancias: consulta preventiva.",
+      "answers": [
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        " -ra prebentzio-baliabide (obra).",
+        "A un cómic: ‘si le pasa a Batman, aguanto yo’.",
+        "Lo huelo fuerte y decido según el mareo."
+      ],
+      "why": [
+        "Es el canal técnico para orientar sobre arriskus y medidas.",
+        "Zuzena, baina el PRL teknikaria es el soporte más completo para sustancias.",
+        "No es criterio preventivo real.\nKasu honetan erantzun zuzena hau da: {{GREEN}}",
+        "No se evalúa un producto “a nariz”: se consulta."
+      ]
+    },
+    "21": {
+      "q": "Obratik kanpo: te han entregado un EPI pero la talla no es la tuya y necesitas cambio. Nori eskatzen diozu lehenik?",
+      "hint": "Gestión operativa de entrega/cambio.",
+      "answers": [
+        " -ra arduradun (obra-arduradun/obra-buru) para que gestione el cambio.",
+        " -ra prebentzio-baliabide (obra).",
+        "Me lo quedo aunque no valga, total ‘cubre algo’.",
+        "Me lo cambio con otro sin decir nada."
+      ],
+      "why": [
+        "Es el canal operativo para gestionar suministro/cambio de EPI.",
+        "Zuzena, baina la gestión de suministro normalmente la canaliza el arduradun.",
+        "Un EPI que no ajusta bien puede no proteger como debe.",
+        "Puede dejar a otra persona sin el EPI correcto.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "22": {
+      "q": "Obratik kanpo: ayer hubo un casi accidente y hoy quieres comunicarlo para que se registre y no se repita. Nori jakinarazten diozu?",
+      "hint": "Ererregistro preventivo y jarraipena.",
+      "answers": [
+        " -ra prebentzio-baliabide (obra) para registrar y hacer jarraipena.",
+        " -ra arduradun directo.",
+        "Inori ez: lo que pasó, pasó.",
+        "Lo cuento en modo historia épica"
+      ],
+      "why": [
+        "Es el canal preventivo para registrar y activar acciones para que no se repita.",
+        "Zuzena, baina el prebentzio-baliabide asegura erregistro y jarraipena del casi accidente.",
+        "Si no se registra, se repite.",
+        "Las épicas molan, pero hay que comunicar por el canal real.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    },
+    "23": {
+      "q": "Obratik kanpo: quieres presentar una propuesta de mejora preventiva por escrito para que quede trazabilidad. ¿A quién se la entregas?",
+      "hint": "Participación con jarraipena.",
+      "answers": [
+        " -ra prebentzio-ordezkaria.",
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        "Se la digo a Goku y que le meta un Kamehameha al arrisku.",
+        "La dejo en un cajón y ya ‘saldrá sola’."
+      ],
+      "why": [
+        "Canal idóneo para propuestas y jarraipena desde representación.",
+        "Zuzena, baina el delegado es un canal muy directo para propuestas de participación.",
+        "Goku gana combates, no gestiona propuestas preventivas.\nKasu honetan erantzun zuzena hau da: {{GREEN}}",
+        "Sin canal y jarraipena, no se gestiona."
+      ]
+    },
+    "24": {
+      "q": "Obratik kanpo: estás revisando documentación y no entiendes una instrucción preventiva (te genera dudas). ¿A quién la consultas?",
+      "hint": "Consulta técnica/documental de prebentzio.",
+      "answers": [
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        " -ra prebentzio-baliabide (obra).",
+        "A Spider‑Man: que lo solucione con telarañas.",
+        "Hago lo contrario y así ‘aprendo’ rápido."
+      ],
+      "why": [
+        "Es el canal técnico para resolver dudas de procedimiento/documentación.",
+        "Zuzena, baina el PRL teknikaria suele tener la interpretación y pauta más completa.",
+        "La telaraña no sustituye una pauta técnica real.\nKasu honetan erantzun zuzena hau da: {{GREEN}}",
+        "Aprender a base de errores en obra sale caro."
+      ]
+    },
+    "25": {
+      "q": "Obratik kanpo: necesitas completar prestakuntza preventiva (o justificarla) y no sabes el canal/proceso. Nori eskatzen diozu?",
+      "hint": "Prestakuntza: proceso preventivo.",
+      "answers": [
+        " -ra técnico de PRL / Servicio de Prebentzio.",
+        " -ra arduradun directo.",
+        "Me fabrico un certificado en Paint.",
+        "Me lo aprendo por osmosis mirando a los veteranos."
+      ],
+      "why": [
+        "Canal preventivo para prestakuntza y acreditaciones.",
+        "Zuzena, baina el canal preventivo para prestakuntza suele ser el PRL teknikaria.",
+        "Eso no es una prestakuntza real (ni un canal válido).",
+        "Prestakuntza e instrucciones deben ser reales y verificables.\nKasu honetan erantzun zuzena hau da: {{GREEN}}"
+      ]
+    }
+  }
+}
